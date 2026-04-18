@@ -115,7 +115,7 @@ public class CommandHandler implements CommandExecutor {
 	        		GUI.visitGUI(player, Bukkit.getOfflinePlayers());
 	        		return true;
 	        	}
-	            OfflinePlayer inv = Bukkit.getOfflinePlayer(args[1]);
+	            OfflinePlayer inv = Utils.getOfflinePlayerByName(args[1]);
 	        	if (inv == null) return true;
 	    		if (inv == player) {
 	    			player.performCommand("ob j");
@@ -180,7 +180,7 @@ public class CommandHandler implements CommandExecutor {
 	    		String name = player.getName();
 	    		GUI.acceptGUI(inv, name);
 	    		inv.sendMessage(String.format(Messages.invited, name));
-	    		sender.sendMessage(String.format(Messages.invited_succes, inv.getName()));
+	    		sender.sendMessage(String.format(Messages.invited_success, inv.getName()));
 	        	return true;
 	        }
 	        case ("kick"):{
@@ -188,7 +188,7 @@ public class CommandHandler implements CommandExecutor {
 	        		sender.sendMessage(Messages.kick_usage);
 	        		return true;
 	        	}
-	        	OfflinePlayer member = Bukkit.getOfflinePlayer(args[1]);
+	        	OfflinePlayer member = Utils.getOfflinePlayerByName(args[1]);
 	        	if (member == null) return true;
 	        	if (player == null) return false;
 	        	if (member == player) {
@@ -196,7 +196,7 @@ public class CommandHandler implements CommandExecutor {
 	        		return true;
 	        	}
 	        	UUID owner_uuid = player.getUniqueId(), member_uuid = member.getUniqueId();
-	        	if (!PlayerInfo.ExistNoInvaitId(owner_uuid))
+	        	if (!PlayerInfo.existsAsOwner(owner_uuid))
 	        		return true;
 	        	int ownerID = PlayerInfo.GetId(owner_uuid);
 	        	PlayerInfo info = PlayerInfo.get(ownerID);
@@ -218,7 +218,7 @@ public class CommandHandler implements CommandExecutor {
 	        }
 	        case ("accept"):{
 	       	 	if (Invitation.check(player))
-	       	 		sender.sendMessage(Messages.accept_succes);
+	       	 		sender.sendMessage(Messages.accept_success);
 	       	 	else
 	       	 		sender.sendMessage(Messages.accept_none);
 	       		return true;
@@ -239,6 +239,7 @@ public class CommandHandler implements CommandExecutor {
 	        }
 	        case ("idreset"):{
 	        	if (args.length == 1) {
+	        		if (player == null) return false;
 		        	if (!requirePermission(sender, "Oneblock.idreset")) return true;
 		        	if (!idresetCommand(player)) return true;
 		        	sender.sendMessage(Messages.idreset);
@@ -289,7 +290,12 @@ public class CommandHandler implements CommandExecutor {
 			        	            sender.sendMessage(Messages.invalid_value);
 			        	            return true;
 			        	        }
-			        	    } else location = player.getLocation();
+			        	    } else if (player != null) {
+			        	    	location = player.getLocation();
+			        	    } else {
+			        	    	sender.sendMessage(ChatColor.RED + "Usage from console: /ob set <offset> <x> <y> <z> [world]");
+			        	    	return true;
+			        	    }
 			        	    
 			        	    config.set("set", offset);
 			        	    plugin.setPosition(location);
@@ -352,7 +358,7 @@ public class CommandHandler implements CommandExecutor {
 			            	if (args.length > 1 &&
 			                    	(args[1].equals("true") || args[1].equals("false"))) {
 			                    	config.set(parametr, Boolean.valueOf(args[1]));
-			                    	configManager.UpdateBoolParametrs();
+			                    	configManager.updateBoolParameters();
 			                }
 			                else sender.sendMessage(Messages.bool_format);
 			                sender.sendMessage(String.format("%s%s is now %s", ChatColor.GREEN, parametr, (config.getBoolean(parametr)?"enabled.":"disabled.")));
@@ -363,7 +369,7 @@ public class CommandHandler implements CommandExecutor {
 			                    sender.sendMessage(String.format("%sinvalid format. try: /ob setlevel 'nickname' 'level'", ChatColor.RED));
 			                    return true;
 			                }
-			                OfflinePlayer offpl = Bukkit.getOfflinePlayer(args[1]);
+			                OfflinePlayer offpl = Utils.getOfflinePlayerByName(args[1]);
 			                UUID uuid = offpl.getUniqueId();
 			                int plID = PlayerInfo.GetId(uuid);
 			                if (plID != -1) {
@@ -391,7 +397,7 @@ public class CommandHandler implements CommandExecutor {
 			            }
 			            case ("idreset"):{
 			            	if (args.length <= 1) return true;
-			            	OfflinePlayer offpl = Bukkit.getOfflinePlayer(args[1]);
+			            	OfflinePlayer offpl = Utils.getOfflinePlayerByName(args[1]);
 			            	if (idresetCommand(offpl))
 		                    	sender.sendMessage(String.format("%splayer %s id is reseted! :D", ChatColor.GREEN, args[1]));
 		                    else
@@ -403,7 +409,12 @@ public class CommandHandler implements CommandExecutor {
 			                    sender.sendMessage(String.format("%sinvalid format. try: /ob clear 'nickname'", ChatColor.RED));
 			                    return true;
 			                }
-			                UUID uuid = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
+			                OfflinePlayer offpl = Utils.getOfflinePlayerByName(args[1]);
+			                if (offpl == null) {
+			                	sender.sendMessage(String.format("%sa player named %s was not found.", ChatColor.RED, args[1]));
+				                return true;
+			                }
+			                UUID uuid = offpl.getUniqueId();
 			                int id = PlayerInfo.GetId(uuid);
 			                if (id == -1) {
 			                	sender.sendMessage(String.format("%sa player named %s was not found.", ChatColor.RED, args[1]));

@@ -336,7 +336,7 @@ public class Oneblock extends JavaPlugin {
         DatabaseManager.initialize();
         PlayerInfo.list = DatabaseManager.load();
     	
-    	if (PlayerInfo.list.size() > 0) {
+    	if (!PlayerInfo.list.isEmpty()) {
     		getLogger().info("Player data has been successfully obtained from the " + DatabaseManager.dbType + " database.");
     		return;
     	}
@@ -388,7 +388,7 @@ public class Oneblock extends JavaPlugin {
     	PlayerInfo inf = PlayerInfo.get(pl_uuid);
     	return inf.getNeed() - inf.breaks;
     }
-    public static int getlenght(UUID pl_uuid) {
+    public static int getLength(UUID pl_uuid) {
     	return PlayerInfo.get(pl_uuid).getNeed();
     }
     public static boolean getvisitallowed(UUID pl_uuid) {

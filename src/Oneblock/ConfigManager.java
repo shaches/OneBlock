@@ -22,7 +22,6 @@ import Oneblock.Utils.Utils;
 import Oneblock.WorldGuard.OBWorldGuard;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.th0rgal.oraxen.api.OraxenItems;
-import net.momirealms.craftengine.core.util.Key;
 
 public class ConfigManager {
 	public YamlConfiguration config_temp;
@@ -70,7 +69,7 @@ public class ConfigManager {
         max_players_team = Check("max_players_team", max_players_team);
         mob_spawn_chance = Check("mob_spawn_chance", mob_spawn_chance);
         mob_spawn_chance = mob_spawn_chance < 2 ? 9 : mob_spawn_chance;
-        UpdateBoolParametrs();
+        updateBoolParameters();
         OBWorldGuard.setEnabled(Check("worldguard", OBWorldGuard.canUse));
         OBWorldGuard.flags = Check("wgflags", OBWorldGuard.flags);
         offset = Check("set", 100);
@@ -82,7 +81,7 @@ public class ConfigManager {
         LegacyConfigSaver.Save(config, con);
     }
 	 
-    public void UpdateBoolParametrs() {
+    public void updateBoolParameters() {
     	CircleMode = Check("circlemode", CircleMode);
     	UseEmptyIslands = Check("useemptyislands", UseEmptyIslands);
     	saveplayerinventory = Check("saveplayerinventory", saveplayerinventory);
@@ -176,7 +175,7 @@ public class ConfigManager {
 	        case Nexo: return NexoBlocks.isCustomBlock(text) ? text : null;
 	        case CraftEngine:
 	            String[] pcid = text.split(":", 2);
-	            return pcid.length == 2 ? Key.of(pcid) : null;
+	            return pcid.length == 2 ? text : null;
 	        default: return null;
 	    }
 	}
@@ -210,11 +209,11 @@ public class ConfigManager {
         Messages.invite_no_island = MessageCheck("invite_no_island", Messages.invite_no_island);
         Messages.invite_team = MessageCheck("invite_team", Messages.invite_team);
         Messages.invited = MessageCheck("invited", Messages.invited);
-        Messages.invited_succes = MessageCheck("invited_succes", Messages.invited_succes);
+        Messages.invited_success = MessageCheck("invited_success", Messages.invited_success);
         Messages.kicked = MessageCheck("kicked", Messages.kicked);
         Messages.kick_usage = MessageCheck("kick_usage", Messages.kick_usage);
         Messages.kick_yourself = MessageCheck("kick_yourself", Messages.kick_yourself);
-        Messages.accept_succes = MessageCheck("accept_succes", Messages.accept_succes);
+        Messages.accept_success = MessageCheck("accept_success", Messages.accept_success);
         Messages.accept_none = MessageCheck("accept_none", Messages.accept_none);
         Messages.idreset = MessageCheck("idreset", Messages.idreset);
         Messages.protection = MessageCheck("protection", Messages.protection);
@@ -247,10 +246,7 @@ public class ConfigManager {
         config_temp = YamlConfiguration.loadConfiguration(flower);
         plugin.flowers.add(GRASS);
         for(String list:config_temp.getStringList("flowers"))
-        	if (!XMaterial.matchXMaterial(list).isPresent())
-        		plugin.flowers.add(GRASS);
-        	else
-        		plugin.flowers.add(XMaterial.matchXMaterial(list).get());
+        	plugin.flowers.add(XMaterial.matchXMaterial(list).orElse(GRASS));
     }
     
     private void Chestfile() {

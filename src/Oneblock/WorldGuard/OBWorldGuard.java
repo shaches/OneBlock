@@ -10,20 +10,19 @@ import Oneblock.Oneblock;
 import Oneblock.PlayerInfo;
 
 public class OBWorldGuard {
-	public static final boolean canUse = false;
+	public static boolean canUse = false;
 	public static final String regionName = "OB_WG_%d";
 
 	public static List<String> flags = new ArrayList<>();
 
-	private static boolean enabled = canUse;
+	private static boolean enabled = false;
 	
 	public static boolean isEnabled() {
 	    return enabled;
 	}
 
 	public static void setEnabled(boolean value) {
-		if (!canUse) return;
-		enabled = value;
+		enabled = canUse && value;
 	}
 	
 	public void ReCreateRegions() {
