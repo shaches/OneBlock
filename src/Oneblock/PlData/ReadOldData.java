@@ -25,7 +25,9 @@ public class ReadOldData {
 	        while ((line = fileIn.readLine()) != null)
 	        	if (line.startsWith("_"))
 	        		nicks.add(line.split(":")[0]);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			plugin.getLogger().warning("[Oneblock] Failed to parse legacy PlData.yml: " + e.getMessage());
+		}
 		
 		YamlConfiguration data = YamlConfiguration.loadConfiguration(f);
         if (!data.isInt("id"))

@@ -23,7 +23,7 @@ public class Invitation extends AbstractInvitation {
 				return;
     	Invitation inv_ = new Invitation(name, to);
     	Invitation.list.add(inv_);
-    	Bukkit.getScheduler().runTaskLaterAsynchronously(Oneblock.plugin, 
+    	Bukkit.getScheduler().runTaskLater(Oneblock.plugin, 
     			() -> { Invitation.list.remove(inv_); }, 300L);
     }
 	

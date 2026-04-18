@@ -184,6 +184,7 @@ public class CommandHandler implements CommandExecutor {
 	        	return true;
 	        }
 	        case ("kick"):{
+	        	if (!requirePermission(sender, "Oneblock.kick")) return true;
 	        	if (args.length < 2) {
 	        		sender.sendMessage(Messages.kick_usage);
 	        		return true;
@@ -566,6 +567,10 @@ public class CommandHandler implements CommandExecutor {
 			                		sender.sendMessage(ChatColor.RED + "Not supported in legacy versions!");
 			                		return true;
 			                	}
+			                	if (!(sender instanceof Player)) {
+			                		sender.sendMessage(ChatColor.RED + "This subcommand can only be used by a player.");
+			                		return true;
+			                	}
 			                	Player p = (Player) sender;
 			                	UUID uuid = p.getUniqueId();
 			                    if (PlayerInfo.GetId(uuid) != -1) {
@@ -592,6 +597,10 @@ public class CommandHandler implements CommandExecutor {
 			            case ("chest"):{
 			            	if (args.length < 2) {
 			            		ChestItems.getChestNames().forEach(sender::sendMessage);
+			            		return true;
+			            	}
+			            	if (!(sender instanceof Player)) {
+			            		sender.sendMessage(ChatColor.RED + "This subcommand can only be used by a player.");
 			            		return true;
 			            	}
 			            	if (ChestItems.getChestNames().contains(args[1]))

@@ -186,7 +186,7 @@ public class Oneblock extends JavaPlugin {
     	Bukkit.getScheduler().cancelTasks(this);
 		if (offset == 0) return;
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskUpdatePlayers(), 0, 120);
-		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskSaveData(), 200, 6000);
+		Bukkit.getScheduler().runTaskTimer(this, new TaskSaveData(), 200, 6000);
 		if (!superlegacy) Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskParticle(), 40, 40);
 		Bukkit.getScheduler().runTaskTimer(this, new Task(), 40, 80);
 		enabled = true;

@@ -52,11 +52,15 @@ public class LegacyConfigSaver {
 	        fileOut.close();
 	        return;
 		} 
-		catch (Exception e) {}
+		catch (Exception e) {
+			org.bukkit.Bukkit.getLogger().warning("[Oneblock] Legacy config save failed for " + f + ": " + e.getMessage());
+		}
 		
 		// 1.18+
 		try { fc.save(f); } 
-		catch (Exception e) {}
+		catch (Exception e) {
+			org.bukkit.Bukkit.getLogger().warning("[Oneblock] Config save failed for " + f + ": " + e.getMessage());
+		}
 	}
 	
 	public static void Save (final FileConfiguration fc) {
