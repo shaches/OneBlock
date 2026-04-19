@@ -1,24 +1,24 @@
 // Copyright © 2026 MrMarL. The MIT License (MIT).
-package Oneblock;
+package oneblock;
 
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 
-import Oneblock.Events.BlockEvent;
-import Oneblock.Events.ItemsAdderEvent;
-import Oneblock.Events.RespawnJoinEvent;
-import Oneblock.Events.TeleportEvent;
-import Oneblock.Events.TeleportNetherEvent;
-import Oneblock.Events.Extends.BlockEventFixed;
-import Oneblock.GUI.GUI;
-import Oneblock.GUI.GUIListener;
-import Oneblock.Invitation.Guest;
-import Oneblock.PlData.*;
-import Oneblock.UniversalPlace.*;
-import Oneblock.Utils.*;
-import Oneblock.WorldGuard.*;
+import oneblock.events.BlockEvent;
+import oneblock.events.ItemsAdderEvent;
+import oneblock.events.RespawnJoinEvent;
+import oneblock.events.TeleportEvent;
+import oneblock.events.TeleportNetherEvent;
+import oneblock.gui.GUI;
+import oneblock.gui.GUIListener;
+import oneblock.invitation.Guest;
+import oneblock.loot.LootTableDispatcher;
+import oneblock.pldata.*;
+import oneblock.universalplace.*;
+import oneblock.utils.*;
+import oneblock.worldguard.*;
 import me.clip.placeholderapi.PlaceholderAPI;
 
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
@@ -83,8 +84,6 @@ public class Oneblock extends JavaPlugin {
     boolean PAPI = false;
     boolean enabled = false;
     
-    public ArrayList <Object> blocks = new ArrayList<>();
-    public ArrayList <EntityType> mobs = new ArrayList<>();
     public ArrayList <XMaterial> flowers = new ArrayList<>();
     public PlayerCache cache = new PlayerCache();
     
@@ -132,8 +131,7 @@ public class Oneblock extends JavaPlugin {
         
         pluginManager.registerEvents(new RespawnJoinEvent(), this);
         if (!superlegacy) pluginManager.registerEvents(new TeleportEvent(), this);
-        BlockEvent blockEvent = needDropFix? new BlockEventFixed() : new BlockEvent();
-        pluginManager.registerEvents(blockEvent, this);
+        pluginManager.registerEvents(new BlockEvent(), this);
         pluginManager.registerEvents(new GUIListener(), this);
         pluginManager.registerEvents(new TeleportNetherEvent(), this);
         if (placetype == Place.Type.ItemsAdder) pluginManager.registerEvents(new ItemsAdderEvent(), this);
@@ -169,15 +167,15 @@ public class Oneblock extends JavaPlugin {
     
     public class Initialization implements Runnable {
         public void run() {
-            if (wor == null) {
-            	getLogger().info("Waiting for the initialization of the world");
-            	getLogger().info("Trying to initialize the world again...");
-                wor = Bukkit.getWorld(config.getString("world"));
-                leavewor = Bukkit.getWorld(config.getString("leaveworld"));
+            if (wor != null) return;
+            wor = Bukkit.getWorld(config.getString("world"));
+            leavewor = Bukkit.getWorld(config.getString("leaveworld"));
+            if (wor != null) {
+                getLogger().info("The initialization of the world was successful!");
+                runMainTask();
+                reload();
             } else {
-            	getLogger().info("The initialization of the world was successful!");
-            	runMainTask();
-            	reload();
+                getLogger().info("Waiting for initialization of world '" + config.getString("world") + "'...");
             }
         }
     }
@@ -186,14 +184,13 @@ public class Oneblock extends JavaPlugin {
     	Bukkit.getScheduler().cancelTasks(this);
 		if (offset == 0) return;
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskUpdatePlayers(), 0, 120);
-		Bukkit.getScheduler().runTaskTimer(this, new TaskSaveData(), 200, 6000);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskSaveData(), 200, 6000);
 		if (!superlegacy) Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskParticle(), 40, 40);
 		Bukkit.getScheduler().runTaskTimer(this, new Task(), 40, 80);
 		enabled = true;
 		
     	if (OBWorldGuard.canUse && Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
         	getLogger().info("WorldGuard has been found!");
-        	OBWG = legacy ? new OBWorldGuard6() : new OBWorldGuard7();
         	OBWG.ReCreateRegions();
         }
         else OBWorldGuard.setEnabled(false);
@@ -272,19 +269,33 @@ public class Oneblock extends JavaPlugin {
             inf.bar.addPlayer(ponl);
         }
         
-        Object newblocktype = blocks.get(lvl_inf.blocks == 0 ? 0 : rnd.nextInt(lvl_inf.blocks));
-        if (newblocktype == null) {
+        PoolEntry entry = lvl_inf.blockPool.pick(rnd);
+        if (entry == null || entry.kind == PoolEntry.Kind.DEFAULT_GRASS) {
             XBlock.setType(block, GRASS_BLOCK);
-            if (rnd.nextInt(FLOWER_CHANCE) == 1) XBlock.setType(wor.getBlockAt(X_pl, y + 1, Z_pl), flowers.get(rnd.nextInt(flowers.size())));
+            if (rnd.nextInt(FLOWER_CHANCE) == 1)
+                XBlock.setType(wor.getBlockAt(X_pl, y + 1, Z_pl), flowers.get(rnd.nextInt(flowers.size())));
         }
-        else placer.setType(block, newblocktype, physics);
+        else switch (entry.kind) {
+            case BLOCK:
+                placer.setType(block, entry.value, physics);
+                break;
+            case LOOT_TABLE:
+                LootTableDispatcher.populate(block, (NamespacedKey) entry.value, rnd);
+                break;
+            case COMMAND:
+                Place.executeCommand(block, (String) entry.value);
+                break;
+            default:
+                break;
+        }
 
         if (rnd.nextInt(mob_spawn_chance) == 0) spawnRandomMob(X_pl, Z_pl, lvl_inf);
 	}
     
 	public void spawnRandomMob(int pos_x, int pos_z, Level level) {
-		if (level.mobs == 0) return;
-		wor.spawnEntity(new Location(wor, pos_x + .5, y + 1, pos_z + .5), mobs.get(rnd.nextInt(level.mobs)));
+		EntityType type = level.mobPool.pick(rnd);
+		if (type == null) return;
+		wor.spawnEntity(new Location(wor, pos_x + .5, y + 1, pos_z + .5), type);
 	}
     
     public void UpdateBorderLocation(Player pl, Location loc) {
@@ -315,7 +326,7 @@ public class Oneblock extends JavaPlugin {
     
     public boolean isWithinIslandBounds(Location loc, int centerX, int centerZ) {
         int deltaX = loc.getBlockX() - centerX;
-        int deltaZ = CircleMode ? loc.getBlockZ() - centerZ : 0;
+        int deltaZ = loc.getBlockZ() - centerZ;
         int radius = Math.abs(offset >> 1) + 1;
         
         return Math.abs(deltaX) <= radius && Math.abs(deltaZ) <= radius;
@@ -334,17 +345,17 @@ public class Oneblock extends JavaPlugin {
 
     private void Datafile() {
         DatabaseManager.initialize();
-        PlayerInfo.list = DatabaseManager.load();
-    	
+        PlayerInfo.replaceAll(DatabaseManager.load());
+
     	if (!PlayerInfo.list.isEmpty()) {
     		getLogger().info("Player data has been successfully obtained from the " + DatabaseManager.dbType + " database.");
     		return;
     	}
-    	
+
 		if (JsonSimple.f.exists())
-			PlayerInfo.list = JsonSimple.Read();
-		else 
-			PlayerInfo.list = ReadOldData.Read();
+			PlayerInfo.replaceAll(JsonSimple.Read());
+		else
+			PlayerInfo.replaceAll(ReadOldData.Read());
     }
     
     public void setPosition(Location loc) { setPosition(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()); }
@@ -413,17 +424,31 @@ public class Oneblock extends JavaPlugin {
     }
     public static int gettopposition(PlayerInfo player) {
         if (player == null || player.uuid == null) return -1;
-        
+
         List<PlayerInfo> sorted = gettoplist();
-        for (int i = 0; i < sorted.size(); i++) 
-            if (sorted.get(i) == player)
+        for (int i = 0; i < sorted.size(); i++) {
+            PlayerInfo entry = sorted.get(i);
+            if (entry != null && player.uuid.equals(entry.uuid))
                 return i;
-        
+        }
+
         return -1;
     }
+    // Sorted top-list cache. Invalidated via PlayerInfo.topVersion() which bumps
+    // on level-up, slot assignment, and bulk reload. Under light contention we
+    // may re-sort twice from two threads simultaneously; that's benign duplicate
+    // work and cheaper than a global lock in the hot placeholder path.
+    private static volatile long topCacheVersion = -1;
+    private static volatile List<PlayerInfo> topCache = java.util.Collections.emptyList();
+
     public static List<PlayerInfo> gettoplist() {
-    	List<PlayerInfo> sorted = new ArrayList<>(PlayerInfo.list);
-    	sorted.sort(PlayerInfo.COMPARE_BY_LVL);
-    	return sorted;
+    	long v = PlayerInfo.topVersion();
+    	if (v != topCacheVersion) {
+    		List<PlayerInfo> sorted = new ArrayList<>(PlayerInfo.list);
+    		sorted.sort(PlayerInfo.COMPARE_BY_LVL);
+    		topCache = java.util.Collections.unmodifiableList(sorted);
+    		topCacheVersion = v;
+    	}
+    	return topCache;
     }
 }

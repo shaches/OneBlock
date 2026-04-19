@@ -1,6 +1,6 @@
-package Oneblock;
+package oneblock;
 
-import static Oneblock.Oneblock.*;
+import static oneblock.Oneblock.*;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 

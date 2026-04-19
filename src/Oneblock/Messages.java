@@ -1,4 +1,4 @@
-package Oneblock;
+package oneblock;
 
 import org.bukkit.ChatColor;
 

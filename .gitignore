@@ -7,3 +7,19 @@
 /target
 /lib
 /resources
+
+# Refactor workspace scratch area
+/.tmp/
+
+# IDE / OS
+*.iml
+.idea/
+.DS_Store
+Thumbs.db
+
+# Maven generated
+/dependency-reduced-pom.xml
+
+# Test / coverage reports
+/coverage/
+*.exec

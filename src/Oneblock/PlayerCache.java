@@ -1,4 +1,4 @@
-package Oneblock;
+package oneblock;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public class PlayerCache {
     }
     
     public Collection<Player> getPlayers() {
-        return players.keySet();
+        return java.util.Collections.unmodifiableCollection(players.keySet());
     }
 
     public int[] getIslandCoordinates(Player player) {

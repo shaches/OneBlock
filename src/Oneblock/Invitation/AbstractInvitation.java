@@ -1,4 +1,4 @@
-package Oneblock.Invitation;
+package oneblock.invitation;
 
 import java.util.UUID;
 

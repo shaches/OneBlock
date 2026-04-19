@@ -1,4 +1,4 @@
-package Oneblock.Invitation;
+package oneblock.invitation;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -6,9 +6,9 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import Oneblock.CommandHandler;
-import Oneblock.Oneblock;
-import Oneblock.PlayerInfo;
+import oneblock.CommandHandler;
+import oneblock.Oneblock;
+import oneblock.PlayerInfo;
 
 public class Invitation extends AbstractInvitation {
 	public static ArrayList <Invitation> list = new ArrayList<>();
@@ -43,7 +43,7 @@ public class Invitation extends AbstractInvitation {
 		
 		CommandHandler.idresetCommand(pl);
 		
-		PlayerInfo.get(inv_.Inviting).uuids.add(uuid);
+		PlayerInfo.get(inv_.Inviting).addInvite(uuid);
 		pl.performCommand("ob j");
 		list.remove(inv_);
 		return true; 

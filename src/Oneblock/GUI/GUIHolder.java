@@ -1,4 +1,4 @@
-package Oneblock.GUI;
+package oneblock.gui;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;

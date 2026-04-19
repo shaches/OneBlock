@@ -1,4 +1,4 @@
-package Oneblock.GUI;
+package oneblock.gui;
 
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;

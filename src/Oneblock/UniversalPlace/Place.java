@@ -1,12 +1,7 @@
-package Oneblock.UniversalPlace;
+package oneblock.universalplace;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.inventory.Inventory;
-
-import Oneblock.ChestItems;
 
 public abstract class Place {
 	
@@ -39,28 +34,34 @@ public abstract class Place {
 	
 	public abstract boolean setType(Block block, Object material_, boolean physics);
 	
+	/**
+	 * Defensive legacy fallback path for placer subclasses that still receive raw
+	 * {@code String} payloads (e.g. unresolved Oraxen / Nexo custom-block ids).
+	 * Only runs the {@code /command} branch since chest-name tokens are handled
+	 * upstream as {@code LOOT_TABLE} pool entries.
+	 */
 	public boolean setCustomType(Block block, String command) {
-		if (command == null || command.isEmpty()) return false;
-		if (command.charAt(0) == '/') {
-			String template = command.replaceFirst("/", "");
-			String dispatched;
-			try {
-				dispatched = String.format(template, block.getX(), block.getY(), block.getZ());
-			} catch (java.util.IllegalFormatException ife) {
-				// Admin-provided blocks.yml template is malformed; log once per block-gen instead of
-				// throwing on every tick (which would DoS the main task scheduler).
-				Bukkit.getLogger().warning("[Oneblock] Invalid format specifier in blocks.yml command template: '"
-						+ template + "' (" + ife.getMessage() + ")");
-				return false;
-			}
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), dispatched);
-			return true;
+		return executeCommand(block, command);
+	}
+	
+	/**
+	 * Execute a {@code /command} entry. The command string is the body after the
+	 * leading slash and is passed through {@link String#format} with the block's
+	 * {@code (x, y, z)} as positional arguments so admins can reference the
+	 * generated-block coordinates in the command template.
+	 */
+	public static boolean executeCommand(Block block, String command) {
+		if (command == null || command.isEmpty() || command.charAt(0) != '/') return false;
+		String template = command.substring(1);
+		String dispatched;
+		try {
+			dispatched = String.format(template, block.getX(), block.getY(), block.getZ());
+		} catch (java.util.IllegalFormatException ife) {
+			Bukkit.getLogger().warning("[Oneblock] Invalid format specifier in blocks.yml command template: '"
+					+ template + "' (" + ife.getMessage() + ")");
+			return false;
 		}
-    	
-		block.setType(Material.CHEST);
-        Chest chest = (Chest) block.getState();
-        Inventory inv = chest.getInventory();
-        ChestItems.fillChest(inv, command);
-    	return true;
-    }
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), dispatched);
+		return true;
+	}
 }

@@ -1,12 +1,12 @@
-package Oneblock;
+package oneblock;
 
-import static Oneblock.Oneblock.*;
+import static oneblock.Oneblock.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import Oneblock.Utils.Utils;
+import oneblock.utils.Utils;
 
 import java.io.File;
 import java.util.ArrayList;

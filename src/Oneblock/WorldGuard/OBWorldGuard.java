@@ -1,4 +1,4 @@
-package Oneblock.WorldGuard;
+package oneblock.worldguard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.bukkit.util.Vector;
 
-import Oneblock.Oneblock;
-import Oneblock.PlayerInfo;
+import oneblock.Oneblock;
+import oneblock.PlayerInfo;
 
 public class OBWorldGuard {
 	public static boolean canUse = false;

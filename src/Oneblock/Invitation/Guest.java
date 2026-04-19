@@ -1,9 +1,9 @@
-package Oneblock.Invitation;
+package oneblock.invitation;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-import Oneblock.PlayerInfo;
+import oneblock.PlayerInfo;
 
 public class Guest extends AbstractInvitation {
 	public static ArrayList <Guest> list = new ArrayList<>();

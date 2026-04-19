@@ -1,6 +1,6 @@
-package Oneblock;
+package oneblock;
 
-import static Oneblock.Oneblock.*;
+import static oneblock.Oneblock.*;
 
 import java.util.UUID;
 
@@ -19,11 +19,14 @@ import org.bukkit.entity.Player;
 
 import com.cryptomorin.xseries.XMaterial;
 
-import Oneblock.GUI.GUI;
-import Oneblock.Invitation.Guest;
-import Oneblock.Invitation.Invitation;
-import Oneblock.Utils.Utils;
-import Oneblock.WorldGuard.OBWorldGuard;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.EntityType;
+
+import oneblock.gui.GUI;
+import oneblock.invitation.Guest;
+import oneblock.invitation.Invitation;
+import oneblock.utils.Utils;
+import oneblock.worldguard.OBWorldGuard;
 
 public class CommandHandler implements CommandExecutor {
 	
@@ -202,7 +205,7 @@ public class CommandHandler implements CommandExecutor {
 	        	int ownerID = PlayerInfo.GetId(owner_uuid);
 	        	PlayerInfo info = PlayerInfo.get(ownerID);
 	        	if (info.uuids.contains(member_uuid)) {
-	        		info.uuids.remove(member_uuid);
+	        		info.removeInvite(member_uuid);
 	        		if (OBWorldGuard.isEnabled())
 	        			plugin.OBWG.removeMember(member_uuid, ownerID);
 	        	}
@@ -237,6 +240,7 @@ public class CommandHandler implements CommandExecutor {
 	        		GUI.openGUI(player);
 	        		return true;
 	        	}
+	        	// fall through: `/ob gui true|false` reaches the admin bool-toggle via default.
 	        }
 	        case ("idreset"):{
 	        	if (args.length == 1) {
@@ -532,13 +536,12 @@ public class CommandHandler implements CommandExecutor {
 			                    	sender.sendMessage(String.format("%sundefined lvl", ChatColor.RED));
 			                    	return true;
 			                    }
-			                    sender.sendMessage(String.format("%s%s",ChatColor.GREEN, Level.get(temp).name));
-			                    int i = (temp == 0) ? 0 : Level.get(temp-1).blocks;
-			                    for(;i<Level.get(temp).blocks;i++)
-			                    	if (plugin.blocks.get(i) == null)
-			                    		sender.sendMessage("Grass (undefined)");
-			                    	else
-			                    		sender.sendMessage(plugin.blocks.get(i).toString());
+			                    Level lvl = Level.get(temp);
+			                    sender.sendMessage(String.format("%s%s %s(weight total: %d)", ChatColor.GREEN, lvl.name, ChatColor.GRAY, lvl.blockPool.totalWeight() + lvl.mobPool.totalWeight()));
+			                    for (WeightedPool.Entry<PoolEntry> e : lvl.blockPool.entries())
+			                    	sender.sendMessage("  " + e.value + " (weight " + e.weight + ")");
+			                    for (WeightedPool.Entry<EntityType> e : lvl.mobPool.entries())
+			                    	sender.sendMessage("  mob: " + e.value + " (weight " + e.weight + ")");
 			                    return true;
 			                }
 			                for(int i = 0;i<Level.size();i++)
@@ -596,15 +599,39 @@ public class CommandHandler implements CommandExecutor {
 			            }
 			            case ("chest"):{
 			            	if (args.length < 2) {
-			            		ChestItems.getChestNames().forEach(sender::sendMessage);
+			            		if (ChestItems.getChestNames().isEmpty()) {
+			            			sender.sendMessage(ChatColor.YELLOW + "No chest aliases configured. Define them in chests.yml as 'name: minecraft:chests/<loot_table>'.");
+			            			return true;
+			            		}
+			            		for (String name : ChestItems.getChestNames()) {
+			            			NamespacedKey k = ChestItems.resolve(name);
+			            			sender.sendMessage(ChatColor.GREEN + name + ChatColor.GRAY + " -> " + ChatColor.WHITE + (k == null ? "<unset>" : k));
+			            		}
 			            		return true;
 			            	}
-			            	if (!(sender instanceof Player)) {
-			            		sender.sendMessage(ChatColor.RED + "This subcommand can only be used by a player.");
+			            	String chestName = args[1];
+			            	if (args.length < 3) {
+			            		NamespacedKey current = ChestItems.resolve(chestName);
+			            		if (current == null)
+			            			sender.sendMessage(ChatColor.YELLOW + "No loot-table mapping for '" + chestName + "'. Usage: /ob chest " + chestName + " set <namespaced_key>");
+			            		else {
+			            			sender.sendMessage(ChatColor.GREEN + chestName + ChatColor.GRAY + " -> " + ChatColor.WHITE + current);
+			            			sender.sendMessage(ChatColor.GRAY + "Usage: /ob chest " + chestName + " set <namespaced_key>");
+			            		}
 			            		return true;
 			            	}
-			            	if (ChestItems.getChestNames().contains(args[1]))
-			            		GUI.chestGUI((Player) sender, args[1]);
+			            	if (!args[2].equalsIgnoreCase("set") || args.length < 4) {
+			            		sender.sendMessage(ChatColor.RED + "Usage: /ob chest <name> [set <namespaced_key>]");
+			            		return true;
+			            	}
+			            	NamespacedKey newKey = ChestItems.parseKey(args[3]);
+			            	if (newKey == null) {
+			            		sender.sendMessage(ChatColor.RED + "Invalid namespaced key '" + args[3] + "'.");
+			            		return true;
+			            	}
+			            	ChestItems.setAlias(chestName, newKey);
+			            	ChestItems.save();
+			            	sender.sendMessage(ChatColor.GREEN + chestName + ChatColor.GRAY + " -> " + ChatColor.WHITE + newKey);
 			            	return true;
 			            }
 			        }

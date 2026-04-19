@@ -1,4 +1,4 @@
-package Oneblock.GUI;
+package oneblock.gui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,10 +17,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import com.cryptomorin.xseries.XMaterial;
 
-import Oneblock.ChestItems;
-import Oneblock.Messages;
-import Oneblock.PlayerInfo;
-import Oneblock.WorldGuard.OBWorldGuard;
+import oneblock.Messages;
+import oneblock.PlayerInfo;
 
 public class GUI {
 	public static boolean enabled = true;
@@ -59,19 +57,19 @@ public class GUI {
 		if (topGUI == null)
 			topGUI = Bukkit.createInventory(new GUIHolder(GUIHolder.GUIType.TOP), 27, Messages.topGUI);
 		
-		List<PlayerInfo> toplist = Oneblock.Oneblock.gettoplist();
+		List<PlayerInfo> toplist = oneblock.Oneblock.gettoplist();
 		
-		PlayerInfo inf = Oneblock.Oneblock.gettop(0, toplist);
+		PlayerInfo inf = oneblock.Oneblock.gettop(0, toplist);
 		topGUI.setItem(4, setMeta(XMaterial.NETHERITE_BLOCK, ChatColor.GOLD + "1st - " + parseUUID(inf.uuid), inf.lvl, parseUUIDs(inf.uuids)));
-		inf = Oneblock.Oneblock.gettop(1, toplist);
+		inf = oneblock.Oneblock.gettop(1, toplist);
 		topGUI.setItem(12, setMeta(XMaterial.DIAMOND_BLOCK, ChatColor.GRAY + "2nd - " + parseUUID(inf.uuid), inf.lvl, parseUUIDs(inf.uuids)));
-		inf = Oneblock.Oneblock.gettop(2, toplist);
+		inf = oneblock.Oneblock.gettop(2, toplist);
 		topGUI.setItem(14, setMeta(XMaterial.IRON_BLOCK, ChatColor.GRAY + "3rd - " + parseUUID(inf.uuid), inf.lvl, parseUUIDs(inf.uuids)));
-		inf = Oneblock.Oneblock.gettop(3, toplist);
+		inf = oneblock.Oneblock.gettop(3, toplist);
 		topGUI.setItem(20, setMeta(XMaterial.GOLD_BLOCK, ChatColor.DARK_RED + "4th - " + parseUUID(inf.uuid), inf.lvl, parseUUIDs(inf.uuids)));
-		inf = Oneblock.Oneblock.gettop(4, toplist);
+		inf = oneblock.Oneblock.gettop(4, toplist);
 		topGUI.setItem(22, setMeta(XMaterial.COPPER_BLOCK, ChatColor.DARK_RED + "5th - " + parseUUID(inf.uuid), inf.lvl, parseUUIDs(inf.uuids)));
-		inf = Oneblock.Oneblock.gettop(5, toplist);
+		inf = oneblock.Oneblock.gettop(5, toplist);
 		topGUI.setItem(24, setMeta(XMaterial.COAL_BLOCK, ChatColor.DARK_RED + "6th - " + parseUUID(inf.uuid), inf.lvl, parseUUIDs(inf.uuids)));
         p.openInventory(topGUI);
 	}
@@ -104,18 +102,6 @@ public class GUI {
         return skull;
     }
 
-	public static void chestGUI(Player p, String chestType) {
-		if (p == null) return;
-		List<ItemStack> list = ChestItems.getChest(chestType);
-		
-		Inventory chestGUI = Bukkit.createInventory(new ChestHolder(chestType), 54, String.format("%sEdit: %s%s %s", ChatColor.BLACK, ChatColor.DARK_GRAY, chestType
-				, OBWorldGuard.canUse?"":"[Edit only in premium]"));
-		for(ItemStack itm : list)
-			if (itm != null)
-				chestGUI.addItem(itm);
-		p.openInventory(chestGUI);
-	}
-	
 	private static String parseUUID(UUID uuid) {
 		try { return Bukkit.getOfflinePlayer(uuid).getName();
 		} catch (Exception e) {return "Unknown";}

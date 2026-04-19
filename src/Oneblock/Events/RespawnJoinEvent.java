@@ -1,6 +1,6 @@
-package Oneblock.Events;
+package oneblock.events;
 
-import static Oneblock.Oneblock.*;
+import static oneblock.Oneblock.*;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import Oneblock.PlayerInfo;
+import oneblock.PlayerInfo;
 
 public class RespawnJoinEvent implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)

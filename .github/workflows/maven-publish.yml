@@ -15,19 +15,42 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      # Fetch full history so Spotless `ratchetFrom=origin/main` can diff
+      # the PR head against the base branch.
+      with:
+        fetch-depth: 0
+
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
-    
-    - name: Build with Maven
-      run: mvn clean package
-    
-    - name: Upload artifact
+        cache: maven
+
+    # Full `verify` with the `ci` profile activates Phase 7 gates:
+    #   - JUnit 5 tests (Surefire)
+    #   - Spotless googleJavaFormat (ratchetFrom=origin/main on PRs)
+    #   - JaCoCo coverage report (target/site/jacoco/)
+    #   - maven-shade produces the plugin jar under target/
+    - name: Build and run Phase 7 gates
+      run: ./resources/apache-maven-3.9.15/bin/mvn -B -Pci verify
+
+    - name: Upload plugin jar
       uses: actions/upload-artifact@v4
       with:
         name: plugin-jar
-        path: target/*.jar
+        path: target/Oneblock-*.jar
+
+    - name: Upload JaCoCo coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-report
+        path: target/site/jacoco/
+
+    - name: Upload Surefire test reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: surefire-reports
+        path: target/surefire-reports/

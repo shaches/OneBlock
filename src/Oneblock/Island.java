@@ -1,6 +1,5 @@
-package Oneblock;
+package oneblock;
 
-import static Oneblock.Oneblock.getWorld;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +14,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 
-import Oneblock.Utils.Utils;
+import oneblock.utils.Utils;
 
 public class Island {
     public static BlockData[][][] custom = null;
@@ -96,7 +95,7 @@ public class Island {
     }
 
     public static void place(World world, int x, int y, int z) {
-    	XBlock.setType(getWorld().getBlockAt(x, y, z), XMaterial.GRASS_BLOCK);
+    	XBlock.setType(world.getBlockAt(x, y, z), XMaterial.GRASS_BLOCK);
     	
     	if (!Oneblock.island_for_new_players) return;
         if (custom == null) {

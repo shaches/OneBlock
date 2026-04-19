@@ -1,4 +1,4 @@
-package Oneblock.Utils;
+package oneblock.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import java.util.Arrays;

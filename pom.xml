@@ -8,6 +8,17 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<src.dir>src</src.dir>
+		<test.dir>test</test.dir>
+		<junit.version>5.11.4</junit.version>
+		<mockito.version>5.14.2</mockito.version>
+		<assertj.version>3.26.3</assertj.version>
+		<!-- Phase 7 static-analysis tooling versions -->
+		<spotless.version>2.44.3</spotless.version>
+		<jacoco.version>0.8.13</jacoco.version>
+		<spotbugs.version>4.9.1.0</spotbugs.version>
+		<findsecbugs.version>1.13.0</findsecbugs.version>
+		<!-- Git ref Spotless diffs new-code against. Override with -Dspotless.ratchet= -->
+		<spotless.ratchet>origin/main</spotless.ratchet>
 	</properties>
 
 	<repositories>
@@ -217,99 +228,213 @@
 		    <version>2.4.240</version>
 		    <scope>runtime</scope>
 		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+		    <groupId>org.junit.jupiter</groupId>
+		    <artifactId>junit-jupiter</artifactId>
+		    <version>${junit.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.assertj</groupId>
+		    <artifactId>assertj-core</artifactId>
+		    <version>${assertj.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-core</artifactId>
+		    <version>${mockito.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-junit-jupiter</artifactId>
+		    <version>${mockito.version}</version>
+		    <scope>test</scope>
+		</dependency>
 	</dependencies>
 
-	<build>
-		<sourceDirectory>${src.dir}</sourceDirectory>
-		<defaultGoal>clean package</defaultGoal>
-		<resources>
-			<resource>
-				<directory>${src.dir}</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.14.0</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
+<build>
+<sourceDirectory>${src.dir}</sourceDirectory>
+<testSourceDirectory>${test.dir}</testSourceDirectory>
+<defaultGoal>clean package</defaultGoal>
+<resources>
+<resource>
+<directory>${src.dir}</directory>
+<excludes>
+<exclude>**/*.java</exclude>
+</excludes>
+</resource>
+</resources>
+<plugins>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-compiler-plugin</artifactId>
+<version>3.14.0</version>
+<configuration>
+<source>${java.version}</source>
+<target>${java.version}</target>
+</configuration>
+</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.6.1</version>
-				<configuration>
-					<relocations>
-						<relocation>
-							<pattern>org.bstats</pattern>
-							<shadedPattern>Oneblock.Utils.stats</shadedPattern>
-						</relocation>
-						
-						<relocation>
-			                <pattern>com.cryptomorin.xseries</pattern>
-			                <shadedPattern>Oneblock.Utils.lib</shadedPattern>
-			            </relocation>
-					</relocations>
-					
-					<filters>
-			            <filter>
-			                <artifact>*:*</artifact> <!-- Someone rewrite my filter... -->
-			                <excludes>
-			                	<exclude>com/cryptomorin/xseries/*/*/*/**</exclude>
-			                	<exclude>com/cryptomorin/xseries/base/XM*</exclude>
-			                	<exclude>com/cryptomorin/xseries/base/*y*</exclude>
-			                	<exclude>com/cryptomorin/xseries/*r*/*/**</exclude>
-			                	<exclude>com/cryptomorin/xseries/m*/*/**</exclude>
-			                	<exclude>com/cryptomorin/xseries/*bstr*</exclude>
-			                	<exclude>com/cryptomorin/xseries/N*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XA*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XS*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XE*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XG*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XI*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XP*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XT*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XW*</exclude>
-			                	<exclude>com/cryptomorin/xseries/XBi*</exclude>
-			                </excludes>
-			            </filter>
-			        </filters>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			
-			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-antrun-plugin</artifactId>
-			    <version>3.1.0</version>
-			    <executions>
-			        <execution>
-			            <phase>package</phase>
-			            <goals>
-			                <goal>run</goal>
-			            </goals>
-			            <configuration>
-			                <target>
-			                    <delete file="${project.build.directory}/original-${project.artifactId}-${project.version}.jar" />
-			                </target>
-			            </configuration>
-			        </execution>
-			    </executions>
-			</plugin>
-		</plugins>
-	</build>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-surefire-plugin</artifactId>
+<version>3.5.2</version>
+</plugin>
+
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-shade-plugin</artifactId>
+<version>3.6.1</version>
+<configuration>
+<relocations>
+<relocation>
+<pattern>org.bstats</pattern>
+<shadedPattern>oneblock.utils.stats</shadedPattern>
+</relocation>
+<relocation>
+<pattern>com.cryptomorin.xseries</pattern>
+<shadedPattern>oneblock.utils.lib</shadedPattern>
+</relocation>
+</relocations>
+<filters>
+<filter>
+<artifact>*:*</artifact>
+<excludes>
+<exclude>com/cryptomorin/xseries/*/*/*/**</exclude>
+<exclude>com/cryptomorin/xseries/base/XM*</exclude>
+<exclude>com/cryptomorin/xseries/base/*y*</exclude>
+<exclude>com/cryptomorin/xseries/*r*/*/**</exclude>
+<exclude>com/cryptomorin/xseries/m*/*/**</exclude>
+<exclude>com/cryptomorin/xseries/*bstr*</exclude>
+<exclude>com/cryptomorin/xseries/N*</exclude>
+<exclude>com/cryptomorin/xseries/XA*</exclude>
+<exclude>com/cryptomorin/xseries/XS*</exclude>
+<exclude>com/cryptomorin/xseries/XE*</exclude>
+<exclude>com/cryptomorin/xseries/XG*</exclude>
+<exclude>com/cryptomorin/xseries/XI*</exclude>
+<exclude>com/cryptomorin/xseries/XP*</exclude>
+<exclude>com/cryptomorin/xseries/XT*</exclude>
+<exclude>com/cryptomorin/xseries/XW*</exclude>
+<exclude>com/cryptomorin/xseries/XBi*</exclude>
+</excludes>
+</filter>
+</filters>
+</configuration>
+<executions>
+<execution>
+<phase>package</phase>
+<goals>
+<goal>shade</goal>
+</goals>
+</execution>
+</executions>
+</plugin>
+
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-antrun-plugin</artifactId>
+<version>3.1.0</version>
+<executions>
+<execution>
+<phase>package</phase>
+<goals>
+<goal>run</goal>
+</goals>
+<configuration>
+<target>
+<delete file="${project.build.directory}/original-${project.artifactId}-${project.version}.jar" />
+</target>
+</configuration>
+</execution>
+</executions>
+</plugin>
+
+<!-- Phase 7: Spotless plugin is DECLARED at build level (so that
+             `mvn spotless:check` and `mvn spotless:apply` work from the
+             command line), but the `check` execution only fires under the
+             `ci` profile below. Keeping default builds free of format gates
+             prevents mass-failure on the pre-refactor codebase. -->
+<plugin>
+<groupId>com.diffplug.spotless</groupId>
+<artifactId>spotless-maven-plugin</artifactId>
+<version>${spotless.version}</version>
+<configuration>
+<ratchetFrom>${spotless.ratchet}</ratchetFrom>
+<java>
+<includes>
+<include>${src.dir}/**/*.java</include>
+<include>${test.dir}/**/*.java</include>
+</includes>
+<googleJavaFormat>
+<version>1.25.2</version>
+<style>GOOGLE</style>
+<reflowLongStrings>true</reflowLongStrings>
+</googleJavaFormat>
+<removeUnusedImports/>
+<trimTrailingWhitespace/>
+<endWithNewline/>
+</java>
+</configuration>
+</plugin>
+
+<!-- Phase 7: JaCoCo coverage agent is always attached so `mvn test` can
+             compute coverage locally; the `report` execution runs under the
+             `ci` profile. -->
+<plugin>
+<groupId>org.jacoco</groupId>
+<artifactId>jacoco-maven-plugin</artifactId>
+<version>${jacoco.version}</version>
+<executions>
+<execution>
+<id>jacoco-prepare-agent</id>
+<goals>
+<goal>prepare-agent</goal>
+</goals>
+</execution>
+</executions>
+</plugin>
+</plugins>
+</build>
+
+<profiles>
+<!-- `-Pci` activates Phase 7 hard-fail gates. Run locally with
+         `mvn verify -Pci` before pushing, or in GitHub Actions. -->
+<profile>
+<id>ci</id>
+<build>
+<plugins>
+<plugin>
+<groupId>com.diffplug.spotless</groupId>
+<artifactId>spotless-maven-plugin</artifactId>
+<executions>
+<execution>
+<id>spotless-check</id>
+<phase>verify</phase>
+<goals>
+<goal>check</goal>
+</goals>
+</execution>
+</executions>
+</plugin>
+<plugin>
+<groupId>org.jacoco</groupId>
+<artifactId>jacoco-maven-plugin</artifactId>
+<executions>
+<execution>
+<id>jacoco-report</id>
+<phase>verify</phase>
+<goals>
+<goal>report</goal>
+</goals>
+</execution>
+</executions>
+</plugin>
+</plugins>
+</build>
+</profile>
+</profiles>
 </project>

@@ -1,5 +1,5 @@
 // Copyright 2025 MrMarL. The MIT License (MIT).
-package Oneblock.Utils;
+package oneblock.utils;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 

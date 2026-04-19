@@ -5,6 +5,7 @@
   <h3>Works on java 8 and bukkit/</h3>
 
   [![Discord Shield](https://discordapp.com/api/guilds/797551904250920980/widget.png?style=shield)](https://discord.gg/zUKrmp3P9y)
+  [![Java CI](https://github.com/MrMarL/OneBlock/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/MrMarL/OneBlock/actions/workflows/maven-publish.yml)
 </div>
 
 # OneBlock minigame plugin.
@@ -167,3 +168,32 @@ Create custom default islands (7x12x7 area):
 
 # 📈 Stats
 ![https://bstats.org/signatures/bukkit/Oneblock.svg](https://bstats.org/signatures/bukkit/Oneblock.svg)
+
+# 🛠️ Building from source
+
+Requires **JDK 21** (Temurin recommended) and the bundled Apache Maven 3.9.15
+distribution shipped under `resources/apache-maven-3.9.15/`.
+
+```powershell
+# Run the unit-test suite (47 JUnit 5 + AssertJ tests)
+.\resources\apache-maven-3.9.15\bin\mvn.cmd -B test
+
+# Produce a shaded plugin jar (target/Oneblock-*.jar)
+.\resources\apache-maven-3.9.15\bin\mvn.cmd -B -DskipTests clean package
+```
+
+On Linux / macOS use the equivalent `mvn` shell script under the same path.
+
+Tests that cover the runtime-critical modules:
+
+| Suite | Scope |
+| --- | --- |
+| `WeightedPoolTest`                  | Prefix-sum weighted random sampling, distribution accuracy, lazy rebuild |
+| `IslandCoordinateCalculatorTest`    | Linear / spiral island layout, iterative-vs-hybrid equivalence, grid alignment |
+| `PlayerInfoIndexTest`               | Thread-safe `UUID → island id` reverse index, mutation paths, top-list versioning |
+| `ChestItemsParseKeyTest`            | Tolerant `NamespacedKey` parsing, malformed-input handling |
+| `LegacyBlocksMigratorDetectionTest` | Legacy-vs-modern `blocks.yml`/`chests.yml` detection |
+| `UtilsTest`                         | `&`/`&#RRGGBB` color code translation |
+| `RewardManagerTest`                 | `SAFE_PLAYER_NAME` injection guard regex |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
