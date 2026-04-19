@@ -55,7 +55,7 @@ class WeightedPoolTest {
         Map<String, Integer> counts = new HashMap<>();
         Random rnd = new Random(123456789L);
         for (int i = 0; i < n; i++)
-            counts.merge(pool.pick(rnd), 1, Integer::sum);
+            counts.merge(pool.pick(rnd), 1, (a, b) -> a.intValue() + b.intValue());
 
         // allow +/- 1.5 % absolute tolerance
         double tol = 0.015 * n;

@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class PlaceCraftEngine extends Place{
-	private static final Class<?>  KEY_CLASS;
 	private static final Method    KEY_OF;
 	private static final Method    BLOCKS_PLACE;
 	private static final boolean   AVAILABLE;
@@ -24,7 +23,6 @@ public class PlaceCraftEngine extends Place{
 		} catch (ReflectiveOperationException ignore) {
 			// CraftEngine not on classpath; placer silently no-ops on namespaced ids.
 		}
-		KEY_CLASS    = keyClass;
 		KEY_OF       = keyOf;
 		BLOCKS_PLACE = place;
 		AVAILABLE    = ok;

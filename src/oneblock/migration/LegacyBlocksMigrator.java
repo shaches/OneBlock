@@ -105,7 +105,7 @@ public class LegacyBlocksMigrator {
 				Object o = raw.get(i);
 				if (!(o instanceof String)) continue;
 				String key = classify((String) o, chestAliases);
-				if (key != null) acc.merge(key, 1, Integer::sum);
+				if (key != null) acc.compute(key, (k, v) -> v == null ? 1 : v + 1);
 			}
 			
 			int levelEntries = 0;
