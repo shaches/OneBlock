@@ -51,7 +51,7 @@ public class Oneblock extends JavaPlugin {
     private static final double BORDER_DAMAGE_AMOUNT = .2;
     private static final double BORDER_DAMAGE_BUFFER = 1;
     
-    public static final Random rnd = new Random(System.currentTimeMillis());
+    public static final Random rnd = new Random();
     public static final XMaterial GRASS_BLOCK = XMaterial.GRASS_BLOCK, GRASS = XMaterial.SHORT_GRASS;
     public static final VoidChunkGenerator GenVoid = new VoidChunkGenerator();
     public static final boolean isBorderSupported = Utils.findMethod(Bukkit.class, "createWorldBorder");// Is virtual border supported?;
@@ -332,10 +332,10 @@ public class Oneblock extends JavaPlugin {
         return Math.abs(deltaX) <= radius && Math.abs(deltaZ) <= radius;
     }
     
-    public void onDisable() { 
-    	DatabaseManager.save(PlayerInfo.list);
+    @Override
+    public void onDisable() {
+    	SaveData();
     	DatabaseManager.close();
-    	JsonSimple.Write(PlayerInfo.list);
     }
     
     public void SaveData() {
