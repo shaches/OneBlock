@@ -40,9 +40,20 @@ public abstract class Place {
 	public abstract boolean setType(Block block, Object material_, boolean physics);
 	
 	public boolean setCustomType(Block block, String command) {
+		if (command == null || command.isEmpty()) return false;
 		if (command.charAt(0) == '/') {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-	    			String.format(command.replaceFirst("/", ""), block.getX(), block.getY(), block.getZ()));
+			String template = command.replaceFirst("/", "");
+			String dispatched;
+			try {
+				dispatched = String.format(template, block.getX(), block.getY(), block.getZ());
+			} catch (java.util.IllegalFormatException ife) {
+				// Admin-provided blocks.yml template is malformed; log once per block-gen instead of
+				// throwing on every tick (which would DoS the main task scheduler).
+				Bukkit.getLogger().warning("[Oneblock] Invalid format specifier in blocks.yml command template: '"
+						+ template + "' (" + ife.getMessage() + ")");
+				return false;
+			}
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), dispatched);
 			return true;
 		}
     	
