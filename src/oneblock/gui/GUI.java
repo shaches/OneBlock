@@ -102,6 +102,13 @@ public class GUI {
         return skull;
     }
 
+	/**
+	 * Render a UUID as a display name for GUI lore. Intentionally swallows any
+	 * exception from {@link Bukkit#getOfflinePlayer(UUID)} (can NPE on null
+	 * input, and some server forks throw on unresolvable UUIDs). Returning
+	 * {@code "Unknown"} is the correct UX for a stale/missing invitee entry;
+	 * this runs in the hot GUI-render path, so no log is emitted.
+	 */
 	private static String parseUUID(UUID uuid) {
 		try { return Bukkit.getOfflinePlayer(uuid).getName();
 		} catch (Exception e) {return "Unknown";}

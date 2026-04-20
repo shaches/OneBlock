@@ -240,6 +240,14 @@ public class CommandHandler implements CommandExecutor {
 	        		GUI.openGUI(player);
 	        		return true;
 	        	}
+	        	// Fall-through contract for the next three cases ("gui", "idreset", default):
+	        	//   single-arg -> user-facing behaviour (open GUI / self-idreset), returns.
+	        	//   multi-arg  -> intentional fall-through to the admin `default` block,
+	        	//                 which performs the Oneblock.set permission check and
+	        	//                 re-dispatches to the admin switch's matching case.
+	        	// DO NOT insert new cases in between without preserving the chain, or
+	        	// `/ob gui true|false` and `/ob idreset <name>` will silently stop
+	        	// reaching the admin handler.
 	        	// fall through: `/ob gui true|false` reaches the admin bool-toggle via default.
 	        }
 	        case ("idreset"):{
@@ -250,7 +258,8 @@ public class CommandHandler implements CommandExecutor {
 		        	sender.sendMessage(Messages.idreset);
 		        	player.performCommand("ob leave /n");
 		        	return true; 
-	        	} //else goto default for admin
+	        	}
+	        	// fall through: `/ob idreset <name>` reaches the admin idreset via default.
 	        }
 	        default: {//admin commands
 	        	if (requirePermission(sender, "Oneblock.set")) 
@@ -348,7 +357,11 @@ public class CommandHandler implements CommandExecutor {
 			                    sender.sendMessage(String.format("%sThe border can only be used on version 1.18.2 and above!", ChatColor.YELLOW));
 			                    return true;
 			                }
+			            	// ReloadBorders is scheduled 2 ticks later so the fall-through
+			            	// below can first persist `border=true/false` via the shared
+			            	// bool-toggle body; the ordering is load-bearing.
 			            	Bukkit.getScheduler().runTaskLater(plugin, () -> { plugin.ReloadBorders(); }, 2L);
+			            	// fall through to shared bool-toggle body:
 			            case ("circlemode"):
 			            case ("useemptyislands"):
 			            case ("protection"):

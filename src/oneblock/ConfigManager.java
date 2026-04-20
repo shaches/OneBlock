@@ -163,6 +163,10 @@ public class ConfigManager {
     		level.name = Utils.translateColorCodes((String) bl_temp.get(q));
     		q++;
     	}
+    	// Duck-type probe: the string at position q may be a BarColor, a BarStyle
+    	// OR the next header field (length) OR the first pool entry. We attempt
+    	// each shape in turn; on failure we DO NOT advance q, leaving the string
+    	// for the next parser. This is legacy config compatibility, not a bug.
     	if (!superlegacy && q < bl_temp.size() && bl_temp.get(q) instanceof String) {
     		try {
     			level.color = BarColor.valueOf(((String) bl_temp.get(q)).toUpperCase());
@@ -181,6 +185,9 @@ public class ConfigManager {
     			level.length = Math.max(1, ((Number) lenItem).intValue());
     			q++;
     		} else if (lenItem instanceof String) {
+    			// Duck-type probe (see above): if the string can't be parsed as an
+    			// int, it's the first pool-entry token; leave q unchanged so the
+    			// pool-entry loop below picks it up.
     			try {
     				level.length = Math.max(1, Integer.parseInt((String) lenItem));
     				q++;
@@ -207,7 +214,12 @@ public class ConfigManager {
     		if (m.containsKey("weight")) {
     			Object w = m.get("weight");
     			if (w instanceof Number) weight = Math.max(1, ((Number) w).intValue());
-    			else if (w != null) try { weight = Math.max(1, Integer.parseInt(w.toString())); } catch (Exception ignore) {}
+    			else if (w != null) {
+    				try { weight = Math.max(1, Integer.parseInt(w.toString())); }
+    				catch (NumberFormatException nfe) {
+    					plugin.getLogger().warning("[Oneblock] blocks.yml: non-numeric weight '" + w + "' in entry " + m + "; defaulting to 1.");
+    				}
+    			}
     		}
     		if      (m.containsKey("block"))      { kind = "block";      payload = m.get("block"); }
     		else if (m.containsKey("mob"))        { kind = "mob";        payload = m.get("mob"); }

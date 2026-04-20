@@ -45,6 +45,16 @@ public final class IslandCoordinateCalculator {
 		return ((long) cellX << 32) | (cellZ & 0xFFFFFFFFL);
 	}
 
+	/**
+	 * @return the id of the island whose cell contains {@code loc}, or the
+	 *         spatially-nearest id if the location is outside every occupied cell.
+	 *         <p><b>Caveat:</b> returns {@code 0} also for the degenerate cases
+	 *         {@code loc == null}, {@code PlayerInfo.size() == 0}, and
+	 *         {@code offset == 0}, which collides with the id of the first
+	 *         island. Callers that need to distinguish "no islands" from
+	 *         "nearest is id 0" must guard on {@code PlayerInfo.size() > 0}
+	 *         before interpreting the return value.
+	 */
 	public static int findNearestRegionId(Location loc) {
 	    if (loc == null) return 0;
 	    int size = PlayerInfo.size();
