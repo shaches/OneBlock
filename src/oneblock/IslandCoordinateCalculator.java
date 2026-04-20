@@ -24,10 +24,11 @@ public final class IslandCoordinateCalculator {
 		synchronized (IslandCoordinateCalculator.class) {
 			if (cellIndex != null) return cellIndex;
 			int size = PlayerInfo.size();
-			int offset = Oneblock.offset;
+			IslandOrigin o = Oneblock.origin();
+			int offset = o.offset();
 			if (offset == 0) { cellIndex = new ConcurrentHashMap<>(); return cellIndex; }
 			int half = offset >> 1;
-			int baseX = Oneblock.x, baseZ = Oneblock.z;
+			int baseX = o.x(), baseZ = o.z();
 			boolean circle = Oneblock.CircleMode;
 			ConcurrentMap<Long, Integer> fresh = new ConcurrentHashMap<>(Math.max(16, size * 2));
 			for (int i = 0; i < size; i++) {
@@ -59,11 +60,12 @@ public final class IslandCoordinateCalculator {
 	    if (loc == null) return 0;
 	    int size = PlayerInfo.size();
 	    if (size == 0) return 0;
-	    int offset = Oneblock.offset;
+	    IslandOrigin o = Oneblock.origin();
+	    int offset = o.offset();
 	    if (offset == 0) return 0;
 	    int locX = loc.getBlockX();
 	    int locZ = loc.getBlockZ();
-	    int baseX = Oneblock.x, baseZ = Oneblock.z;
+	    int baseX = o.x(), baseZ = o.z();
 	    int half = offset >> 1;
 	    int cellX = Math.floorDiv(locX - baseX + half, offset);
 	    int cellZ = Math.floorDiv(locZ - baseZ + half, offset);

@@ -49,9 +49,9 @@ public class ConfigManager {
         
         plugin.setPosition(
         		Bukkit.getWorld(Check("world", "world")),
-        		(int)Check("x", (double) x), 
-        		(int)Check("y", (double) y), 
-        		(int)Check("z", (double) z));
+        		(int)Check("x", (double) getX()), 
+        		(int)Check("y", (double) getY()), 
+        		(int)Check("z", (double) getZ()));
         
         plugin.setLeave(
         		Bukkit.getWorld(Check("leaveworld", "world")), 
@@ -75,7 +75,7 @@ public class ConfigManager {
         updateBoolParameters();
         OBWorldGuard.setEnabled(Check("worldguard", OBWorldGuard.canUse));
         OBWorldGuard.flags = Check("wgflags", OBWorldGuard.flags);
-        offset = Check("set", 100);
+        plugin.setOffset(Check("set", 100));
         if (config.isSet("custom_island") && !legacy)
         	Island.read(config);
         

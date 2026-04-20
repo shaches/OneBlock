@@ -68,7 +68,7 @@ public class CommandHandler implements CommandExecutor {
         {
 	        case ("j"):
 	        case ("join"):{
-	            if (offset == 0 || getWorld() == null) {
+	            if (getOffset() == 0 || getWorld() == null) {
 	            	sender.sendMessage(ChatColor.YELLOW + "First you need to set the reference coordinates '/ob set'.");
 	            	return true;
 	            }
@@ -82,9 +82,9 @@ public class CommandHandler implements CommandExecutor {
 	            	int result[] = plugin.getIslandCoordinates(plID);
 	            	X_pl = result[0]; Z_pl = result[1];
 	            	if (plID != PlayerInfo.size())
-	            		Island.clear(getWorld(), X_pl, y, Z_pl, offset/4);
-	                Island.place(getWorld(), X_pl, y, Z_pl);
-	                plugin.OBWG.CreateRegion(uuid, X_pl, Z_pl, offset, plID);
+	            		Island.clear(getWorld(), X_pl, getY(), Z_pl, getOffset()/4);
+	                Island.place(getWorld(), X_pl, getY(), Z_pl);
+	                plugin.OBWG.CreateRegion(uuid, X_pl, Z_pl, getOffset(), plID);
 					PlayerInfo.set(plID, inf);
 					if (!superlegacy)
 						inf.createBar(getBarTitle(player, 0));
@@ -95,14 +95,14 @@ public class CommandHandler implements CommandExecutor {
 	            }
 	            if (!plugin.enabled) plugin.runMainTask();
 	            if (progress_bar) PlayerInfo.get(plID).bar.setVisible(true);
-	            player.teleport(new Location(getWorld(), X_pl + 0.5, y + 1.2013, Z_pl + 0.5));
+	            player.teleport(new Location(getWorld(), X_pl + 0.5, getY() + 1.2013, Z_pl + 0.5));
 	            if (OBWorldGuard.isEnabled()) plugin.OBWG.addMember(uuid, plID);
 	            return true;
 	        }
 	        case ("leave"):{
 	        	if (player == null) return false;
 	            PlayerInfo.removeBarStatic(player);
-	            if (plugin.leavewor == null || config.getDouble("yleave") == 0) {
+	            if (leavewor == null || config.getDouble("yleave") == 0) {
 	            	if (!args[args.length-1].equals("/n"))
 	            		sender.sendMessage(Messages.leave_not_set);
 	            	return true;
@@ -140,7 +140,7 @@ public class CommandHandler implements CommandExecutor {
 	            final int X_pl = result[0], Z_pl = result[1];
 	    		
 	            if (protection) Guest.list.add(new Guest(uuid, player.getUniqueId()));
-	            player.teleport(new Location(getWorld(), X_pl + 0.5, y + 1.2013, Z_pl + 0.5));
+	            player.teleport(new Location(getWorld(), X_pl + 0.5, getY() + 1.2013, Z_pl + 0.5));
 	    		PlayerInfo.removeBarStatic(player);
 	            return true;
 	        }
@@ -277,7 +277,7 @@ public class CommandHandler implements CommandExecutor {
 			        	        try {
 			        	            int off_set = Integer.parseInt(args[1]);
 			        	            if (off_set == 0 || off_set > 10000 || off_set < -10000) throw new NumberFormatException();
-			        	            offset = off_set;
+			        	            plugin.setOffset(off_set);
 			        	        } catch (NumberFormatException nfe) {
 			        	            sender.sendMessage(Messages.invalid_value);
 			        	            return true;
@@ -311,17 +311,17 @@ public class CommandHandler implements CommandExecutor {
 			        	    	return true;
 			        	    }
 			        	    
-			        	    config.set("set", offset);
+			        	    // plugin.setOffset above already persisted `set` to config; no explicit set needed here.
 			        	    plugin.setPosition(location);
 			        	    
 			        	    if (!plugin.enabled) plugin.runMainTask();
 			        	    
-			        	    getWorld().getBlockAt(x, y, z).setType(GRASS_BLOCK.get());
+			        	    getWorld().getBlockAt(getX(), getY(), getZ()).setType(GRASS_BLOCK.get());
 			        	    plugin.OBWG.ReCreateRegions();
 			        	    LegacyConfigSaver.Save(config);
 			        	    
 			        	    sender.sendMessage(ChatColor.GREEN + "set OneBlock on: \n" +
-			        	                      ChatColor.WHITE + x + ", " + y + ", " + z + 
+			        	                      ChatColor.WHITE + getX() + ", " + getY() + ", " + getZ() +
 			        	                      ChatColor.GRAY + " in world " + ChatColor.WHITE + getWorld().getName());
 			        	    return true;
 			        	}
@@ -444,7 +444,7 @@ public class CommandHandler implements CommandExecutor {
 		                    if (progress_bar)
 		                    	inf.bar.setVisible(false);
 		                    int result[] = plugin.getIslandCoordinates(id);
-		                    Island.clear(getWorld(), result[0], y, result[1], offset/4);
+		                    Island.clear(getWorld(), result[0], getY(), result[1], getOffset()/4);
 		                    sender.sendMessage(String.format("%splayer %s island is destroyed! :D", ChatColor.GREEN, args[1]));
 		                    return true;
 			            }
@@ -591,7 +591,7 @@ public class CommandHandler implements CommandExecutor {
 			                	UUID uuid = p.getUniqueId();
 			                    if (PlayerInfo.GetId(uuid) != -1) {
 			                        int result[] = plugin.getIslandCoordinates(PlayerInfo.GetId(uuid));
-			                        Island.scan(getWorld(), result[0], y, result[1]);
+			                        Island.scan(getWorld(), result[0], getY(), result[1]);
 			                        sender.sendMessage(ChatColor.GREEN + "A copy of your island has been successfully saved!");
 			                        config.set("custom_island", Island.map());
 			                    } else

@@ -98,12 +98,14 @@ static field on `Oneblock`, `Level`, `Guest`, or `Invitation`.
 - `CommandHandler.onCommand` and every subcommand path it reaches.
 - `Oneblock.setPosition`, `Oneblock.setLeave`, `Oneblock.reload`.
 - All `@EventHandler` methods in `oneblock.events.*` and `oneblock.gui.GUIListener`.
-- Mutations of `Oneblock.{x, y, z, offset, wor, leavewor}` and the admin
-  flag booleans (`CircleMode`, `UseEmptyIslands`, `protection`, etc).
+- Swaps of `Oneblock.ORIGIN` (the `(world, x, y, z, offset)` record) and
+  writes to `Oneblock.leavewor` / admin-flag booleans
+  (`CircleMode`, `UseEmptyIslands`, `protection`, etc.). Reads of these
+  may happen from any thread.
 
 ### Async-scheduler threads (`runTaskTimerAsynchronously`)
 
-- `Oneblock.TaskUpdatePlayers` &rarr; reads `Oneblock.wor`; writes `PlayerCache`
+- `Oneblock.TaskUpdatePlayers` &rarr; reads `Oneblock.ORIGIN.world()`; writes `PlayerCache`
   (volatile `ConcurrentHashMap`; safe).
 - `Oneblock.TaskSaveData` &rarr; snapshots `PlayerInfo.list` (`CopyOnWriteArrayList`;
   safe) and calls either `DatabaseManager.save` (HikariCP; safe) or
@@ -111,7 +113,8 @@ static field on `Oneblock`, `Level`, `Guest`, or `Invitation`.
 - `Oneblock.TaskParticle` &rarr; reads `PlayerCache` (safe); calls
   `World.spawnParticle` which is main-thread-only on most server forks —
   this is an existing caveat, not fixed by Phase 1.
-- `Oneblock.Initialization` &rarr; reads `config`, writes `Oneblock.wor/leavewor`.
+- `Oneblock.Initialization` &rarr; reads `config`, swaps `Oneblock.ORIGIN`
+  (atomic) and writes `Oneblock.leavewor` (volatile).
 
 ### Already thread-safe
 
@@ -121,22 +124,39 @@ static field on `Oneblock`, `Level`, `Guest`, or `Invitation`.
 - `IslandCoordinateCalculator.cellIndex` (`volatile` + `ConcurrentHashMap`).
 - `Oneblock.topCache` / `topCacheVersion` (`volatile` + immutable snapshot).
 - `PlayerCache.players` (`volatile` + `ConcurrentHashMap`).
+- `Oneblock.ORIGIN` (`AtomicReference<IslandOrigin>`; single-swap writes via
+  `updateAndGet`, readers snapshot via `Oneblock.origin()` — see
+  `IslandOriginTest` and `OneblockOriginConcurrencyTest`).
+- `Oneblock.leavewor`, `Oneblock.config`, `Oneblock.phText`, and every
+  admin-flag boolean on `Oneblock` (`CircleMode`, `UseEmptyIslands`,
+  `protection`, `border`, `autojoin`, `droptossup`, `physics`,
+  `lvl_bar_mode`, `particle`, `allow_nether`, `saveplayerinventory`,
+  `progress_bar`, `island_for_new_players`, `rebirth`) are `volatile`
+  for cross-thread visibility of single-value writes.
 
 ### Known races (documented, not yet fixed)
 
-- `Oneblock.{x, y, z, offset}` are plain `static int`. If an admin runs
-  `/ob set` at the same tick an async task reads them, the async task may
-  observe a torn or partially-updated origin. Tracked for Phase 2.
 - `Guest.list` and `Invitation.list` are `ArrayList`. The invite TTL
   cleanup runs on a delayed `runTaskLater` (main thread, so currently
   fine), but if any future event handler mutates these off-thread it
-  will `ConcurrentModificationException`. Tracked for Phase 2.
+  will `ConcurrentModificationException`. Tracked for a later phase.
 - `Level.levels` is a plain `ArrayList`. `Blockfile` reload clears + refills
   it on the main thread, and async tasks that iterate it during a reload
-  can see a half-populated list. Tracked for Phase 2.
-- `Oneblock.config` is a plain static that is reassigned from
-  `CommandHandler.onCommand` (admin default, line ~267) and read from the
-  async load-path in `DatabaseConfig`. Torn reads possible. Tracked for Phase 2.
+  can see a half-populated list. Tracked for a later phase.
+
+### Fixed in Phase 2
+
+- `Oneblock.{x, y, z, offset, wor}` were four plain `static int`s and one
+  plain instance `World`; a concurrent `/ob set` admin call could expose
+  a torn origin (e.g. new `x` with old `offset`) to the async
+  `Task` / `TaskParticle` / `Initialization` readers. They were folded
+  into an immutable `IslandOrigin` record published through
+  `Oneblock.ORIGIN` (`AtomicReference`); writers swap the record in one
+  `updateAndGet` and readers call `Oneblock.origin()` once.
+- `Oneblock.config`, `Oneblock.leavewor`, `Oneblock.phText`, and the
+  admin-flag booleans are now `volatile` so writes from
+  `CommandHandler.onCommand` / `ConfigManager` become visible to async
+  scheduler threads without a happens-before from an unrelated sync.
 
 ## Static analysis (Phase 7)
 
