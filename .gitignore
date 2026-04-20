@@ -16,6 +16,8 @@
 .idea/
 .DS_Store
 Thumbs.db
+/.windsurf/
+skills-lock.json
 
 # Maven generated
 /dependency-reduced-pom.xml
