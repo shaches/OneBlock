@@ -39,7 +39,7 @@ public class CommandHandler implements CommandExecutor {
 		plp.removeBar(pl);
 		plp.removeUUID(uuid);
 
-		if (!saveplayerinventory && pl instanceof Player) ((Player) pl).getInventory().clear();
+		if (!settings().saveplayerinventory && pl instanceof Player) ((Player) pl).getInventory().clear();
 
 		if (OBWorldGuard.isEnabled())
 			plugin.OBWG.removeMember(uuid, PlId);
@@ -78,7 +78,7 @@ public class CommandHandler implements CommandExecutor {
 	            int plID = PlayerInfo.GetId(uuid);
 	            if (plID == -1) {
 	            	PlayerInfo inf = new PlayerInfo(uuid);
-	            	plID = PlayerInfo.getFreeId(UseEmptyIslands);
+	            	plID = PlayerInfo.getFreeId(settings().UseEmptyIslands);
 	            	int result[] = plugin.getIslandCoordinates(plID);
 	            	X_pl = result[0]; Z_pl = result[1];
 	            	if (plID != PlayerInfo.size())
@@ -94,7 +94,7 @@ public class CommandHandler implements CommandExecutor {
 	                X_pl = result[0]; Z_pl = result[1];
 	            }
 	            if (!plugin.enabled) plugin.runMainTask();
-	            if (progress_bar) PlayerInfo.get(plID).bar.setVisible(true);
+	            if (settings().progress_bar) PlayerInfo.get(plID).bar.setVisible(true);
 	            player.teleport(new Location(getWorld(), X_pl + 0.5, getY() + 1.2013, Z_pl + 0.5));
 	            if (OBWorldGuard.isEnabled()) plugin.OBWG.addMember(uuid, plID);
 	            return true;
@@ -139,7 +139,7 @@ public class CommandHandler implements CommandExecutor {
 	        	final int result[] = plugin.getIslandCoordinates(plID);
 	            final int X_pl = result[0], Z_pl = result[1];
 	    		
-	            if (protection) Guest.list.add(new Guest(uuid, player.getUniqueId()));
+	            if (settings().protection) Guest.list.add(new Guest(uuid, player.getUniqueId()));
 	            player.teleport(new Location(getWorld(), X_pl + 0.5, getY() + 1.2013, Z_pl + 0.5));
 	    		PlayerInfo.removeBarStatic(player);
 	            return true;
@@ -172,10 +172,11 @@ public class CommandHandler implements CommandExecutor {
 	    			sender.sendMessage(Messages.invite_no_island);
 	    			return true;
 	    		}
-	    		if (max_players_team != 0) {
+	    		int maxTeam = settings().max_players_team;
+	    		if (maxTeam != 0) {
 	    			PlayerInfo pinf = PlayerInfo.get(uuid);
-	    			if (pinf.uuids.size() >= max_players_team) {
-	        			sender.sendMessage(String.format(Messages.invite_team, max_players_team));
+	    			if (pinf.uuids.size() >= maxTeam) {
+	        			sender.sendMessage(String.format(Messages.invite_team, maxTeam));
 	        			return true;
 	    			}
 	    		}
@@ -404,7 +405,7 @@ public class CommandHandler implements CommandExecutor {
 			                    PlayerInfo inf = PlayerInfo.get(plID);
 		                        inf.breaks = 0;
 		                        inf.lvl = setlvl;
-		                        if (progress_bar && offpl instanceof Player) {
+		                        if (settings().progress_bar && offpl instanceof Player) {
 		                        	inf.createBar(getBarTitle((Player) offpl, inf.lvl));
 	                                inf.bar.setProgress(inf.getPercent());
 	                            }
@@ -442,7 +443,7 @@ public class CommandHandler implements CommandExecutor {
 			                PlayerInfo inf = PlayerInfo.get(id);
 		                    inf.breaks = 0;
 		                    inf.lvl = 0;
-		                    if (progress_bar)
+		                    if (settings().progress_bar)
 		                    	inf.bar.setVisible(false);
 		                    int result[] = plugin.getIslandCoordinates(id);
 		                    Island.clear(getWorld(), result[0], getY(), result[1], getOffset()/4);
@@ -470,14 +471,14 @@ public class CommandHandler implements CommandExecutor {
 				                try {
 				                    int mpt = Integer.parseInt(args[1]);
 				                    if (mpt < 0 || mpt > 20) throw new NumberFormatException();
-				                    config.set("max_players_team", max_players_team = mpt);
+				                    config.set("max_players_team", settings().max_players_team = mpt);
 				                } 
 				                catch (NumberFormatException nfe) {
 				                    sender.sendMessage(String.format("%sinvalid max_players_team value. Possible values: from 0 to 20.", ChatColor.RED));
 				                    return true;
 				                }
 			                }
-			                sender.sendMessage(String.format("%smax_players_team now: %d\n0 is unlimited", ChatColor.GREEN, max_players_team));
+			                sender.sendMessage(String.format("%smax_players_team now: %d\n0 is unlimited", ChatColor.GREEN, settings().max_players_team));
 			                return true;
 			            }
 			            case ("progress_bar"):{
@@ -490,13 +491,13 @@ public class CommandHandler implements CommandExecutor {
 			                    return true;
 			                }
 			                if (args[1].equals("true") || args[1].equals("false")) {
-			                    progress_bar = Boolean.valueOf(args[1]);
+			                    settings().progress_bar = Boolean.valueOf(args[1]);
 			                    configManager.Blockfile();
-			                    config.set("progress_bar", progress_bar);
+			                    config.set("progress_bar", settings().progress_bar);
 			                    return true;
 			                }
 			                
-			                if (!progress_bar) return true;
+			                if (!settings().progress_bar) return true;
 			                
 			                boolean isColor = args[1].equalsIgnoreCase("color");
 			                if (isColor || args[1].equalsIgnoreCase("style")) {
@@ -522,7 +523,7 @@ public class CommandHandler implements CommandExecutor {
 			                    return true;
 			                }
 			                if (args[1].equalsIgnoreCase("level")) {
-			                	lvl_bar_mode = true;
+			                	settings().lvl_bar_mode = true;
 			                    config.set("progress_bar_text", "level");
 			                    configManager.SetupProgressBar();
 			                    return true;
@@ -531,8 +532,8 @@ public class CommandHandler implements CommandExecutor {
 			                    String txt_bar = "";
 								for (int i = 2; i < args.length; i++)
 									txt_bar = i == 2 ? args[i] : String.format("%s %s", txt_bar, args[i]);
-			                    lvl_bar_mode = false;
-			                    config.set("progress_bar_text", phText = Utils.translateColorCodes(txt_bar));
+			                    settings().lvl_bar_mode = false;
+			                    config.set("progress_bar_text", settings().phText = Utils.translateColorCodes(txt_bar));
 			                    configManager.SetupProgressBar();
 			                    return true;
 			                }
@@ -574,9 +575,9 @@ public class CommandHandler implements CommandExecutor {
 			                    return true;
 			                }
 			                if (args[1].equals("true") || args[1].equals("false")) {
-			                    island_for_new_players = Boolean.valueOf(args[1]);
-			                    config.set("island_for_new_players", island_for_new_players);
-			                    sender.sendMessage(ChatColor.GREEN + "Island_for_new_players = " + island_for_new_players);
+			                    settings().island_for_new_players = Boolean.valueOf(args[1]);
+			                    config.set("island_for_new_players", settings().island_for_new_players);
+			                    sender.sendMessage(ChatColor.GREEN + "Island_for_new_players = " + settings().island_for_new_players);
 			                    return true;
 			                }
 			                if (args[1].equals("set_my_by_def")) {

@@ -24,7 +24,7 @@ public class BlockEvent implements Listener {
 	
 	@EventHandler
 	public void ItemStackSpawn(final ItemSpawnEvent e) {
-		if (!droptossup) return;
+		if (!settings().droptossup) return;
 		World world = getWorld();
 		if (world == null) return;
         

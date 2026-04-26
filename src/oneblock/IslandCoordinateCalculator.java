@@ -29,7 +29,7 @@ public final class IslandCoordinateCalculator {
 			if (offset == 0) { cellIndex = new ConcurrentHashMap<>(); return cellIndex; }
 			int half = offset >> 1;
 			int baseX = o.x(), baseZ = o.z();
-			boolean circle = Oneblock.CircleMode;
+			boolean circle = Oneblock.settings().CircleMode;
 			ConcurrentMap<Long, Integer> fresh = new ConcurrentHashMap<>(Math.max(16, size * 2));
 			for (int i = 0; i < size; i++) {
 				int[] c = getById(i, baseX, baseZ, offset, circle);
@@ -81,7 +81,7 @@ public final class IslandCoordinateCalculator {
 	    int minDistSq = Integer.MAX_VALUE;
 	    int halfDiameterSquared = (offset * offset) >> 2;
 	    int X = 0, Z = 0;
-	    boolean CircleMode = Oneblock.CircleMode;
+	    boolean CircleMode = Oneblock.settings().CircleMode;
 	    for (int i = 0; i < size; i++) {
 	        int dx = (X * offset + baseX) - locX;
 	        int dz = (Z * offset + baseZ) - locZ;

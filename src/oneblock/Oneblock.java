@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 
+import oneblock.config.Settings;
 import oneblock.events.BlockEvent;
 import oneblock.events.ItemsAdderEvent;
 import oneblock.events.RespawnJoinEvent;
@@ -77,17 +78,20 @@ public class Oneblock extends JavaPlugin {
     static final AtomicReference<IslandOrigin> ORIGIN =
             new AtomicReference<>(IslandOrigin.EMPTY);
 
-    public static volatile int max_players_team = 0, mob_spawn_chance = 9;
-    public static volatile boolean island_for_new_players = false, rebirth = false, autojoin = false;
-    public static volatile boolean droptossup = true, physics = false;
-    public static volatile boolean lvl_bar_mode = false, particle = true;
-    public static volatile boolean allow_nether = true, protection = false;
-    public static volatile boolean saveplayerinventory = false;
-    public static volatile boolean border = false;
-    public static volatile boolean CircleMode = true;
-    public static volatile boolean UseEmptyIslands = true;
-    public static volatile boolean progress_bar = false;
-    public static volatile String phText = "";
+    /**
+     * Singleton holder for every admin-toggleable flag the plugin owns.
+     * Phase 3 extracted what used to be ≈17 {@code public static volatile}
+     * fields on this class into {@link Settings} (a typed bag of {@code
+     * volatile} instance fields). Callers reach the live values through
+     * {@link #settings()} — e.g. {@code Oneblock.settings().particle} —
+     * which preserves the per-field cross-thread visibility we already had
+     * while letting tests instantiate a fresh {@code Settings} without
+     * spinning up Bukkit.
+     */
+    private static final Settings SETTINGS = new Settings();
+
+    /** The live, mutable {@link Settings} singleton. Never returns {@code null}. */
+    public static Settings settings() { return SETTINGS; }
     
     public static volatile YamlConfiguration config;
     
@@ -127,7 +131,7 @@ public class Oneblock extends JavaPlugin {
     public boolean isPAPIEnabled() { return PAPI; }
     public int[] getIslandCoordinates(final int id) {
     	IslandOrigin o = ORIGIN.get();
-    	return IslandCoordinateCalculator.getById(id, o.x(), o.z(), o.offset(), CircleMode);
+    	return IslandCoordinateCalculator.getById(id, o.x(), o.z(), o.offset(), SETTINGS.CircleMode);
     }
     public int findNearestRegionId(final Location loc) { return IslandCoordinateCalculator.findNearestRegionId(loc); }
     
@@ -135,10 +139,10 @@ public class Oneblock extends JavaPlugin {
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {return GenVoid;}
     
     public static String getBarTitle(Player p, int lvl) {
-		if (lvl_bar_mode) return Level.get(lvl).name;
-		if (plugin.PAPI) return PlaceholderAPI.setPlaceholders(p, phText);
+		if (SETTINGS.lvl_bar_mode) return Level.get(lvl).name;
+		if (plugin.PAPI) return PlaceholderAPI.setPlaceholders(p, SETTINGS.phText);
         
-		return phText;
+		return SETTINGS.phText;
 	}
     
     @Override
@@ -198,8 +202,8 @@ public class Oneblock extends JavaPlugin {
     
     private void setupMetrics(Metrics metrics) {
         metrics.addCustomChart(new SimplePie("premium", () -> String.valueOf(OBWorldGuard.canUse)));
-        metrics.addCustomChart(new SimplePie("circle_mode", () -> String.valueOf(CircleMode)));
-        metrics.addCustomChart(new SimplePie("use_empty_islands", () -> String.valueOf(UseEmptyIslands)));
+        metrics.addCustomChart(new SimplePie("circle_mode", () -> String.valueOf(SETTINGS.CircleMode)));
+        metrics.addCustomChart(new SimplePie("use_empty_islands", () -> String.valueOf(SETTINGS.UseEmptyIslands)));
         metrics.addCustomChart(new SimplePie("gui", () -> String.valueOf(GUI.enabled)));
         metrics.addCustomChart(new SimplePie("place_type", () -> String.valueOf(placetype)));
     }
@@ -252,7 +256,7 @@ public class Oneblock extends JavaPlugin {
 	
 	public class TaskParticle implements Runnable {
 	    public void run() {
-	        if (!particle) return;
+	        if (!SETTINGS.particle) return;
 
 	        for (Player ponl: cache.getPlayers()) {
 	            int[] result = cache.getIslandCoordinates(ponl);
@@ -276,7 +280,7 @@ public class Oneblock extends JavaPlugin {
             	final int result[] = cache.getIslandCoordinates(player);
                 final int X_pl = result[0], Z_pl = result[1], plID = result[2];
             	
-                if (protection && !player.hasPermission("Oneblock.ignoreBarrier")) {
+                if (SETTINGS.protection && !player.hasPermission("Oneblock.ignoreBarrier")) {
                 	boolean CheckGuest = false;
                 	Location loc = player.getLocation();
             		PlayerInfo inf = Guest.getPlayerInfo(uuid);
@@ -306,10 +310,10 @@ public class Oneblock extends JavaPlugin {
     	Level lvl_inf = Level.get(inf.lvl); 
         if (++inf.breaks >= inf.getNeed()) {
         	lvl_inf = inf.lvlup();
-        	if (progress_bar) inf.createBar();
+        	if (SETTINGS.progress_bar) inf.createBar();
         	configManager.reward.executeRewards(ponl, inf.lvl, lvl_inf.name);
         }
-        if (progress_bar) {
+        if (SETTINGS.progress_bar) {
             inf.bar.setTitle(getBarTitle(ponl, inf.lvl));
             inf.bar.setProgress(inf.getPercent());
             inf.bar.addPlayer(ponl);
@@ -323,7 +327,7 @@ public class Oneblock extends JavaPlugin {
         }
         else switch (entry.kind) {
             case BLOCK:
-                placer.setType(block, entry.value, physics);
+                placer.setType(block, entry.value, SETTINGS.physics);
                 break;
             case LOOT_TABLE:
                 LootTableDispatcher.populate(block, (NamespacedKey) entry.value, rnd);
@@ -335,7 +339,7 @@ public class Oneblock extends JavaPlugin {
                 break;
         }
 
-        if (rnd.nextInt(mob_spawn_chance) == 0) spawnRandomMob(X_pl, Z_pl, lvl_inf);
+        if (rnd.nextInt(SETTINGS.mob_spawn_chance) == 0) spawnRandomMob(X_pl, Z_pl, lvl_inf);
 	}
     
 	public void spawnRandomMob(int pos_x, int pos_z, Level level) {
@@ -369,7 +373,7 @@ public class Oneblock extends JavaPlugin {
     	if (!isBorderSupported) return;
     	World w = getWor();
     	if (w == null) return;
-    	if (border) w.getPlayers().forEach(pl -> plugin.UpdateBorderLocation(pl, pl.getLocation()));
+    	if (SETTINGS.border) w.getPlayers().forEach(pl -> plugin.UpdateBorderLocation(pl, pl.getLocation()));
     	else w.getPlayers().forEach(pl -> pl.setWorldBorder(null));
     }
     

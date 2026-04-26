@@ -60,18 +60,20 @@ public class ConfigManager {
         		Check("zleave", .0), 
         		(float)Check("yawleave", .0));
         
+        // Single-call cache so we don't dereference settings() once per field.
+        oneblock.config.Settings s = settings();
         if (!superlegacy) {
-        	progress_bar = Check("progress_bar", true);
+        	s.progress_bar = Check("progress_bar", true);
         	Level.max.color = BarColor.valueOf(Check("progress_bar_color", "GREEN"));
         	Level.max.style = BarStyle.valueOf(Check("progress_bar_style", "SOLID"));
-        	phText = Utils.translateColorCodes(Check("progress_bar_text", "level"));
-	        lvl_bar_mode = phText.equals("level");
+        	s.phText = Utils.translateColorCodes(Check("progress_bar_text", "level"));
+	        s.lvl_bar_mode = s.phText.equals("level");
         }
-        island_for_new_players = Check("island_for_new_players", true);
+        s.island_for_new_players = Check("island_for_new_players", true);
         Level.multiplier = Check("level_multiplier", Level.multiplier);
-        max_players_team = Check("max_players_team", max_players_team);
-        mob_spawn_chance = Check("mob_spawn_chance", mob_spawn_chance);
-        mob_spawn_chance = mob_spawn_chance < 2 ? 9 : mob_spawn_chance;
+        s.max_players_team = Check("max_players_team", s.max_players_team);
+        s.mob_spawn_chance = Check("mob_spawn_chance", s.mob_spawn_chance);
+        s.mob_spawn_chance = s.mob_spawn_chance < 2 ? 9 : s.mob_spawn_chance;
         updateBoolParameters();
         OBWorldGuard.setEnabled(Check("worldguard", OBWorldGuard.canUse));
         OBWorldGuard.flags = Check("wgflags", OBWorldGuard.flags);
@@ -85,18 +87,19 @@ public class ConfigManager {
     }
 	 
     public void updateBoolParameters() {
-    	CircleMode = Check("circlemode", CircleMode);
-    	UseEmptyIslands = Check("useemptyislands", UseEmptyIslands);
-    	saveplayerinventory = Check("saveplayerinventory", saveplayerinventory);
-        protection = Check("protection", protection);
-        autojoin = Check("autojoin", autojoin);
-        droptossup = Check("droptossup", droptossup);
-        physics = Check("physics", physics);
-        particle = Check("particle", particle);
-        allow_nether = Check("allow_nether", allow_nether);
+    	oneblock.config.Settings s = settings();
+    	s.CircleMode = Check("circlemode", s.CircleMode);
+    	s.UseEmptyIslands = Check("useemptyislands", s.UseEmptyIslands);
+    	s.saveplayerinventory = Check("saveplayerinventory", s.saveplayerinventory);
+        s.protection = Check("protection", s.protection);
+        s.autojoin = Check("autojoin", s.autojoin);
+        s.droptossup = Check("droptossup", s.droptossup);
+        s.physics = Check("physics", s.physics);
+        s.particle = Check("particle", s.particle);
+        s.allow_nether = Check("allow_nether", s.allow_nether);
         GUI.enabled = Check("gui", GUI.enabled);
-        rebirth = Check("rebirth_on_the_island", rebirth);
-        if (isBorderSupported) border = Check("border", border);
+        s.rebirth = Check("rebirth_on_the_island", s.rebirth);
+        if (isBorderSupported) s.border = Check("border", s.border);
     }
     
     private void DatabaseConfig() {
@@ -315,7 +318,7 @@ public class ConfigManager {
 			else
 				inf.createBar(getBarTitle(p, inf.lvl));
         	        	
-			inf.bar.setVisible(progress_bar);
+			inf.bar.setVisible(settings().progress_bar);
         }});
 	}
 	

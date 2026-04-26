@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 public class TeleportNetherEvent implements Listener {
 	@EventHandler
     public void NetherPortal(final PlayerPortalEvent e) {
-    	if (allow_nether) return;
+    	if (settings().allow_nether) return;
     	World from = e.getFrom().getWorld();
     	if (!from.equals(getWorld())) return;
     	

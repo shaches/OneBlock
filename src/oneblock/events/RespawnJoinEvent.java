@@ -17,7 +17,7 @@ import oneblock.PlayerInfo;
 public class RespawnJoinEvent implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
     public void Respawn(final PlayerRespawnEvent e) {
-		if (!rebirth) return;
+		if (!settings().rebirth) return;
 		Player pl = e.getPlayer();
 		World world = getWorld();
 		if (!pl.getWorld().equals(world)) return;
@@ -30,7 +30,7 @@ public class RespawnJoinEvent implements Listener {
     }
     @EventHandler
     public void AutoJoin(final PlayerTeleportEvent e) {
-		if (!autojoin)
+		if (!settings().autojoin)
 			return;
 		Location loc = e.getTo();
 		World from = e.getFrom().getWorld();
@@ -45,8 +45,8 @@ public class RespawnJoinEvent implements Listener {
     public void JoinAuto(final PlayerJoinEvent e) {
 		Player pl = e.getPlayer();
 		if (pl.getWorld().equals(getWorld())) {
-			if (autojoin) pl.performCommand("ob j");
-			if (border) {
+			if (settings().autojoin) pl.performCommand("ob j");
+			if (settings().border) {
 				plugin.UpdateBorderLocation(pl, pl.getLocation());
 				plugin.UpdateBorder(pl);
 			}
