@@ -69,6 +69,19 @@ public class CommandHandler implements CommandExecutor {
 		register(new oneblock.command.sub.VisitCommand(), "v");
 		register(new oneblock.command.sub.InviteCommand());
 		register(new oneblock.command.sub.KickCommand());
+		// Phase 3.5b - Batch 3: simple admin commands. Each runs the
+		// AdminPrelude (config reload + 2-tick delayed save) before its
+		// own logic. IdResetCommand internally delegates to
+		// AdminIdResetCommand for the multi-arg admin path.
+		register(new oneblock.command.sub.SetLeaveCommand());
+		register(new oneblock.command.sub.WorldGuardCommand());
+		register(new oneblock.command.sub.ReloadCommand());
+		register(new oneblock.command.sub.SetLevelCommand());
+		register(new oneblock.command.sub.ClearCommand());
+		register(new oneblock.command.sub.LvlMultCommand());
+		register(new oneblock.command.sub.MaxPlayersTeamCommand());
+		register(new oneblock.command.sub.ListLvlCommand());
+		register(new oneblock.command.sub.IdResetCommand());
 	}
 
 	public static boolean idresetCommand(OfflinePlayer pl) {
