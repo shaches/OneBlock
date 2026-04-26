@@ -39,7 +39,7 @@ public final class JoinCommand implements Subcommand {
         Oneblock plugin = ctx.plugin();
         UUID uuid = ctx.player().getUniqueId();
         int X_pl = 0, Z_pl = 0;
-        int plID = PlayerInfo.GetId(uuid);
+        int plID = PlayerInfo.getId(uuid);
         if (plID == -1) {
             PlayerInfo inf = new PlayerInfo(uuid);
             plID = PlayerInfo.getFreeId(Oneblock.settings().UseEmptyIslands);
@@ -48,7 +48,7 @@ public final class JoinCommand implements Subcommand {
             if (plID != PlayerInfo.size())
                 Island.clear(Oneblock.getWorld(), X_pl, Oneblock.getY(), Z_pl, Oneblock.getOffset() / 4);
             Island.place(Oneblock.getWorld(), X_pl, Oneblock.getY(), Z_pl);
-            plugin.OBWG.CreateRegion(uuid, X_pl, Z_pl, Oneblock.getOffset(), plID);
+            plugin.OBWG.createRegion(uuid, X_pl, Z_pl, Oneblock.getOffset(), plID);
             PlayerInfo.set(plID, inf);
             if (!Oneblock.superlegacy)
                 inf.createBar(Oneblock.getBarTitle(ctx.player(), 0));

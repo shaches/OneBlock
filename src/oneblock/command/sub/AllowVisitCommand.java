@@ -25,7 +25,7 @@ public final class AllowVisitCommand implements Subcommand {
     @Override
     public boolean execute(CommandContext ctx) {
         UUID uuid = ctx.player().getUniqueId();
-        if (PlayerInfo.GetId(uuid) == -1) return true;
+        if (PlayerInfo.getId(uuid) == -1) return true;
         PlayerInfo inf = PlayerInfo.get(uuid);
         inf.allow_visit = !inf.allow_visit;
         ctx.player().sendMessage(inf.allow_visit ? Messages.allowed_visit : Messages.forbidden_visit);

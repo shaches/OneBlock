@@ -50,7 +50,7 @@ public final class VisitCommand implements Subcommand {
             return true;
         }
         UUID uuid = inv.getUniqueId();
-        final int plID = PlayerInfo.GetId(uuid);
+        final int plID = PlayerInfo.getId(uuid);
         if (plID == -1) {
             ctx.sender().sendMessage(Messages.invite_no_island);
             return true;
@@ -66,7 +66,7 @@ public final class VisitCommand implements Subcommand {
 
         if (Oneblock.settings().protection) Guest.list.add(new Guest(uuid, player.getUniqueId()));
         player.teleport(new Location(Oneblock.getWorld(), X_pl + 0.5, Oneblock.getY() + 1.2013, Z_pl + 0.5));
-        PlayerInfo.removeBarStatic(player);
+        PlayerInfo.removeBarFor(player);
         return true;
     }
 }

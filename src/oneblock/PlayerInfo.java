@@ -31,7 +31,7 @@ public class PlayerInfo {
 	/**
 	 * Monotonic counter bumped whenever the top-list's sort order could have
 	 * changed (level-up, slot assignment, bulk reload). Consumers of
-	 * {@code gettoplist} compare their cached version to this to decide if a
+	 * {@code getTopList} compare their cached version to this to decide if a
 	 * re-sort is needed.
 	 */
 	private static final AtomicLong TOP_VERSION = new AtomicLong();
@@ -123,7 +123,7 @@ public class PlayerInfo {
 		return (double) breaks / getNeed();
 	}
 
-	public static void removeBarStatic(Player p) {
+	public static void removeBarFor(Player p) {
 		if (list.isEmpty()) return;
 		get(p.getUniqueId()).removeBar(p);
 	}
@@ -132,7 +132,7 @@ public class PlayerInfo {
 	 * O(1) lookup of the island id that owns or has invited the given UUID.
 	 * Returns -1 if the UUID is not tracked.
 	 */
-	public static int GetId(UUID uuid) {
+	public static int getId(UUID uuid) {
 		if (uuid == null) return -1;
 		Integer id = UUID_INDEX.get(uuid);
 		return id == null ? -1 : id;
@@ -151,7 +151,7 @@ public class PlayerInfo {
 	}
 
 	public static PlayerInfo get(UUID uuid) {
-		int plID = GetId(uuid);
+		int plID = getId(uuid);
 		if (plID == -1) return not_found;
 		return list.get(plID);
 	}
@@ -193,7 +193,7 @@ public class PlayerInfo {
 		for (UUID u : inf.uuids) UUID_INDEX.put(u, id);
 	}
 
-	/** Current top-list version. Use with {@code gettoplist} snapshot caching. */
+	/** Current top-list version. Use with {@code getTopList} snapshot caching. */
 	public static long topVersion() { return TOP_VERSION.get(); }
 
 	public static int getFreeId(boolean UseEmptyIslands) {

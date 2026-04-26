@@ -10,8 +10,8 @@ import oneblock.Oneblock;
  *
  * <p>Renamed from the inner class {@code Oneblock.TaskSaveData} in
  * Phase 3.4. The body is intentionally one delegating call to
- * {@link Oneblock#SaveData()} so the persistence path stays in one
- * place; {@code SaveData} itself is the unit-tested seam.
+ * {@link Oneblock#saveData()} so the persistence path stays in one
+ * place; {@code saveData} itself is the unit-tested seam.
  */
 public final class PlayerDataSaveTask implements Runnable {
     private final Oneblock plugin;
@@ -19,5 +19,5 @@ public final class PlayerDataSaveTask implements Runnable {
     public PlayerDataSaveTask(Oneblock plugin) { this.plugin = plugin; }
 
     @Override
-    public void run() { plugin.SaveData(); }
+    public void run() { plugin.saveData(); }
 }

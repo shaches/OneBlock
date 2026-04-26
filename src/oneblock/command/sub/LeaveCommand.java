@@ -23,7 +23,7 @@ public final class LeaveCommand implements Subcommand {
 
     @Override
     public boolean execute(CommandContext ctx) {
-        PlayerInfo.removeBarStatic(ctx.player());
+        PlayerInfo.removeBarFor(ctx.player());
         if (Oneblock.leavewor == null || Oneblock.config.getDouble("yleave") == 0) {
             String[] args = ctx.args();
             if (!args[args.length - 1].equals("/n"))

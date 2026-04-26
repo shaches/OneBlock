@@ -31,7 +31,7 @@ public final class LvlMultCommand implements Subcommand {
                 int lvl = Integer.parseInt(args[1]);
                 if (lvl < 0 || lvl > 20) throw new NumberFormatException();
                 Oneblock.config.set("level_multiplier", Level.multiplier = lvl);
-                ctx.plugin().configManager.Blockfile();
+                ctx.plugin().configManager.loadBlocks();
             } catch (NumberFormatException nfe) {
                 ctx.sender().sendMessage(String.format("%sinvalid multiplier value. Possible values: from 0 to 20.", ChatColor.RED));
                 return true;

@@ -31,7 +31,7 @@ public final class WorldInitTask implements Runnable {
         if (w != null) {
             // Atomic swap: fold the freshly-resolved world into ORIGIN while
             // preserving the existing x/y/z/offset loaded earlier by
-            // ConfigManager.Configfile(). Runs on the async scheduler thread.
+            // ConfigManager.loadMainConfig(). Runs on the async scheduler thread.
             plugin.updateOriginWorld(w);
             plugin.getLogger().info("The initialization of the world was successful!");
             plugin.runMainTask();

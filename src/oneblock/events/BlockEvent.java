@@ -59,12 +59,12 @@ public class BlockEvent implements Listener {
 		if (block.getY() != getY()) return;
 		final Player ponl = e.getPlayer();
 		final UUID uuid = ponl.getUniqueId();
-		final int plID = PlayerInfo.GetId(uuid);
+		final int plID = PlayerInfo.getId(uuid);
 		if (plID == -1) return;
 		final int result[] = plugin.getIslandCoordinates(plID);
 		if (block.getX() != result[0]) return;
 		if (block.getZ() != result[1]) return;
 		
-		Bukkit.getScheduler().runTaskLater(plugin, () -> {plugin.BlockGen(result[0], result[1], plID, ponl, block);}, 1L);
+		Bukkit.getScheduler().runTaskLater(plugin, () -> {plugin.generateBlock(result[0], result[1], plID, ponl, block);}, 1L);
 	}
 }

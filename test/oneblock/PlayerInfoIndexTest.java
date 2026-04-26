@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Covers the Phase 2 reverse-index contract added to {@link PlayerInfo}:
- * O(1) {@code GetId}, index maintenance on {@code set}/{@code replaceAll}/
+ * O(1) {@code getId}, index maintenance on {@code set}/{@code replaceAll}/
  * {@code removeUUID}/{@code addInvite}/{@code removeInvite}, and the top-list
  * version counter bumped by mutations.
  */
@@ -30,10 +30,10 @@ class PlayerInfoIndexTest {
     }
 
     @Test
-    @DisplayName("empty registry: GetId returns -1 for any uuid (including null)")
+    @DisplayName("empty registry: getId returns -1 for any uuid (including null)")
     void emptyRegistryReturnsMinusOne() {
-        assertThat(PlayerInfo.GetId(null)).isEqualTo(-1);
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(null)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(-1);
         assertThat(PlayerInfo.size()).isZero();
     }
 
@@ -42,7 +42,7 @@ class PlayerInfoIndexTest {
     void setRegistersOwner() {
         PlayerInfo inf = new PlayerInfo(U1);
         PlayerInfo.set(0, inf);
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(0);
         assertThat(PlayerInfo.get(U1)).isSameAs(inf);
         assertThat(PlayerInfo.existsAsOwner(U1)).isTrue();
     }
@@ -54,9 +54,9 @@ class PlayerInfoIndexTest {
         inf.uuids.add(U2);
         inf.uuids.add(U3);
         PlayerInfo.set(0, inf);
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(0);
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(0);
-        assertThat(PlayerInfo.GetId(U3)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U3)).isEqualTo(0);
         assertThat(PlayerInfo.existsAsOwner(U2)).isFalse();
     }
 
@@ -66,17 +66,17 @@ class PlayerInfoIndexTest {
         PlayerInfo a = new PlayerInfo(U1);
         a.uuids.add(U2);
         PlayerInfo.set(0, a);
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(0);
 
         // Replace with a different slot layout; old U1/U2 must be gone.
         PlayerInfo b = new PlayerInfo(U3);
         b.uuids.add(U4);
         PlayerInfo.replaceAll(List.of(b));
 
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(-1);
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(-1);
-        assertThat(PlayerInfo.GetId(U3)).isEqualTo(0);
-        assertThat(PlayerInfo.GetId(U4)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U3)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U4)).isEqualTo(0);
         assertThat(PlayerInfo.size()).isEqualTo(1);
     }
 
@@ -86,7 +86,7 @@ class PlayerInfoIndexTest {
         PlayerInfo.set(0, new PlayerInfo(U1));
         PlayerInfo.replaceAll(null);
         assertThat(PlayerInfo.size()).isZero();
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(-1);
     }
 
     @Test
@@ -96,7 +96,7 @@ class PlayerInfoIndexTest {
         PlayerInfo.set(0, inf);
         inf.addInvite(U2);
         assertThat(inf.uuids).containsExactly(U2);
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(0);
     }
 
     @Test
@@ -105,13 +105,13 @@ class PlayerInfoIndexTest {
         PlayerInfo inf = new PlayerInfo(U1);
         inf.uuids.add(U2);
         PlayerInfo.set(0, inf);
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(0);
 
         inf.removeInvite(U2);
         assertThat(inf.uuids).isEmpty();
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(-1);
         // Owner still mapped.
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(0);
     }
 
     @Test
@@ -126,9 +126,9 @@ class PlayerInfoIndexTest {
 
         assertThat(inf.uuid).isEqualTo(U2);
         assertThat(inf.uuids).containsExactly(U3);
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(-1);
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(0);
-        assertThat(PlayerInfo.GetId(U3)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U3)).isEqualTo(0);
         assertThat(PlayerInfo.existsAsOwner(U2)).isTrue();
     }
 
@@ -139,7 +139,7 @@ class PlayerInfoIndexTest {
         PlayerInfo.set(0, inf);
         inf.removeUUID(U1);
         assertThat(inf.uuid).isNull();
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(-1);
         assertThat(PlayerInfo.existsAsOwner(U1)).isFalse();
     }
 
@@ -154,8 +154,8 @@ class PlayerInfoIndexTest {
 
         assertThat(inf.uuid).isEqualTo(U1);
         assertThat(inf.uuids).isEmpty();
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(0);
-        assertThat(PlayerInfo.GetId(U2)).isEqualTo(-1);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U2)).isEqualTo(-1);
     }
 
     @Test
@@ -165,7 +165,7 @@ class PlayerInfoIndexTest {
         PlayerInfo.set(0, inf);
         inf.removeUUID(null);
         assertThat(inf.uuid).isEqualTo(U1);
-        assertThat(PlayerInfo.GetId(U1)).isEqualTo(0);
+        assertThat(PlayerInfo.getId(U1)).isEqualTo(0);
     }
 
     @Test
@@ -204,7 +204,7 @@ class PlayerInfoIndexTest {
     }
 
     @Test
-    @DisplayName("GetId after set() is O(1) — does not scan linearly")
+    @DisplayName("getId after set() is O(1) — does not scan linearly")
     void getIdIsConstantTime() {
         // Populate 10_000 slots and verify the 10_000-th lookup is fast.
         // (This is a lower-bound smoke test for the ConcurrentHashMap path.)
@@ -213,7 +213,7 @@ class PlayerInfoIndexTest {
         }
         UUID last = UUID.nameUUIDFromBytes("p9999".getBytes());
         long start = System.nanoTime();
-        int id = PlayerInfo.GetId(last);
+        int id = PlayerInfo.getId(last);
         long elapsedNs = System.nanoTime() - start;
         assertThat(id).isEqualTo(9999);
         // A linear scan of 10k entries would take ~100k ns on even a fast

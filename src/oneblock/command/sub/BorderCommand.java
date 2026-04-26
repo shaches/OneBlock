@@ -10,7 +10,7 @@ import oneblock.command.Subcommand;
 
 /**
  * {@code /ob border true|false} - admin. Schedules a
- * {@code Oneblock.ReloadBorders()} call 2 ticks later so the
+ * {@code Oneblock.reloadBorders()} call 2 ticks later so the
  * subsequent bool toggle persists {@code border=true|false} via
  * {@link AdminPrelude}'s delayed save first; then runs the shared
  * {@link BoolToggleCommand#toggle} body. Refuses politely on legacy
@@ -18,7 +18,7 @@ import oneblock.command.Subcommand;
  * unsupported.
  *
  * <p>The 2-tick delay + ordering is load-bearing: if
- * {@code ReloadBorders} ran before the {@code config.set} write, the
+ * {@code reloadBorders} ran before the {@code config.set} write, the
  * border state and the persisted state would diverge for that single
  * tick. Behaviour-equivalent to the legacy {@code "border"} admin
  * fall-through case extracted in Phase 3.5b.4.
@@ -34,10 +34,10 @@ public final class BorderCommand implements Subcommand {
             return true;
         }
         AdminPrelude.run(ctx);
-        // ReloadBorders is scheduled 2 ticks later so the persisted
+        // reloadBorders is scheduled 2 ticks later so the persisted
         // `border=true/false` write below lands first; the ordering is
         // load-bearing.
-        Bukkit.getScheduler().runTaskLater(ctx.plugin(), () -> ctx.plugin().ReloadBorders(), 2L);
+        Bukkit.getScheduler().runTaskLater(ctx.plugin(), () -> ctx.plugin().reloadBorders(), 2L);
         return BoolToggleCommand.toggle(ctx, "border");
     }
 }

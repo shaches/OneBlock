@@ -21,7 +21,7 @@ public class RespawnJoinEvent implements Listener {
 		Player pl = e.getPlayer();
 		World world = getWorld();
 		if (!pl.getWorld().equals(world)) return;
-		int plID = PlayerInfo.GetId(pl.getUniqueId());
+		int plID = PlayerInfo.getId(pl.getUniqueId());
 		if (plID == -1) return;
 		
 		int result[] = plugin.getIslandCoordinates(plID);
@@ -47,8 +47,8 @@ public class RespawnJoinEvent implements Listener {
 		if (pl.getWorld().equals(getWorld())) {
 			if (settings().autojoin) pl.performCommand("ob j");
 			if (settings().border) {
-				plugin.UpdateBorderLocation(pl, pl.getLocation());
-				plugin.UpdateBorder(pl);
+				plugin.updateBorderLocation(pl, pl.getLocation());
+				plugin.updateBorder(pl);
 			}
 		}
 	}

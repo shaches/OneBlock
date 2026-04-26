@@ -48,7 +48,7 @@ public final class KickCommand implements Subcommand {
         UUID owner_uuid = player.getUniqueId(), member_uuid = member.getUniqueId();
         if (!PlayerInfo.existsAsOwner(owner_uuid))
             return true;
-        int ownerID = PlayerInfo.GetId(owner_uuid);
+        int ownerID = PlayerInfo.getId(owner_uuid);
         PlayerInfo info = PlayerInfo.get(ownerID);
         if (info.uuids.contains(member_uuid)) {
             info.removeInvite(member_uuid);

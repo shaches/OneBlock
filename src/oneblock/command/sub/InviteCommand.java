@@ -43,7 +43,7 @@ public final class InviteCommand implements Subcommand {
             return true;
         }
         UUID uuid = player.getUniqueId();
-        if (PlayerInfo.GetId(uuid) == -1) {
+        if (PlayerInfo.getId(uuid) == -1) {
             ctx.sender().sendMessage(Messages.invite_no_island);
             return true;
         }

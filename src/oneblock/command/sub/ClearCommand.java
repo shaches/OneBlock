@@ -42,7 +42,7 @@ public final class ClearCommand implements Subcommand {
             return true;
         }
         UUID uuid = offpl.getUniqueId();
-        int id = PlayerInfo.GetId(uuid);
+        int id = PlayerInfo.getId(uuid);
         if (id == -1) {
             ctx.sender().sendMessage(String.format("%sa player named %s was not found.", ChatColor.RED, args[1]));
             return true;

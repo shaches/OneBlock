@@ -27,7 +27,7 @@ class SettingsTest {
         // pre-Phase-3 declarations in Oneblock.java. If a config-default
         // ever needs to change, that's a behaviour change the operator
         // will see on first start (a key absent from config.yml will be
-        // (re)written with the new default by ConfigManager.Configfile).
+        // (re)written with the new default by ConfigManager.loadMainConfig).
         Settings s = new Settings();
         assertThat(s.max_players_team).isZero();
         assertThat(s.mob_spawn_chance).isEqualTo(9);

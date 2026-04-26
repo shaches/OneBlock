@@ -108,7 +108,7 @@ public class CommandHandler implements CommandExecutor {
 	public static boolean idresetCommand(OfflinePlayer pl) {
 		if (pl == null) return false;
 		UUID uuid = pl.getUniqueId();
-		int PlId = PlayerInfo.GetId(uuid);
+		int PlId = PlayerInfo.getId(uuid);
 		if (PlId == -1) return false;
 		PlayerInfo plp = PlayerInfo.get(PlId);
 		plp.removeBar(pl);

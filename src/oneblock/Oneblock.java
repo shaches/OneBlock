@@ -175,8 +175,8 @@ public class Oneblock extends JavaPlugin {
         placer = Place.GetPlacerByType(placetype);
         getLogger().info("Custom block support mode: " + placetype.name());
         
-        configManager.Configfile();
-        Datafile();
+        configManager.loadMainConfig();
+        loadPlayerData();
         configManager.loadAdditionalConfigFiles();
         
         setupMetrics(metrics);
@@ -205,8 +205,8 @@ public class Oneblock extends JavaPlugin {
     
     public void reload() {
     	configManager.loadConfigFiles();
-    	OBWG.ReCreateRegions();
-    	ReloadBorders();
+    	OBWG.recreateRegions();
+    	reloadBorders();
     }
     
     private void setupMetrics(Metrics metrics) {
@@ -228,12 +228,12 @@ public class Oneblock extends JavaPlugin {
 		
     	if (OBWorldGuard.canUse && Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
         	getLogger().info("WorldGuard has been found!");
-        	OBWG.ReCreateRegions();
+        	OBWG.recreateRegions();
         }
         else OBWorldGuard.setEnabled(false);
     }
     
-    public void BlockGen(final int X_pl, final int Z_pl, final int plID, final Player ponl, final Block block) {
+    public void generateBlock(final int X_pl, final int Z_pl, final int plID, final Player ponl, final Block block) {
     	final PlayerInfo inf = PlayerInfo.get(plID);
     	Level lvl_inf = Level.get(inf.lvl); 
         if (++inf.breaks >= inf.getNeed()) {
@@ -276,7 +276,7 @@ public class Oneblock extends JavaPlugin {
 		getWor().spawnEntity(new Location(getWor(), pos_x + .5, getY() + 1, pos_z + .5), type);
 	}
     
-    public void UpdateBorderLocation(Player pl, Location loc) {
+    public void updateBorderLocation(Player pl, Location loc) {
     	int plID = findNearestRegionId(loc);
 		int result[] = getIslandCoordinates(plID);
         int X_pl = result[0], Z_pl = result[1];
@@ -291,17 +291,17 @@ public class Oneblock extends JavaPlugin {
     	pl.setWorldBorder(br);
     }
     
-    public void UpdateBorder(final Player pl) {
+    public void updateBorder(final Player pl) {
     	WorldBorder border = pl.getWorldBorder();
     	Bukkit.getScheduler().runTaskLaterAsynchronously(this, 
     		() -> { pl.setWorldBorder(border); }, 10L);
     }
     
-    public void ReloadBorders() {
+    public void reloadBorders() {
     	if (!isBorderSupported) return;
     	World w = getWor();
     	if (w == null) return;
-    	if (SETTINGS.border) w.getPlayers().forEach(pl -> plugin.UpdateBorderLocation(pl, pl.getLocation()));
+    	if (SETTINGS.border) w.getPlayers().forEach(pl -> plugin.updateBorderLocation(pl, pl.getLocation()));
     	else w.getPlayers().forEach(pl -> pl.setWorldBorder(null));
     }
     
@@ -315,16 +315,16 @@ public class Oneblock extends JavaPlugin {
     
     @Override
     public void onDisable() {
-    	SaveData();
+    	saveData();
     	DatabaseManager.close();
     }
     
-    public void SaveData() {
+    public void saveData() {
     	if (DatabaseManager.save(PlayerInfo.list)) return;
     	JsonPlayerDataStore.write(PlayerInfo.list);
     }
 
-    private void Datafile() {
+    private void loadPlayerData() {
         DatabaseManager.initialize();
         PlayerInfo.replaceAll(DatabaseManager.load());
 
@@ -386,54 +386,54 @@ public class Oneblock extends JavaPlugin {
         config.set("yawleave", yaw);
     }
     
-    public static int getlvl(UUID pl_uuid) {
+    public static int getLevel(UUID pl_uuid) {
     	return PlayerInfo.get(pl_uuid).lvl;
     }
-    public static int getnextlvl(UUID pl_uuid) {
-    	return getlvl(pl_uuid) + 1;
+    public static int getNextLevel(UUID pl_uuid) {
+    	return getLevel(pl_uuid) + 1;
     }
-    public static String getlvlname(UUID pl_uuid) {
-    	int lvl = getlvl(pl_uuid);
+    public static String getLevelName(UUID pl_uuid) {
+    	int lvl = getLevel(pl_uuid);
     	return Level.get(lvl).name;
     }
-    public static String getnextlvlname(UUID pl_uuid) {
-    	int lvl = getnextlvl(pl_uuid);
+    public static String getNextLevelName(UUID pl_uuid) {
+    	int lvl = getNextLevel(pl_uuid);
     	return Level.get(lvl).name;
     }
-    public static int getblocks(UUID pl_uuid) {
+    public static int getBroken(UUID pl_uuid) {
         return PlayerInfo.get(pl_uuid).breaks;
     }
-    public static int getneed(UUID pl_uuid) {
+    public static int getRemaining(UUID pl_uuid) {
     	PlayerInfo inf = PlayerInfo.get(pl_uuid);
     	return inf.getNeed() - inf.breaks;
     }
-    public static int getLength(UUID pl_uuid) {
+    public static int getLevelLength(UUID pl_uuid) {
     	return PlayerInfo.get(pl_uuid).getNeed();
     }
-    public static boolean getvisitallowed(UUID pl_uuid) {
+    public static boolean isVisitAllowed(UUID pl_uuid) {
     	return PlayerInfo.get(pl_uuid).allow_visit;
     }
-    public static int getvisits(UUID pl_uuid) {
+    public static int countVisitors(UUID pl_uuid) {
     	int count = 0;
-    	int reg_id = PlayerInfo.GetId(pl_uuid);
+    	int reg_id = PlayerInfo.getId(pl_uuid);
     	if (reg_id != -1)
 	    	for (Player ponl: plugin.cache.getPlayers())
 	    		if (plugin.findNearestRegionId(ponl.getLocation()) == reg_id)
 	    			count++;
     	return count;
     }
-    public static PlayerInfo gettop(int i) {
+    public static PlayerInfo getTop(int i) {
     	if (PlayerInfo.size() <= i) return PlayerInfo.not_found;
-    	return gettop(i,gettoplist());
+    	return getTop(i,getTopList());
     }
-    public static PlayerInfo gettop(int i, List<PlayerInfo> sorted) {
+    public static PlayerInfo getTop(int i, List<PlayerInfo> sorted) {
     	if (sorted.size() <= i) return PlayerInfo.not_found;
     	return sorted.get(i).uuid == null ? PlayerInfo.not_found : sorted.get(i);
     }
-    public static int gettopposition(PlayerInfo player) {
+    public static int getTopPosition(PlayerInfo player) {
         if (player == null || player.uuid == null) return -1;
 
-        List<PlayerInfo> sorted = gettoplist();
+        List<PlayerInfo> sorted = getTopList();
         for (int i = 0; i < sorted.size(); i++) {
             PlayerInfo entry = sorted.get(i);
             if (entry != null && player.uuid.equals(entry.uuid))
@@ -449,7 +449,7 @@ public class Oneblock extends JavaPlugin {
     private static volatile long topCacheVersion = -1;
     private static volatile List<PlayerInfo> topCache = java.util.Collections.emptyList();
 
-    public static List<PlayerInfo> gettoplist() {
+    public static List<PlayerInfo> getTopList() {
     	long v = PlayerInfo.topVersion();
     	if (v != topCacheVersion) {
     		List<PlayerInfo> sorted = new ArrayList<>(PlayerInfo.list);

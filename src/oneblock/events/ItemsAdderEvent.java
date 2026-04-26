@@ -10,6 +10,6 @@ import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 public class ItemsAdderEvent implements Listener {
 	@EventHandler
     public void ItemsAdderLoad(ItemsAdderLoadDataEvent event) {
-		configManager.Blockfile();
+		configManager.loadBlocks();
     }
 }

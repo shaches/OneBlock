@@ -38,7 +38,7 @@ public final class SetLevelCommand implements Subcommand {
         }
         OfflinePlayer offpl = Utils.getOfflinePlayerByName(args[1]);
         UUID uuid = offpl.getUniqueId();
-        int plID = PlayerInfo.GetId(uuid);
+        int plID = PlayerInfo.getId(uuid);
         if (plID != -1) {
             int setlvl = 0;
             try {

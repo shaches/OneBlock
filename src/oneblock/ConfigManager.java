@@ -31,53 +31,53 @@ public class ConfigManager {
 	public RewardManager reward = new RewardManager();
 	
     public void loadConfigFiles() {
-        Configfile();
+        loadMainConfig();
         loadAdditionalConfigFiles();
     }
     
     public void loadAdditionalConfigFiles() {
-    	Chestfile();
-        Blockfile();
-        Flowerfile();
-        Messagefile();
+    	loadChests();
+        loadBlocks();
+        loadFlowers();
+        loadMessages();
         reward.loadRewards();
     }
 	
-    public void Configfile() {
+    public void loadMainConfig() {
     	File con = getFile("config.yml");
         config = LowerCaseYaml.loadAndFixConfig(con);
         
         plugin.setPosition(
-        		Bukkit.getWorld(Check("world", "world")),
-        		(int)Check("x", (double) getX()), 
-        		(int)Check("y", (double) getY()), 
-        		(int)Check("z", (double) getZ()));
+        		Bukkit.getWorld(readOrDefault("world", "world")),
+        		(int)readOrDefault("x", (double) getX()), 
+        		(int)readOrDefault("y", (double) getY()), 
+        		(int)readOrDefault("z", (double) getZ()));
         
         plugin.setLeave(
-        		Bukkit.getWorld(Check("leaveworld", "world")), 
-        		Check("xleave", .0), 
-        		Check("yleave", .0), 
-        		Check("zleave", .0), 
-        		(float)Check("yawleave", .0));
+        		Bukkit.getWorld(readOrDefault("leaveworld", "world")), 
+        		readOrDefault("xleave", .0), 
+        		readOrDefault("yleave", .0), 
+        		readOrDefault("zleave", .0), 
+        		(float)readOrDefault("yawleave", .0));
         
         // Single-call cache so we don't dereference settings() once per field.
         oneblock.config.Settings s = settings();
         if (!superlegacy) {
-        	s.progress_bar = Check("progress_bar", true);
-        	Level.max.color = BarColor.valueOf(Check("progress_bar_color", "GREEN"));
-        	Level.max.style = BarStyle.valueOf(Check("progress_bar_style", "SOLID"));
-        	s.phText = Utils.translateColorCodes(Check("progress_bar_text", "level"));
+        	s.progress_bar = readOrDefault("progress_bar", true);
+        	Level.max.color = BarColor.valueOf(readOrDefault("progress_bar_color", "GREEN"));
+        	Level.max.style = BarStyle.valueOf(readOrDefault("progress_bar_style", "SOLID"));
+        	s.phText = Utils.translateColorCodes(readOrDefault("progress_bar_text", "level"));
 	        s.lvl_bar_mode = s.phText.equals("level");
         }
-        s.island_for_new_players = Check("island_for_new_players", true);
-        Level.multiplier = Check("level_multiplier", Level.multiplier);
-        s.max_players_team = Check("max_players_team", s.max_players_team);
-        s.mob_spawn_chance = Check("mob_spawn_chance", s.mob_spawn_chance);
+        s.island_for_new_players = readOrDefault("island_for_new_players", true);
+        Level.multiplier = readOrDefault("level_multiplier", Level.multiplier);
+        s.max_players_team = readOrDefault("max_players_team", s.max_players_team);
+        s.mob_spawn_chance = readOrDefault("mob_spawn_chance", s.mob_spawn_chance);
         s.mob_spawn_chance = s.mob_spawn_chance < 2 ? 9 : s.mob_spawn_chance;
         updateBoolParameters();
-        OBWorldGuard.setEnabled(Check("worldguard", OBWorldGuard.canUse));
-        OBWorldGuard.flags = Check("wgflags", OBWorldGuard.flags);
-        plugin.setOffset(Check("set", 100));
+        OBWorldGuard.setEnabled(readOrDefault("worldguard", OBWorldGuard.canUse));
+        OBWorldGuard.flags = readOrDefault("wgflags", OBWorldGuard.flags);
+        plugin.setOffset(readOrDefault("set", 100));
         if (config.isSet("custom_island") && !legacy)
         	Island.read(config);
         
@@ -88,32 +88,32 @@ public class ConfigManager {
 	 
     public void updateBoolParameters() {
     	oneblock.config.Settings s = settings();
-    	s.CircleMode = Check("circlemode", s.CircleMode);
-    	s.UseEmptyIslands = Check("useemptyislands", s.UseEmptyIslands);
-    	s.saveplayerinventory = Check("saveplayerinventory", s.saveplayerinventory);
-        s.protection = Check("protection", s.protection);
-        s.autojoin = Check("autojoin", s.autojoin);
-        s.droptossup = Check("droptossup", s.droptossup);
-        s.physics = Check("physics", s.physics);
-        s.particle = Check("particle", s.particle);
-        s.allow_nether = Check("allow_nether", s.allow_nether);
-        GUI.enabled = Check("gui", GUI.enabled);
-        s.rebirth = Check("rebirth_on_the_island", s.rebirth);
-        if (isBorderSupported) s.border = Check("border", s.border);
+    	s.CircleMode = readOrDefault("circlemode", s.CircleMode);
+    	s.UseEmptyIslands = readOrDefault("useemptyislands", s.UseEmptyIslands);
+    	s.saveplayerinventory = readOrDefault("saveplayerinventory", s.saveplayerinventory);
+        s.protection = readOrDefault("protection", s.protection);
+        s.autojoin = readOrDefault("autojoin", s.autojoin);
+        s.droptossup = readOrDefault("droptossup", s.droptossup);
+        s.physics = readOrDefault("physics", s.physics);
+        s.particle = readOrDefault("particle", s.particle);
+        s.allow_nether = readOrDefault("allow_nether", s.allow_nether);
+        GUI.enabled = readOrDefault("gui", GUI.enabled);
+        s.rebirth = readOrDefault("rebirth_on_the_island", s.rebirth);
+        if (isBorderSupported) s.border = readOrDefault("border", s.border);
     }
     
     private void DatabaseConfig() {
-        DatabaseManager.dbType = Check("database.type", DatabaseManager.dbType).toLowerCase();
-        DatabaseManager.host = Check("database.host", DatabaseManager.host);
-        DatabaseManager.port = Check("database.port", DatabaseManager.port);
-        DatabaseManager.database = Check("database.name", DatabaseManager.database);
-        DatabaseManager.username = Check("database.username",  DatabaseManager.username);
-        DatabaseManager.password = Check("database.password", DatabaseManager.password);
-        DatabaseManager.useSSL = Check("database.useSSL", DatabaseManager.useSSL);
-        DatabaseManager.autoReconnect = Check("database.autoReconnect", DatabaseManager.autoReconnect);
+        DatabaseManager.dbType = readOrDefault("database.type", DatabaseManager.dbType).toLowerCase();
+        DatabaseManager.host = readOrDefault("database.host", DatabaseManager.host);
+        DatabaseManager.port = readOrDefault("database.port", DatabaseManager.port);
+        DatabaseManager.database = readOrDefault("database.name", DatabaseManager.database);
+        DatabaseManager.username = readOrDefault("database.username",  DatabaseManager.username);
+        DatabaseManager.password = readOrDefault("database.password", DatabaseManager.password);
+        DatabaseManager.useSSL = readOrDefault("database.useSSL", DatabaseManager.useSSL);
+        DatabaseManager.autoReconnect = readOrDefault("database.autoReconnect", DatabaseManager.autoReconnect);
     }
         
-	public void Blockfile() {
+	public void loadBlocks() {
     	Level.levels.clear();
     	Level.max.resetPools();
         File block = getFile("blocks.yml");
@@ -149,7 +149,7 @@ public class ConfigManager {
         		plugin.getLogger().warning("Mobs are not set in the blocks.yml");
         }
         
-        SetupProgressBar();
+        setupProgressBar();
     }
     
     /**
@@ -304,7 +304,7 @@ public class ConfigManager {
 	    }
 	}
 	
-    public void SetupProgressBar() {
+    public void setupProgressBar() {
 		if (superlegacy) return;
 		if (PlayerInfo.size() == 0) return;
 		
@@ -322,49 +322,49 @@ public class ConfigManager {
         }});
 	}
 	
-    private void Messagefile() {
+    private void loadMessages() {
         File message = getFile("messages.yml");
         config_temp = YamlConfiguration.loadConfiguration(message);
         
-        Messages.help = MessageCheck("help", Messages.help);
-        Messages.help_adm = MessageCheck("help_adm", Messages.help_adm);
-        Messages.invite_usage = MessageCheck("invite_usage", Messages.invite_usage);
-        Messages.invite_yourself = MessageCheck("invite_yourself", Messages.invite_yourself);
-        Messages.invite_no_island = MessageCheck("invite_no_island", Messages.invite_no_island);
-        Messages.invite_team = MessageCheck("invite_team", Messages.invite_team);
-        Messages.invited = MessageCheck("invited", Messages.invited);
-        Messages.invited_success = MessageCheck("invited_success", Messages.invited_success);
-        Messages.kicked = MessageCheck("kicked", Messages.kicked);
-        Messages.kick_usage = MessageCheck("kick_usage", Messages.kick_usage);
-        Messages.kick_yourself = MessageCheck("kick_yourself", Messages.kick_yourself);
-        Messages.accept_success = MessageCheck("accept_success", Messages.accept_success);
-        Messages.accept_none = MessageCheck("accept_none", Messages.accept_none);
-        Messages.idreset = MessageCheck("idreset", Messages.idreset);
-        Messages.protection = MessageCheck("protection", Messages.protection);
-        Messages.leave_not_set = MessageCheck("leave_not_set", Messages.leave_not_set);
-        Messages.not_allow_visit = MessageCheck("not_allow_visit", Messages.not_allow_visit);
-        Messages.allowed_visit = MessageCheck("allowed_visit", Messages.allowed_visit);
-        Messages.forbidden_visit = MessageCheck("forbidden_visit", Messages.forbidden_visit);
+        Messages.help = checkMessage("help", Messages.help);
+        Messages.help_adm = checkMessage("help_adm", Messages.help_adm);
+        Messages.invite_usage = checkMessage("invite_usage", Messages.invite_usage);
+        Messages.invite_yourself = checkMessage("invite_yourself", Messages.invite_yourself);
+        Messages.invite_no_island = checkMessage("invite_no_island", Messages.invite_no_island);
+        Messages.invite_team = checkMessage("invite_team", Messages.invite_team);
+        Messages.invited = checkMessage("invited", Messages.invited);
+        Messages.invited_success = checkMessage("invited_success", Messages.invited_success);
+        Messages.kicked = checkMessage("kicked", Messages.kicked);
+        Messages.kick_usage = checkMessage("kick_usage", Messages.kick_usage);
+        Messages.kick_yourself = checkMessage("kick_yourself", Messages.kick_yourself);
+        Messages.accept_success = checkMessage("accept_success", Messages.accept_success);
+        Messages.accept_none = checkMessage("accept_none", Messages.accept_none);
+        Messages.idreset = checkMessage("idreset", Messages.idreset);
+        Messages.protection = checkMessage("protection", Messages.protection);
+        Messages.leave_not_set = checkMessage("leave_not_set", Messages.leave_not_set);
+        Messages.not_allow_visit = checkMessage("not_allow_visit", Messages.not_allow_visit);
+        Messages.allowed_visit = checkMessage("allowed_visit", Messages.allowed_visit);
+        Messages.forbidden_visit = checkMessage("forbidden_visit", Messages.forbidden_visit);
         
         File gui = getFile("gui.yml");
         config_temp = YamlConfiguration.loadConfiguration(gui);
         
-        Messages.baseGUI = MessageCheck("baseGUI", Messages.baseGUI);
-        Messages.acceptGUI = MessageCheck("acceptGUI", Messages.acceptGUI);
-        Messages.acceptGUIignore = MessageCheck("acceptGUIignore", Messages.acceptGUIignore);
-        Messages.acceptGUIjoin = MessageCheck("acceptGUIjoin", Messages.acceptGUIjoin);
-        Messages.topGUI = MessageCheck("topGUI", Messages.topGUI);
-        Messages.visitGUI = MessageCheck("visitGUI", Messages.visitGUI);
-        Messages.idresetGUI = MessageCheck("idresetGUI", Messages.idresetGUI);
+        Messages.baseGUI = checkMessage("baseGUI", Messages.baseGUI);
+        Messages.acceptGUI = checkMessage("acceptGUI", Messages.acceptGUI);
+        Messages.acceptGUIignore = checkMessage("acceptGUIignore", Messages.acceptGUIignore);
+        Messages.acceptGUIjoin = checkMessage("acceptGUIjoin", Messages.acceptGUIjoin);
+        Messages.topGUI = checkMessage("topGUI", Messages.topGUI);
+        Messages.visitGUI = checkMessage("visitGUI", Messages.visitGUI);
+        Messages.idresetGUI = checkMessage("idresetGUI", Messages.idresetGUI);
     }
     
-    private String MessageCheck(String name, String def_message) {
+    private String checkMessage(String name, String def_message) {
     	if (config_temp.isString(name))
         	return Utils.translateColorCodes(config_temp.getString(name));
     	return def_message;
     }
     
-    private void Flowerfile() {
+    private void loadFlowers() {
         plugin.flowers.clear();
         File flower = getFile("flowers.yml");
         config_temp = YamlConfiguration.loadConfiguration(flower);
@@ -373,7 +373,7 @@ public class ConfigManager {
         	plugin.flowers.add(XMaterial.matchXMaterial(list).orElse(GRASS));
     }
     
-    private void Chestfile() {
+    private void loadChests() {
         ChestItems.chest = getFile("chests.yml");
         LegacyBlocksMigrator.migrateChests(ChestItems.chest);
         ChestItems.load();
@@ -395,27 +395,27 @@ public class ConfigManager {
      */
     public File getMainConfigFile() { return getFile("config.yml"); }
     
-    String Check(String type, String data) {
+    String readOrDefault(String type, String data) {
     	if (!config.isString(type))
             config.set(type, data);
     	return config.getString(type);
     }
-    int Check(String type, int data) {
+    int readOrDefault(String type, int data) {
     	if (!config.isInt(type))
             config.set(type, data);
     	return config.getInt(type);
     }
-    double Check(String type, double data) {
+    double readOrDefault(String type, double data) {
     	if (!config.isDouble(type))
             config.set(type, data);
     	return config.getDouble(type);
     }
-    boolean Check(String type, boolean data) {
+    boolean readOrDefault(String type, boolean data) {
     	if (!config.isBoolean(type))
             config.set(type, data);
     	return config.getBoolean(type);
     }
-    List<String> Check(String type, List<String> data) {
+    List<String> readOrDefault(String type, List<String> data) {
     	if (!config.isList(type))
             config.set(type, data);
     	return config.getStringList(type);

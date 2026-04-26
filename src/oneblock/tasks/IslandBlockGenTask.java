@@ -15,7 +15,7 @@ import oneblock.invitation.Guest;
 /**
  * Main-thread block-generation pulse: every four seconds (80 ticks) it
  * walks every online island player and, if the generation block is air,
- * delegates to {@link Oneblock#BlockGen} to (re)materialise it. Also
+ * delegates to {@link Oneblock#generateBlock} to (re)materialise it. Also
  * enforces the {@code protection} flag - players outside their cell are
  * teleported back via {@code /ob j} after a {@link Messages#protection}
  * message.
@@ -23,7 +23,7 @@ import oneblock.invitation.Guest;
  * <p>Renamed from the inner class {@code Oneblock.Task} (whose body
  * carried a single inline comment, "// SubBlockGen", indicating the
  * intent) in Phase 3.4. Runs on the main thread because
- * {@link Block#getType} and {@code BlockGen} both need synchronous
+ * {@link Block#getType} and {@code generateBlock} both need synchronous
  * world access.
  */
 public final class IslandBlockGenTask implements Runnable {
@@ -44,7 +44,7 @@ public final class IslandBlockGenTask implements Runnable {
                 Location loc = player.getLocation();
                 PlayerInfo inf = Guest.getPlayerInfo(uuid);
                 if (inf != null) {
-                    int crd[] = plugin.getIslandCoordinates(PlayerInfo.GetId(inf.uuid));
+                    int crd[] = plugin.getIslandCoordinates(PlayerInfo.getId(inf.uuid));
                     CheckGuest = plugin.isWithinIslandBounds(loc, crd[0], crd[1]);
                     if (!CheckGuest) Guest.remove(uuid);
                 }
@@ -57,9 +57,9 @@ public final class IslandBlockGenTask implements Runnable {
 
             final Block block = Oneblock.getWor().getBlockAt(X_pl, Oneblock.getY(), Z_pl);
             if (block.getType() != Material.AIR) continue;
-            if (PlayerInfo.GetId(uuid) == -1) continue;
+            if (PlayerInfo.getId(uuid) == -1) continue;
 
-            plugin.BlockGen(X_pl, Z_pl, plID, player, block);
+            plugin.generateBlock(X_pl, Z_pl, plID, player, block);
         }
     }
 }

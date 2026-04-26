@@ -59,8 +59,8 @@ public final class IslandsCommand implements Subcommand {
             }
             Player p = (Player) ctx.sender();
             UUID uuid = p.getUniqueId();
-            if (PlayerInfo.GetId(uuid) != -1) {
-                int result[] = ctx.plugin().getIslandCoordinates(PlayerInfo.GetId(uuid));
+            if (PlayerInfo.getId(uuid) != -1) {
+                int result[] = ctx.plugin().getIslandCoordinates(PlayerInfo.getId(uuid));
                 Island.scan(Oneblock.getWorld(), result[0], Oneblock.getY(), result[1]);
                 ctx.sender().sendMessage(ChatColor.GREEN + "A copy of your island has been successfully saved!");
                 Oneblock.config.set("custom_island", Island.map());

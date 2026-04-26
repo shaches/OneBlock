@@ -16,7 +16,7 @@ package oneblock.config;
  * substantially harder.
  *
  * <p>Each field is {@code volatile} so single-value writes from the main
- * thread (admin commands, {@code ConfigManager.Configfile()}) are visible
+ * thread (admin commands, {@code ConfigManager.loadMainConfig()}) are visible
  * to async-scheduler readers ({@code TaskParticle}, {@code Task},
  * placeholder expansion in {@code OBP}) without an unrelated synchronized
  * block. Cross-field consistency (e.g. several flags changing together)
@@ -37,7 +37,7 @@ public final class Settings {
     /**
      * 1-in-N chance per tick that a hostile mob spawns when a block is
      * generated. Values below {@code 2} are corrected to {@code 9} during
-     * {@code Configfile()} parsing to avoid divide-by-zero.
+     * {@code loadMainConfig()} parsing to avoid divide-by-zero.
      */
     public volatile int mob_spawn_chance = 9;
 

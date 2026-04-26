@@ -26,8 +26,8 @@ public class TeleportEvent implements Listener {
     		p.setWorldBorder(null);
     		return;
     	}
-    	plugin.UpdateBorderLocation(p, loc);
-    	plugin.UpdateBorder(p);
+    	plugin.updateBorderLocation(p, loc);
+    	plugin.updateBorder(p);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -36,8 +36,8 @@ public class TeleportEvent implements Listener {
 		Location loc = e.getRespawnLocation();
 		Player p = e.getPlayer();
 		if (getWorld().equals(loc.getWorld())) {
-			plugin.UpdateBorderLocation(p, loc);
-			plugin.UpdateBorder(p);
+			plugin.updateBorderLocation(p, loc);
+			plugin.updateBorder(p);
 		}
 		else
 			p.setWorldBorder(null);
@@ -48,6 +48,6 @@ public class TeleportEvent implements Listener {
 		if (!settings().progress_bar) return;
 		if (PlayerInfo.list.isEmpty()) return;
     	if (e.getFrom().equals(getWorld()))
-    		PlayerInfo.removeBarStatic(e.getPlayer());
+    		PlayerInfo.removeBarFor(e.getPlayer());
     }
 }
