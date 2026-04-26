@@ -32,6 +32,7 @@ public class BlockEvent implements Listener {
 		
 		if (!world.equals(loc.getWorld())) return;
 		if (loc.getBlockY() != Oneblock.getY()) return;
+		if (Oneblock.getOffset() == 0) return;
 		if ((Oneblock.getX() - loc.getBlockX()) % Oneblock.getOffset() != 0) return;
 		if ((Oneblock.getZ() - loc.getBlockZ()) % Oneblock.getOffset() != 0) return;
 		
@@ -56,6 +57,7 @@ public class BlockEvent implements Listener {
 		final Block block = e.getBlock();
 		if (block.getWorld() != world) return;
 		if (block.getY() != Oneblock.getY()) return;
+		if (Oneblock.getOffset() == 0) return;
 		final Player ponl = e.getPlayer();
 		final UUID uuid = ponl.getUniqueId();
 		final int plID = PlayerInfo.getId(uuid);
