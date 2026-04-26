@@ -1,4 +1,4 @@
-package oneblock.pldata;
+package oneblock.storage;
 
 import static oneblock.Oneblock.*;
 
@@ -17,12 +17,21 @@ import org.json.simple.parser.JSONParser;
 import oneblock.PlayerInfo;
 import oneblock.utils.Utils;
 
-public class JsonSimple {
+/**
+ * JSON-backed player data store. Writes / reads the {@code PlData.json}
+ * file in the plugin data folder. Used as the primary persistence layer
+ * when no database is configured (or the database save returned false).
+ *
+ * <p>Renamed from {@code JsonSimple} in Phase 3 (storage package rename).
+ * Method names lower-cased to follow Java conventions; the file location
+ * ({@link #f}) and on-disk schema are unchanged.
+ */
+public class JsonPlayerDataStore {
 	public static final Pattern p = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 	public static final File f = new File(plugin.getDataFolder(), "PlData.json");
 
 	@SuppressWarnings("unchecked")
-	public static void Write(List<PlayerInfo> pls) {
+	public static void write(List<PlayerInfo> pls) {
 		JSONObject main = new JSONObject();
 		
 		for (int i = 0;pls.size() > i;i++) {
@@ -55,7 +64,7 @@ public class JsonSimple {
 		}
 	}
 
-	public static List<PlayerInfo> Read()  {
+	public static List<PlayerInfo> read()  {
 		JSONObject main = null;
 		JSONParser parser = new JSONParser();
 		try (FileReader reader = new FileReader(f)) {

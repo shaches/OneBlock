@@ -264,8 +264,9 @@ public class CommandHandler implements CommandExecutor {
 	        default: {//admin commands
 	        	if (requirePermission(sender, "Oneblock.set")) 
 		        {
-	        		config = YamlConfiguration.loadConfiguration(LegacyConfigSaver.file); // Loading the config.yml file before making changes.
-	        		Bukkit.getScheduler().runTaskLater(plugin, () -> { LegacyConfigSaver.Save(config); }, 2L); // Saving the config.yml file after making changes.
+	        		final java.io.File _cfgFile = plugin.configManager.getMainConfigFile();
+	        		config = YamlConfiguration.loadConfiguration(_cfgFile); // Loading the config.yml file before making changes.
+	        		Bukkit.getScheduler().runTaskLater(plugin, () -> { LegacyConfigSaver.save(config, _cfgFile); }, 2L); // Saving the config.yml file after making changes.
 		        	switch (parametr) {
 			        	case ("set"): {
 			        		if (player == null && args.length < 6) {
@@ -318,7 +319,7 @@ public class CommandHandler implements CommandExecutor {
 			        	    
 			        	    getWorld().getBlockAt(getX(), getY(), getZ()).setType(GRASS_BLOCK.get());
 			        	    plugin.OBWG.ReCreateRegions();
-			        	    LegacyConfigSaver.Save(config);
+			        	    LegacyConfigSaver.save(config, plugin.configManager.getMainConfigFile());
 			        	    
 			        	    sender.sendMessage(ChatColor.GREEN + "set OneBlock on: \n" +
 			        	                      ChatColor.WHITE + getX() + ", " + getY() + ", " + getZ() +

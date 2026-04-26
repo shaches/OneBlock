@@ -19,7 +19,7 @@ import com.nexomc.nexo.api.NexoBlocks;
 
 import oneblock.gui.GUI;
 import oneblock.migration.LegacyBlocksMigrator;
-import oneblock.pldata.DatabaseManager;
+import oneblock.storage.DatabaseManager;
 import oneblock.utils.LowerCaseYaml;
 import oneblock.utils.Utils;
 import oneblock.worldguard.OBWorldGuard;
@@ -81,7 +81,7 @@ public class ConfigManager {
         
         DatabaseConfig();
         
-        LegacyConfigSaver.Save(config, con);
+        LegacyConfigSaver.save(config, con);
     }
 	 
     public void updateBoolParameters() {
@@ -382,6 +382,15 @@ public class ConfigManager {
         	plugin.saveResource(name, false);
         return file;
     }
+
+    /**
+     * The canonical {@code config.yml} {@link File} inside the plugin data
+     * folder. Callers that need to persist changes via
+     * {@link LegacyConfigSaver#save} (e.g. the admin-command path in
+     * {@code CommandHandler}) use this instead of the hidden static
+     * {@code LegacyConfigSaver.file} field that Phase 3 removed.
+     */
+    public File getMainConfigFile() { return getFile("config.yml"); }
     
     String Check(String type, String data) {
     	if (!config.isString(type))

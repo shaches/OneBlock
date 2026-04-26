@@ -15,7 +15,7 @@ import oneblock.gui.GUI;
 import oneblock.gui.GUIListener;
 import oneblock.invitation.Guest;
 import oneblock.loot.LootTableDispatcher;
-import oneblock.pldata.*;
+import oneblock.storage.*;
 import oneblock.universalplace.*;
 import oneblock.utils.*;
 import oneblock.worldguard.*;
@@ -389,7 +389,7 @@ public class Oneblock extends JavaPlugin {
     
     public void SaveData() {
     	if (DatabaseManager.save(PlayerInfo.list)) return;
-    	JsonSimple.Write(PlayerInfo.list);
+    	JsonPlayerDataStore.write(PlayerInfo.list);
     }
 
     private void Datafile() {
@@ -401,10 +401,10 @@ public class Oneblock extends JavaPlugin {
     		return;
     	}
 
-		if (JsonSimple.f.exists())
-			PlayerInfo.replaceAll(JsonSimple.Read());
+		if (JsonPlayerDataStore.f.exists())
+			PlayerInfo.replaceAll(JsonPlayerDataStore.read());
 		else
-			PlayerInfo.replaceAll(ReadOldData.Read());
+			PlayerInfo.replaceAll(LegacyYamlPlayerDataStore.read());
     }
     
     public void setPosition(Location loc) { setPosition(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()); }

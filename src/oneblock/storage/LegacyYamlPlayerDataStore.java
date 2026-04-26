@@ -1,4 +1,4 @@
-package oneblock.pldata;
+package oneblock.storage;
 
 import static oneblock.Oneblock.*;
 
@@ -12,10 +12,21 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import oneblock.PlayerInfo;
 import oneblock.utils.Utils;
 
-public class ReadOldData {
+/**
+ * Legacy YAML-backed player data store used only as a one-time migration
+ * source on first load when no {@code PlData.json} exists yet. Reads the
+ * old {@code PlData.yml} format (pre-1.x Oneblock, where nicknames were
+ * the primary key) and returns the data shaped as modern
+ * {@link PlayerInfo} objects keyed by {@link java.util.UUID}.
+ *
+ * <p>Renamed from {@code ReadOldData} in Phase 3 (storage package rename).
+ * The file location ({@link #f}) and the legacy on-disk schema are
+ * unchanged because real server owners may still need to migrate from it.
+ */
+public class LegacyYamlPlayerDataStore {
 	public static File f = new File(plugin.getDataFolder(), "PlData.yml");
 	
-	public static ArrayList<PlayerInfo> Read(){
+	public static ArrayList<PlayerInfo> read(){
 		ArrayList<PlayerInfo> infs = new ArrayList<PlayerInfo>();
 		ArrayList<String> nicks = new ArrayList<String>();
 		if (!f.exists()) return infs;
