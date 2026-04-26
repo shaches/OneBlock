@@ -2,6 +2,8 @@ package oneblock;
 
 import static oneblock.Oneblock.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -22,6 +24,8 @@ import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 
+import oneblock.command.CommandContext;
+import oneblock.command.Subcommand;
 import oneblock.gui.GUI;
 import oneblock.invitation.Guest;
 import oneblock.invitation.Invitation;
@@ -29,7 +33,25 @@ import oneblock.utils.Utils;
 import oneblock.worldguard.OBWorldGuard;
 
 public class CommandHandler implements CommandExecutor {
-	
+
+	/**
+	 * Phase 3.5a router registry. Each {@link Subcommand} is registered
+	 * under its primary {@link Subcommand#name()}; aliases (e.g.
+	 * {@code j} -> {@code join}) reuse the same instance under the alias
+	 * key. Phase 3.5a leaves this map empty so every dispatch still falls
+	 * through to the legacy {@code switch} below; the next sub-slice
+	 * (3.5b) populates it as subcommands are extracted into
+	 * {@code oneblock.command.sub.*}. Once the registry covers every
+	 * {@code args[0]}, the legacy switch shrinks to just the
+	 * version-info fallback.
+	 */
+	private static final Map<String, Subcommand> SUBCOMMANDS = new HashMap<>();
+
+	static void register(Subcommand sub, String... aliases) {
+		SUBCOMMANDS.put(sub.name(), sub);
+		for (String alias : aliases) SUBCOMMANDS.put(alias, sub);
+	}
+
 	public static boolean idresetCommand(OfflinePlayer pl) {
 		if (pl == null) return false;
 		UUID uuid = pl.getUniqueId();
@@ -64,10 +86,22 @@ public class CommandHandler implements CommandExecutor {
         Player player = sender instanceof Player ? (Player) sender : null;
         
         String parametr = args[0].toLowerCase();
+
+        // Phase 3.5a router-fallback: any subcommand registered in
+        // SUBCOMMANDS gets dispatched through the new Subcommand interface.
+        // Anything else flows through to the legacy switch below.
+        Subcommand routed = SUBCOMMANDS.get(parametr);
+        if (routed != null) {
+            if (routed.requiresPlayer() && player == null) return false;
+            String perm = routed.permission();
+            if (perm != null && !requirePermission(sender, perm)) return true;
+            return routed.execute(new CommandContext(sender, player, args, plugin));
+        }
+
         switch (parametr) 
         {
 	        case ("j"):
-	        case ("join"):{
+	        case ("join"): {
 	            if (getOffset() == 0 || getWorld() == null) {
 	            	sender.sendMessage(ChatColor.YELLOW + "First you need to set the reference coordinates '/ob set'.");
 	            	return true;
