@@ -16,7 +16,7 @@ import oneblock.gui.GUIListener;
 import oneblock.invitation.Guest;
 import oneblock.loot.LootTableDispatcher;
 import oneblock.storage.*;
-import oneblock.universalplace.*;
+import oneblock.placement.*;
 import oneblock.utils.*;
 import oneblock.worldguard.*;
 import me.clip.placeholderapi.PlaceholderAPI;

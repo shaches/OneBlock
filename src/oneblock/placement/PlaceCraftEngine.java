@@ -1,4 +1,4 @@
-package oneblock.universalplace;
+package oneblock.placement;
 
 import java.lang.reflect.Method;
 
