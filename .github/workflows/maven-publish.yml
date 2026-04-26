@@ -33,7 +33,7 @@ jobs:
     #   - JaCoCo coverage report (target/site/jacoco/)
     #   - maven-shade produces the plugin jar under target/
     - name: Build and run Phase 7 gates
-      run: ./resources/apache-maven-3.9.15/bin/mvn -B -Pci verify
+      run: mvn -B -Pci verify
 
     - name: Upload plugin jar
       uses: actions/upload-artifact@v4
