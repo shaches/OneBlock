@@ -52,6 +52,18 @@ public class CommandHandler implements CommandExecutor {
 		for (String alias : aliases) SUBCOMMANDS.put(alias, sub);
 	}
 
+	static {
+		// Phase 3.5b - Batch 1: trivial user-facing commands. Each impl
+		// is stateless; the registry holds a shared singleton. Aliases
+		// (e.g. command-name == primary registration name) are listed in
+		// the trailing varargs.
+		register(new oneblock.command.sub.AcceptCommand());
+		register(new oneblock.command.sub.TopCommand());
+		register(new oneblock.command.sub.HelpCommand());
+		register(new oneblock.command.sub.LeaveCommand());
+		register(new oneblock.command.sub.AllowVisitCommand());
+	}
+
 	public static boolean idresetCommand(OfflinePlayer pl) {
 		if (pl == null) return false;
 		UUID uuid = pl.getUniqueId();
@@ -133,19 +145,8 @@ public class CommandHandler implements CommandExecutor {
 	            if (OBWorldGuard.isEnabled()) plugin.OBWG.addMember(uuid, plID);
 	            return true;
 	        }
-	        case ("leave"):{
-	        	if (player == null) return false;
-	            PlayerInfo.removeBarStatic(player);
-	            if (leavewor == null || config.getDouble("yleave") == 0) {
-	            	if (!args[args.length-1].equals("/n"))
-	            		sender.sendMessage(Messages.leave_not_set);
-	            	return true;
-	            }
-	            player.teleport(plugin.getLeave());
-	            return true;
-	        }
 	        case ("v"):
-	        case ("visit"):{
+	        case ("visit"): {
 	        	if (!requirePermission(sender, "Oneblock.visit")) return true;
 	        	if (player == null) return false;
 	            if (args.length < 2) {
@@ -178,17 +179,7 @@ public class CommandHandler implements CommandExecutor {
 	    		PlayerInfo.removeBarStatic(player);
 	            return true;
 	        }
-	        case ("allow_visit"):{
-	        	if (!requirePermission(sender, "Oneblock.allow_visit")) return true;
-	        	if (player == null) return false;
-	        	UUID uuid = player.getUniqueId();
-	        	if (PlayerInfo.GetId(uuid) == -1) return true;
-	        	PlayerInfo inf = PlayerInfo.get(uuid);
-	        	inf.allow_visit = !inf.allow_visit;
-	        	player.sendMessage(inf.allow_visit ? Messages.allowed_visit : Messages.forbidden_visit);
-	        	return true;
-	        }
-	        case ("invite"):{
+	        case ("invite"): {
 	        	if (!requirePermission(sender, "Oneblock.invite")) return true;
 	        	if (args.length < 2) {
 	        		sender.sendMessage(Messages.invite_usage);
@@ -221,7 +212,7 @@ public class CommandHandler implements CommandExecutor {
 	    		sender.sendMessage(String.format(Messages.invited_success, inv.getName()));
 	        	return true;
 	        }
-	        case ("kick"):{
+	        case ("kick"): {
 	        	if (!requirePermission(sender, "Oneblock.kick")) return true;
 	        	if (args.length < 2) {
 	        		sender.sendMessage(Messages.kick_usage);
@@ -255,22 +246,7 @@ public class CommandHandler implements CommandExecutor {
 	        	}
 	        	return true;
 	        }
-	        case ("accept"):{
-	       	 	if (Invitation.check(player))
-	       	 		sender.sendMessage(Messages.accept_success);
-	       	 	else
-	       	 		sender.sendMessage(Messages.accept_none);
-	       		return true;
-	        }
-	        case ("top"):{
-	        	GUI.topGUI(player);
-	        	return true;
-	        }
-	        case ("help"):{
-	        	sender.sendMessage(sender.hasPermission("Oneblock.set") ? Messages.help_adm:Messages.help);
-	        	return true;
-	        }
-	        case ("gui"):{
+	        case ("gui"): {
 	        	if (args.length == 1) {
 	        		GUI.openGUI(player);
 	        		return true;
