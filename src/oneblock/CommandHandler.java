@@ -117,7 +117,7 @@ public class CommandHandler implements CommandExecutor {
 		if (!settings().saveplayerinventory && pl instanceof Player) ((Player) pl).getInventory().clear();
 
 		if (OBWorldGuard.isEnabled())
-			plugin.OBWG.removeMember(uuid, PlId);
+			plugin.worldGuard.removeMember(uuid, PlId);
 
 		return true;
 	}

@@ -53,7 +53,7 @@ public final class KickCommand implements Subcommand {
         if (info.uuids.contains(member_uuid)) {
             info.removeInvite(member_uuid);
             if (OBWorldGuard.isEnabled())
-                plugin.OBWG.removeMember(member_uuid, ownerID);
+                plugin.worldGuard.removeMember(member_uuid, ownerID);
         }
         if (!(member instanceof Player)) return true;
         Player member_ex = (Player) member;

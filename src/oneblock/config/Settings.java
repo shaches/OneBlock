@@ -9,7 +9,7 @@ package oneblock.config;
  * (today each flag still flips individually).
  *
  * <p>Field names are deliberately preserved verbatim from the legacy
- * {@code Oneblock.<flag>} statics ({@code CircleMode}, {@code phText},
+ * {@code Oneblock.<flag>} statics ({@code circleMode}, {@code phText},
  * {@code max_players_team}, ...). A separate later slice (Phase 3.7)
  * renames them to camelCase across the whole tree; doing it here would
  * have conflated a field-move with a field-rename and made review
@@ -64,9 +64,9 @@ public final class Settings {
     /** Show a virtual {@code WorldBorder} around each island. */
     public volatile boolean border = false;
     /** Use a circular id-grid spiral instead of the linear strip layout. */
-    public volatile boolean CircleMode = true;
+    public volatile boolean circleMode = true;
     /** Recycle ids whose owner-{@code uuid} is null instead of always appending. */
-    public volatile boolean UseEmptyIslands = true;
+    public volatile boolean useEmptyIslands = true;
     /** Render a per-player progress BossBar tracking blocks-to-next-level. */
     public volatile boolean progress_bar = false;
     /** PlaceholderAPI-template text for the BossBar title. */

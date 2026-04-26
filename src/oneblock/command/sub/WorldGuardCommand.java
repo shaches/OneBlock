@@ -42,9 +42,9 @@ public final class WorldGuardCommand implements Subcommand {
             OBWorldGuard.setEnabled(Boolean.valueOf(args[1]));
             Oneblock.config.set("WorldGuard", OBWorldGuard.isEnabled());
             if (OBWorldGuard.isEnabled())
-                ctx.plugin().OBWG.recreateRegions();
+                ctx.plugin().worldGuard.recreateRegions();
             else
-                ctx.plugin().OBWG.removeRegions(PlayerInfo.size());
+                ctx.plugin().worldGuard.removeRegions(PlayerInfo.size());
         } else {
             ctx.sender().sendMessage(Messages.bool_format);
         }

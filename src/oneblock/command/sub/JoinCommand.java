@@ -42,13 +42,13 @@ public final class JoinCommand implements Subcommand {
         int plID = PlayerInfo.getId(uuid);
         if (plID == -1) {
             PlayerInfo inf = new PlayerInfo(uuid);
-            plID = PlayerInfo.getFreeId(Oneblock.settings().UseEmptyIslands);
+            plID = PlayerInfo.getFreeId(Oneblock.settings().useEmptyIslands);
             int result[] = plugin.getIslandCoordinates(plID);
             X_pl = result[0]; Z_pl = result[1];
             if (plID != PlayerInfo.size())
                 Island.clear(Oneblock.getWorld(), X_pl, Oneblock.getY(), Z_pl, Oneblock.getOffset() / 4);
             Island.place(Oneblock.getWorld(), X_pl, Oneblock.getY(), Z_pl);
-            plugin.OBWG.createRegion(uuid, X_pl, Z_pl, Oneblock.getOffset(), plID);
+            plugin.worldGuard.createRegion(uuid, X_pl, Z_pl, Oneblock.getOffset(), plID);
             PlayerInfo.set(plID, inf);
             if (!Oneblock.superlegacy)
                 inf.createBar(Oneblock.getBarTitle(ctx.player(), 0));
@@ -59,7 +59,7 @@ public final class JoinCommand implements Subcommand {
         if (!plugin.enabled) plugin.runMainTask();
         if (Oneblock.settings().progress_bar) PlayerInfo.get(plID).bar.setVisible(true);
         ctx.player().teleport(new Location(Oneblock.getWorld(), X_pl + 0.5, Oneblock.getY() + 1.2013, Z_pl + 0.5));
-        if (OBWorldGuard.isEnabled()) plugin.OBWG.addMember(uuid, plID);
+        if (OBWorldGuard.isEnabled()) plugin.worldGuard.addMember(uuid, plID);
         return true;
     }
 }

@@ -99,7 +99,7 @@ public class Oneblock extends JavaPlugin {
     public static volatile YamlConfiguration config;
     
     public final String version = getDescription().getVersion();
-    public OBWorldGuard OBWG = new OBWorldGuard();
+    public OBWorldGuard worldGuard = new OBWorldGuard();
     public Place.Type placetype = Place.Type.basic;
     private Place placer;
     
@@ -140,7 +140,7 @@ public class Oneblock extends JavaPlugin {
     public boolean isPAPIEnabled() { return PAPI; }
     public int[] getIslandCoordinates(final int id) {
     	IslandOrigin o = ORIGIN.get();
-    	return IslandCoordinateCalculator.getById(id, o.x(), o.z(), o.offset(), SETTINGS.CircleMode);
+    	return IslandCoordinateCalculator.getById(id, o.x(), o.z(), o.offset(), SETTINGS.circleMode);
     }
     public int findNearestRegionId(final Location loc) { return IslandCoordinateCalculator.findNearestRegionId(loc); }
     
@@ -205,14 +205,14 @@ public class Oneblock extends JavaPlugin {
     
     public void reload() {
     	configManager.loadConfigFiles();
-    	OBWG.recreateRegions();
+    	worldGuard.recreateRegions();
     	reloadBorders();
     }
     
     private void setupMetrics(Metrics metrics) {
         metrics.addCustomChart(new SimplePie("premium", () -> String.valueOf(OBWorldGuard.canUse)));
-        metrics.addCustomChart(new SimplePie("circle_mode", () -> String.valueOf(SETTINGS.CircleMode)));
-        metrics.addCustomChart(new SimplePie("use_empty_islands", () -> String.valueOf(SETTINGS.UseEmptyIslands)));
+        metrics.addCustomChart(new SimplePie("circle_mode", () -> String.valueOf(SETTINGS.circleMode)));
+        metrics.addCustomChart(new SimplePie("use_empty_islands", () -> String.valueOf(SETTINGS.useEmptyIslands)));
         metrics.addCustomChart(new SimplePie("gui", () -> String.valueOf(GUI.enabled)));
         metrics.addCustomChart(new SimplePie("place_type", () -> String.valueOf(placetype)));
     }
@@ -228,7 +228,7 @@ public class Oneblock extends JavaPlugin {
 		
     	if (OBWorldGuard.canUse && Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
         	getLogger().info("WorldGuard has been found!");
-        	OBWG.recreateRegions();
+        	worldGuard.recreateRegions();
         }
         else OBWorldGuard.setEnabled(false);
     }

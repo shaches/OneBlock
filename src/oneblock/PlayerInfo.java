@@ -196,8 +196,8 @@ public class PlayerInfo {
 	/** Current top-list version. Use with {@code getTopList} snapshot caching. */
 	public static long topVersion() { return TOP_VERSION.get(); }
 
-	public static int getFreeId(boolean UseEmptyIslands) {
-		if (UseEmptyIslands)
+	public static int getFreeId(boolean useEmptyIslands) {
+		if (useEmptyIslands)
 			return PlayerInfo.getNull();
 		return PlayerInfo.size();
 	}
@@ -221,4 +221,30 @@ public class PlayerInfo {
 			return rhs.lvl - lhs.lvl;
 		}
 	};
+
+	/**
+	 * Identity equality keyed on {@link #uuid}. Two {@code PlayerInfo}
+	 * instances represent the same island slot iff they share an owner
+	 * UUID; the level / breaks counters are mutable per-island state and
+	 * intentionally not part of the contract. {@code uuid == null} only
+	 * matches another {@code uuid == null} (the {@link #not_found}
+	 * sentinel and freshly-allocated slots before assignment).
+	 *
+	 * <p>Phase 3.7 added this so {@code Oneblock.getTopPosition} no
+	 * longer relies on identity comparison of two list members - if the
+	 * top-list cache snapshot ever races a slot reassignment, structural
+	 * equality on UUID still works.
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof PlayerInfo)) return false;
+		PlayerInfo that = (PlayerInfo) o;
+		return java.util.Objects.equals(this.uuid, that.uuid);
+	}
+
+	@Override
+	public int hashCode() {
+		return java.util.Objects.hashCode(this.uuid);
+	}
 }

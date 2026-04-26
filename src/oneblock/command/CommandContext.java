@@ -21,7 +21,7 @@ import oneblock.Oneblock;
  * @param args   the original command tokens, including {@code args[0]}
  *               which the router already used to dispatch
  * @param plugin the plugin singleton, for callers that need access to
- *               instance state (config manager, OBWG, scheduler)
+ *               instance state (config manager, worldGuard, scheduler)
  */
 public record CommandContext(
         CommandSender sender,

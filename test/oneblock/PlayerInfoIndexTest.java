@@ -187,7 +187,7 @@ class PlayerInfoIndexTest {
     }
 
     @Test
-    @DisplayName("getFreeId: with UseEmptyIslands=false returns size()")
+    @DisplayName("getFreeId: with useEmptyIslands=false returns size()")
     void getFreeIdAppend() {
         assertThat(PlayerInfo.getFreeId(false)).isZero();
         PlayerInfo.set(0, new PlayerInfo(U1));
@@ -195,7 +195,7 @@ class PlayerInfoIndexTest {
     }
 
     @Test
-    @DisplayName("getFreeId: with UseEmptyIslands=true returns the first null-owner slot")
+    @DisplayName("getFreeId: with useEmptyIslands=true returns the first null-owner slot")
     void getFreeIdRecycleNull() {
         PlayerInfo.set(0, new PlayerInfo(U1));
         PlayerInfo.set(1, new PlayerInfo(null));

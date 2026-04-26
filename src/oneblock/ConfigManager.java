@@ -88,8 +88,8 @@ public class ConfigManager {
 	 
     public void updateBoolParameters() {
     	oneblock.config.Settings s = settings();
-    	s.CircleMode = readOrDefault("circlemode", s.CircleMode);
-    	s.UseEmptyIslands = readOrDefault("useemptyislands", s.UseEmptyIslands);
+    	s.circleMode = readOrDefault("circlemode", s.circleMode);
+    	s.useEmptyIslands = readOrDefault("useemptyislands", s.useEmptyIslands);
     	s.saveplayerinventory = readOrDefault("saveplayerinventory", s.saveplayerinventory);
         s.protection = readOrDefault("protection", s.protection);
         s.autojoin = readOrDefault("autojoin", s.autojoin);

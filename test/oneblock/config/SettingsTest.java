@@ -42,8 +42,8 @@ class SettingsTest {
         assertThat(s.protection).isFalse();
         assertThat(s.saveplayerinventory).isFalse();
         assertThat(s.border).isFalse();
-        assertThat(s.CircleMode).isTrue();
-        assertThat(s.UseEmptyIslands).isTrue();
+        assertThat(s.circleMode).isTrue();
+        assertThat(s.useEmptyIslands).isTrue();
         assertThat(s.progress_bar).isFalse();
         assertThat(s.phText).isEmpty();
     }
