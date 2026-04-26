@@ -8,7 +8,9 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -39,7 +41,21 @@ public final class PlayerInfo {
 	public static final PlayerInfo not_found = new PlayerInfo(null);
 
 	public UUID uuid;
-	public List<UUID> uuids = new ArrayList<UUID>();
+	/**
+	 * Co-owner / invitee UUIDs for this island. Phase 4.4 swapped the
+	 * previous {@code ArrayList} for a {@link CopyOnWriteArrayList} because
+	 * this list is iterated by the async {@code PlayerDataSaveTask} (via
+	 * {@code JsonPlayerDataStore.write} and {@code DatabaseManager.save})
+	 * every 6000 ticks while the main thread can concurrently call
+	 * {@link #addInvite(UUID)}, {@link #removeInvite(UUID)} or the
+	 * invitee-promotion path inside {@link #removeUUID(UUID)} from any
+	 * /ob accept / kick / idreset command. Pre-Phase-4.4 this was a
+	 * documented latent race - the iterator would CME if a save happened
+	 * to interleave a kick. The list is also read by the {@code OBP}
+	 * placeholder for {@code %OB_number_of_invited%}, which PlaceholderAPI
+	 * may dispatch from any thread depending on the requesting plugin.
+	 */
+	public final List<UUID> uuids = new CopyOnWriteArrayList<>();
 	public int lvl = 0;
 	public int breaks = 0;
 	public BossBar bar = null;
