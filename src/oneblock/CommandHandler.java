@@ -32,7 +32,7 @@ import oneblock.invitation.Invitation;
 import oneblock.utils.Utils;
 import oneblock.worldguard.OBWorldGuard;
 
-public class CommandHandler implements CommandExecutor {
+public final class CommandHandler implements CommandExecutor {
 
 	/**
 	 * Phase 3.5a router registry. Each {@link Subcommand} is registered

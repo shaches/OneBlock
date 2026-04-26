@@ -7,7 +7,7 @@ import org.bukkit.NamespacedKey;
  * Mob entries are kept in a separate {@code WeightedPool<EntityType>} on {@link Level},
  * so {@link Kind#MOB} is intentionally absent here.
  */
-public class PoolEntry {
+public final class PoolEntry {
 	public enum Kind { BLOCK, LOOT_TABLE, COMMAND, DEFAULT_GRASS }
 
 	public final Kind kind;

@@ -19,7 +19,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * files are converted by {@link oneblock.migration.LegacyBlocksMigrator} before
  * {@link #load()} runs.
  */
-public class ChestItems {
+public final class ChestItems {
 	public static File chest;
 	private static final Map<String, NamespacedKey> aliases = new LinkedHashMap<>();
 	

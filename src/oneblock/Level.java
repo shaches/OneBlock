@@ -6,7 +6,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.EntityType;
 
-public class Level {
+public final class Level {
 	public static Level max = new Level("Level: MAX");
 	public static ArrayList <Level> levels = new ArrayList <>();
 	public static int multiplier = 5;

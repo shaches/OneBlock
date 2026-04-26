@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PlayerInfo {
+public final class PlayerInfo {
 	/**
 	 * Island-slot storage. Thread-safe for async reads (iterators are snapshot
 	 * copies) and main-thread mutations. External callers MUST NOT mutate this

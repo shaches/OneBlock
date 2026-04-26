@@ -11,7 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-public class OBP extends PlaceholderExpansion {
+public final class OBP extends PlaceholderExpansion {
 	
 	private static final TreeMap<Double, String> SCALE;
 	private static final String SCALE_CHAR = "█";

@@ -26,7 +26,7 @@ import oneblock.worldguard.OBWorldGuard;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.th0rgal.oraxen.api.OraxenItems;
 
-public class ConfigManager {
+public final class ConfigManager {
 	public YamlConfiguration config_temp;
 	public RewardManager reward = new RewardManager();
 	

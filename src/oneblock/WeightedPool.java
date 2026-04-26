@@ -12,7 +12,7 @@ import java.util.Random;
  *
  * pick() on an empty / zero-weight pool returns null.
  */
-public class WeightedPool<T> {
+public final class WeightedPool<T> {
 	private final List<T> values = new ArrayList<>();
 	private final List<Integer> weights = new ArrayList<>();
 	private int[] cumulative = new int[0];

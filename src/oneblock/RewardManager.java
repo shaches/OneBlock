@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class RewardManager {
+public final class RewardManager {
     // Reject anything that is not a Mojang-legal player name; blocks command-injection
     // attempts via offline-mode / proxy-forwarded nicknames being substituted into
     // reward templates that are dispatched as console.
