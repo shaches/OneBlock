@@ -82,6 +82,27 @@ public class CommandHandler implements CommandExecutor {
 		register(new oneblock.command.sub.MaxPlayersTeamCommand());
 		register(new oneblock.command.sub.ListLvlCommand());
 		register(new oneblock.command.sub.IdResetCommand());
+		// Phase 3.5b - Batch 4: remaining admin commands. The 11 boolean
+		// flags share BoolToggleCommand; `border` and `gui` wrap it with
+		// extra side-effects. SetCommand owns the big position+offset
+		// setup; ProgressBarCommand has its own sub-subcommand tree.
+		register(new oneblock.command.sub.SetCommand());
+		register(new oneblock.command.sub.ProgressBarCommand());
+		register(new oneblock.command.sub.IslandsCommand());
+		register(new oneblock.command.sub.ChestCommand());
+		register(new oneblock.command.sub.BorderCommand());
+		register(new oneblock.command.sub.GuiCommand());
+		// 11 admin bool-toggles backed by the shared impl.
+		register(new oneblock.command.sub.BoolToggleCommand("circlemode"));
+		register(new oneblock.command.sub.BoolToggleCommand("useemptyislands"));
+		register(new oneblock.command.sub.BoolToggleCommand("protection"));
+		register(new oneblock.command.sub.BoolToggleCommand("droptossup"));
+		register(new oneblock.command.sub.BoolToggleCommand("physics"));
+		register(new oneblock.command.sub.BoolToggleCommand("autojoin"));
+		register(new oneblock.command.sub.BoolToggleCommand("particle"));
+		register(new oneblock.command.sub.BoolToggleCommand("allow_nether"));
+		register(new oneblock.command.sub.BoolToggleCommand("saveplayerinventory"));
+		register(new oneblock.command.sub.BoolToggleCommand("rebirth_on_the_island"));
 	}
 
 	public static boolean idresetCommand(OfflinePlayer pl) {
