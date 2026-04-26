@@ -82,7 +82,7 @@ public final class SetCommand implements Subcommand {
 
         Oneblock.getWorld().getBlockAt(Oneblock.getX(), Oneblock.getY(), Oneblock.getZ()).setType(Oneblock.GRASS_BLOCK.get());
         ctx.plugin().worldGuard.recreateRegions();
-        LegacyConfigSaver.save(Oneblock.config, ctx.plugin().configManager.getMainConfigFile());
+        LegacyConfigSaver.save(Oneblock.config, Oneblock.configManager.getMainConfigFile());
 
         ctx.sender().sendMessage(ChatColor.GREEN + "set OneBlock on: \n" +
                 ChatColor.WHITE + Oneblock.getX() + ", " + Oneblock.getY() + ", " + Oneblock.getZ() +

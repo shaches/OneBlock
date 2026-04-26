@@ -52,7 +52,7 @@ public final class ProgressBarCommand implements Subcommand {
         }
         if (args[1].equals("true") || args[1].equals("false")) {
             Oneblock.settings().progress_bar = Boolean.valueOf(args[1]);
-            ctx.plugin().configManager.loadBlocks();
+            Oneblock.configManager.loadBlocks();
             Oneblock.config.set("progress_bar", Oneblock.settings().progress_bar);
             return true;
         }
@@ -73,7 +73,7 @@ public final class ProgressBarCommand implements Subcommand {
                     Level.max.style = BarStyle.valueOf(args[2]);
                     Oneblock.config.set("progress_bar_style", Level.max.style.toString());
                 }
-                ctx.plugin().configManager.loadBlocks();
+                Oneblock.configManager.loadBlocks();
                 ctx.sender().sendMessage(String.format("%sProgress bar %s = %s", ChatColor.GREEN, args[1].toLowerCase(), args[2]));
             } catch (Exception e) {
                 ctx.sender().sendMessage(String.format("%sPlease enter a valid %s. For example: %s", ChatColor.YELLOW, args[1].toLowerCase(), isColor ? "RED" : "SOLID"));
@@ -83,7 +83,7 @@ public final class ProgressBarCommand implements Subcommand {
         if (args[1].equalsIgnoreCase("level")) {
             Oneblock.settings().lvl_bar_mode = true;
             Oneblock.config.set("progress_bar_text", "level");
-            ctx.plugin().configManager.setupProgressBar();
+            Oneblock.configManager.setupProgressBar();
             return true;
         }
         if (args[1].equalsIgnoreCase("settext")) {
@@ -92,7 +92,7 @@ public final class ProgressBarCommand implements Subcommand {
                 txt_bar = i == 2 ? args[i] : String.format("%s %s", txt_bar, args[i]);
             Oneblock.settings().lvl_bar_mode = false;
             Oneblock.config.set("progress_bar_text", Oneblock.settings().phText = Utils.translateColorCodes(txt_bar));
-            ctx.plugin().configManager.setupProgressBar();
+            Oneblock.configManager.setupProgressBar();
             return true;
         }
         ctx.sender().sendMessage(String.format("%strue, false, settext or level only!", ChatColor.RED));

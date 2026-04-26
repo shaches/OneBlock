@@ -51,7 +51,7 @@ public final class BoolToggleCommand implements Subcommand {
         String[] args = ctx.args();
         if (args.length > 1 && (args[1].equals("true") || args[1].equals("false"))) {
             Oneblock.config.set(flagName, Boolean.valueOf(args[1]));
-            ctx.plugin().configManager.updateBoolParameters();
+            Oneblock.configManager.updateBoolParameters();
         } else {
             ctx.sender().sendMessage(Messages.bool_format);
         }

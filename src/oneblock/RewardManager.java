@@ -5,7 +5,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import oneblock.utils.Utils;
-import oneblock.Oneblock;
 
 import java.io.File;
 import java.util.ArrayList;

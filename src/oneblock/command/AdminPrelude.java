@@ -23,7 +23,7 @@ public final class AdminPrelude {
     private AdminPrelude() {}
 
     public static void run(CommandContext ctx) {
-        final java.io.File f = ctx.plugin().configManager.getMainConfigFile();
+        final java.io.File f = Oneblock.configManager.getMainConfigFile();
         Oneblock.config = YamlConfiguration.loadConfiguration(f);
         Bukkit.getScheduler().runTaskLater(ctx.plugin(),
                 () -> LegacyConfigSaver.save(Oneblock.config, f), 2L);

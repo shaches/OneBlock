@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DatabaseManager {
     private static HikariDataSource dataSource;
