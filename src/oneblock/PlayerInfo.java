@@ -83,6 +83,8 @@ public final class PlayerInfo {
 	}
 
 	private void createBar(String text, BarColor color, BarStyle style) {
+		if (color == null) color = BarColor.GREEN;
+		if (style == null) style = BarStyle.SOLID;
 		if (bar == null) {
 			bar = Bukkit.createBossBar(text, color, style, BarFlag.DARKEN_SKY);
 			return;

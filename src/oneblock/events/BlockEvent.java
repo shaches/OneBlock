@@ -66,6 +66,14 @@ public class BlockEvent implements Listener {
 		if (block.getX() != result[0]) return;
 		if (block.getZ() != result[1]) return;
 		
-		Bukkit.getScheduler().runTaskLater(Oneblock.plugin, () -> {Oneblock.plugin.generateBlock(result[0], result[1], plID, ponl, block);}, 1L);
+		Bukkit.getScheduler().runTaskLater(Oneblock.plugin, () -> {
+			try {
+				Oneblock.plugin.generateBlock(result[0], result[1], plID, ponl, block);
+			} catch (Throwable t) {
+				Bukkit.getLogger().warning("[Oneblock] Block regeneration failed at "
+					+ block.getX() + "," + block.getY() + "," + block.getZ()
+					+ " for " + ponl.getName() + ": " + t);
+			}
+		}, 1L);
 	}
 }

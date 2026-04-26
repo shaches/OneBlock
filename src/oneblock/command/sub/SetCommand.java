@@ -78,6 +78,14 @@ public final class SetCommand implements Subcommand {
         // plugin.setOffset above already persisted `set` to config; no explicit set needed here.
         ctx.plugin().setPosition(location);
 
+        if (Oneblock.getOffset() == 0)
+            ctx.plugin().setOffset(100);
+
+        if (Oneblock.getOffset() == 0) {
+            ctx.sender().sendMessage(ChatColor.RED + "Island offset cannot be zero.");
+            return true;
+        }
+
         if (!ctx.plugin().enabled) ctx.plugin().runMainTask();
 
         Oneblock.getWorld().getBlockAt(Oneblock.getX(), Oneblock.getY(), Oneblock.getZ()).setType(Oneblock.GRASS_BLOCK.get());
