@@ -171,6 +171,7 @@ Create custom default islands (7x12x7 area):
 
 # 🛠️ Building from source
 
+<<<<<<< HEAD
 ### **Requirements:** 
 - JDK 21 (Temurin recommended)
 - Bundled Apache Maven 3.9.15 (included under `resources/apache-maven-3.9.15/`)
@@ -186,3 +187,31 @@ Create custom default islands (7x12x7 area):
 ```
 
 The shaded plugin jar will be produced in `target/Oneblock-*.jar`.
+=======
+Requires **JDK 21** (Temurin recommended) and the bundled Apache Maven 3.9.15
+distribution shipped under `resources/apache-maven-3.9.15/`.
+
+```powershell
+# Run the unit-test suite (47 JUnit 5 + AssertJ tests)
+.\resources\apache-maven-3.9.15\bin\mvn.cmd -B test
+
+# Produce a shaded plugin jar (target/Oneblock-*.jar)
+.\resources\apache-maven-3.9.15\bin\mvn.cmd -B -DskipTests clean package
+```
+
+On Linux / macOS use the equivalent `mvn` shell script under the same path.
+
+Tests that cover the runtime-critical modules:
+
+| Suite | Scope |
+| --- | --- |
+| `WeightedPoolTest`                  | Prefix-sum weighted random sampling, distribution accuracy, lazy rebuild |
+| `IslandCoordinateCalculatorTest`    | Linear / spiral island layout, iterative-vs-hybrid equivalence, grid alignment |
+| `PlayerInfoIndexTest`               | Thread-safe `UUID → island id` reverse index, mutation paths, top-list versioning |
+| `ChestItemsParseKeyTest`            | Tolerant `NamespacedKey` parsing, malformed-input handling |
+| `LegacyBlocksMigratorDetectionTest` | Legacy-vs-modern `blocks.yml`/`chests.yml` detection |
+| `UtilsTest`                         | `&`/`&#RRGGBB` color code translation |
+| `RewardManagerTest`                 | `SAFE_PLAYER_NAME` injection guard regex |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
+>>>>>>> origin/main

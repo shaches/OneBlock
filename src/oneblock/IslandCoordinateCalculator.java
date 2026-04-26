@@ -29,7 +29,11 @@ public final class IslandCoordinateCalculator {
 			if (offset == 0) { cellIndex = new ConcurrentHashMap<>(); return cellIndex; }
 			int half = offset >> 1;
 			int baseX = o.x(), baseZ = o.z();
+<<<<<<< HEAD
 			boolean circle = Oneblock.CircleMode;
+=======
+			boolean circle = Oneblock.settings().circleMode;
+>>>>>>> origin/main
 			ConcurrentMap<Long, Integer> fresh = new ConcurrentHashMap<>(Math.max(16, size * 2));
 			for (int i = 0; i < size; i++) {
 				int[] c = getById(i, baseX, baseZ, offset, circle);
@@ -76,12 +80,20 @@ public final class IslandCoordinateCalculator {
 
 	    // Fallback: original O(N) spiral-walk nearest-neighbour scan. Reached
 	    // only when the player is standing in a cell that no island occupies
+<<<<<<< HEAD
 	    // (e.g. far outside the populated area, or between IDs in CircleMode).
+=======
+	    // (e.g. far outside the populated area, or between IDs in circleMode).
+>>>>>>> origin/main
 	    int nearestId = 0;
 	    int minDistSq = Integer.MAX_VALUE;
 	    int halfDiameterSquared = (offset * offset) >> 2;
 	    int X = 0, Z = 0;
+<<<<<<< HEAD
 	    boolean CircleMode = Oneblock.CircleMode;
+=======
+	    boolean circleMode = Oneblock.settings().circleMode;
+>>>>>>> origin/main
 	    for (int i = 0; i < size; i++) {
 	        int dx = (X * offset + baseX) - locX;
 	        int dz = (Z * offset + baseZ) - locZ;
@@ -91,7 +103,11 @@ public final class IslandCoordinateCalculator {
 	            nearestId = i;
 	            if (minDistSq <= halfDiameterSquared) break;
 	        }
+<<<<<<< HEAD
 	        if (CircleMode) {
+=======
+	        if (circleMode) {
+>>>>>>> origin/main
 		    	if (X > Z)
 		    		if (X > -Z)
 		    			Z--;
@@ -107,8 +123,13 @@ public final class IslandCoordinateCalculator {
 	    return nearestId;
 	}
 
+<<<<<<< HEAD
 	public static int[] getById(int id, int x, int z, int diameter, boolean CircleMode) {
 		if (!CircleMode) return new int[] {id * diameter + x, z, id};
+=======
+	public static int[] getById(int id, int x, int z, int diameter, boolean circleMode) {
+		if (!circleMode) return new int[] {id * diameter + x, z, id};
+>>>>>>> origin/main
 
 		return getByIdHybrid(id, x, z, diameter);
 	}

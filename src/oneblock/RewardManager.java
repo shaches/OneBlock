@@ -1,6 +1,9 @@
 package oneblock;
+<<<<<<< HEAD
 
 import static oneblock.Oneblock.*;
+=======
+>>>>>>> origin/main
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+<<<<<<< HEAD
 
 public class RewardManager {
     // Reject anything that is not a Mojang-legal player name; blocks command-injection
@@ -21,6 +25,15 @@ public class RewardManager {
     // reward templates that are dispatched as console.
     private static final Pattern SAFE_PLAYER_NAME = Pattern.compile("^[A-Za-z0-9_]{1,16}$");
 
+=======
+
+public final class RewardManager {
+    // Reject anything that is not a Mojang-legal player name; blocks command-injection
+    // attempts via offline-mode / proxy-forwarded nicknames being substituted into
+    // reward templates that are dispatched as console.
+    private static final Pattern SAFE_PLAYER_NAME = Pattern.compile("^[A-Za-z0-9_]{1,16}$");
+
+>>>>>>> origin/main
     private List<String> allRewards = new ArrayList<>();
     private Map<Integer, List<String>> levelRewards = new HashMap<>();
     
@@ -28,9 +41,9 @@ public class RewardManager {
         allRewards.clear();
         levelRewards.clear();
         
-        File rewardsFile = new File(plugin.getDataFolder(), "rewards.yml");
+        File rewardsFile = new File(Oneblock.plugin.getDataFolder(), "rewards.yml");
         if (!rewardsFile.exists()) {
-            plugin.saveResource("rewards.yml", false);
+            Oneblock.plugin.saveResource("rewards.yml", false);
         }
         
         YamlConfiguration config = YamlConfiguration.loadConfiguration(rewardsFile);
@@ -56,19 +69,23 @@ public class RewardManager {
                     
                     levelRewards.put(level, processedRewards);
                 } catch (NumberFormatException e) {
-                    plugin.getLogger().warning("Invalid level number in rewards.yml: " + levelStr);
+                    Oneblock.plugin.getLogger().warning("Invalid level number in rewards.yml: " + levelStr);
                 }
             }
         }
         
-        plugin.getLogger().info("Loaded " + allRewards.size() + " general rewards and " + 
+        Oneblock.plugin.getLogger().info("Loaded " + allRewards.size() + " general rewards and " + 
                 levelRewards.size() + " level-specific reward sets");
     }
     
     public void executeRewards(Player player, int level, String levelName) {
         String playerName = player.getName();
         if (playerName == null || !SAFE_PLAYER_NAME.matcher(playerName).matches()) {
+<<<<<<< HEAD
             plugin.getLogger().warning("Skipping reward dispatch for player with unsafe name: '" + playerName + "'. Expected " + SAFE_PLAYER_NAME.pattern() + ".");
+=======
+            Oneblock.plugin.getLogger().warning("Skipping reward dispatch for player with unsafe name: '" + playerName + "'. Expected " + SAFE_PLAYER_NAME.pattern() + ".");
+>>>>>>> origin/main
             return;
         }
         

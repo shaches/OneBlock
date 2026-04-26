@@ -8,13 +8,23 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
+<<<<<<< HEAD
 import java.util.*;
+=======
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+>>>>>>> origin/main
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
+<<<<<<< HEAD
 public class PlayerInfo {
+=======
+public final class PlayerInfo {
+>>>>>>> origin/main
 	/**
 	 * Island-slot storage. Thread-safe for async reads (iterators are snapshot
 	 * copies) and main-thread mutations. External callers MUST NOT mutate this
@@ -31,7 +41,11 @@ public class PlayerInfo {
 	/**
 	 * Monotonic counter bumped whenever the top-list's sort order could have
 	 * changed (level-up, slot assignment, bulk reload). Consumers of
+<<<<<<< HEAD
 	 * {@code gettoplist} compare their cached version to this to decide if a
+=======
+	 * {@code getTopList} compare their cached version to this to decide if a
+>>>>>>> origin/main
 	 * re-sort is needed.
 	 */
 	private static final AtomicLong TOP_VERSION = new AtomicLong();
@@ -39,7 +53,25 @@ public class PlayerInfo {
 	public static final PlayerInfo not_found = new PlayerInfo(null);
 
 	public UUID uuid;
+<<<<<<< HEAD
 	public List<UUID> uuids = new ArrayList<UUID>();
+=======
+	/**
+	 * Co-owner / invitee UUIDs for this island. Phase 4.4 swapped the
+	 * previous {@code ArrayList} for a {@link CopyOnWriteArrayList} because
+	 * this list is iterated by the async {@code PlayerDataSaveTask} (via
+	 * {@code JsonPlayerDataStore.write} and {@code DatabaseManager.save})
+	 * every 6000 ticks while the main thread can concurrently call
+	 * {@link #addInvite(UUID)}, {@link #removeInvite(UUID)} or the
+	 * invitee-promotion path inside {@link #removeUUID(UUID)} from any
+	 * /ob accept / kick / idreset command. Pre-Phase-4.4 this was a
+	 * documented latent race - the iterator would CME if a save happened
+	 * to interleave a kick. The list is also read by the {@code OBP}
+	 * placeholder for {@code %OB_number_of_invited%}, which PlaceholderAPI
+	 * may dispatch from any thread depending on the requesting plugin.
+	 */
+	public final List<UUID> uuids = new CopyOnWriteArrayList<>();
+>>>>>>> origin/main
 	public int lvl = 0;
 	public int breaks = 0;
 	public BossBar bar = null;
@@ -67,6 +99,11 @@ public class PlayerInfo {
 	}
 
 	private void createBar(String text, BarColor color, BarStyle style) {
+<<<<<<< HEAD
+=======
+		if (color == null) color = BarColor.GREEN;
+		if (style == null) style = BarStyle.SOLID;
+>>>>>>> origin/main
 		if (bar == null) {
 			bar = Bukkit.createBossBar(text, color, style, BarFlag.DARKEN_SKY);
 			return;
@@ -123,7 +160,11 @@ public class PlayerInfo {
 		return (double) breaks / getNeed();
 	}
 
+<<<<<<< HEAD
 	public static void removeBarStatic(Player p) {
+=======
+	public static void removeBarFor(Player p) {
+>>>>>>> origin/main
 		if (list.isEmpty()) return;
 		get(p.getUniqueId()).removeBar(p);
 	}
@@ -132,7 +173,11 @@ public class PlayerInfo {
 	 * O(1) lookup of the island id that owns or has invited the given UUID.
 	 * Returns -1 if the UUID is not tracked.
 	 */
+<<<<<<< HEAD
 	public static int GetId(UUID uuid) {
+=======
+	public static int getId(UUID uuid) {
+>>>>>>> origin/main
 		if (uuid == null) return -1;
 		Integer id = UUID_INDEX.get(uuid);
 		return id == null ? -1 : id;
@@ -151,7 +196,11 @@ public class PlayerInfo {
 	}
 
 	public static PlayerInfo get(UUID uuid) {
+<<<<<<< HEAD
 		int plID = GetId(uuid);
+=======
+		int plID = getId(uuid);
+>>>>>>> origin/main
 		if (plID == -1) return not_found;
 		return list.get(plID);
 	}
@@ -193,11 +242,19 @@ public class PlayerInfo {
 		for (UUID u : inf.uuids) UUID_INDEX.put(u, id);
 	}
 
+<<<<<<< HEAD
 	/** Current top-list version. Use with {@code gettoplist} snapshot caching. */
 	public static long topVersion() { return TOP_VERSION.get(); }
 
 	public static int getFreeId(boolean UseEmptyIslands) {
 		if (UseEmptyIslands)
+=======
+	/** Current top-list version. Use with {@code getTopList} snapshot caching. */
+	public static long topVersion() { return TOP_VERSION.get(); }
+
+	public static int getFreeId(boolean useEmptyIslands) {
+		if (useEmptyIslands)
+>>>>>>> origin/main
 			return PlayerInfo.getNull();
 		return PlayerInfo.size();
 	}
@@ -221,4 +278,33 @@ public class PlayerInfo {
 			return rhs.lvl - lhs.lvl;
 		}
 	};
+<<<<<<< HEAD
+=======
+
+	/**
+	 * Identity equality keyed on {@link #uuid}. Two {@code PlayerInfo}
+	 * instances represent the same island slot iff they share an owner
+	 * UUID; the level / breaks counters are mutable per-island state and
+	 * intentionally not part of the contract. {@code uuid == null} only
+	 * matches another {@code uuid == null} (the {@link #not_found}
+	 * sentinel and freshly-allocated slots before assignment).
+	 *
+	 * <p>Phase 3.7 added this so {@code Oneblock.getTopPosition} no
+	 * longer relies on identity comparison of two list members - if the
+	 * top-list cache snapshot ever races a slot reassignment, structural
+	 * equality on UUID still works.
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof PlayerInfo)) return false;
+		PlayerInfo that = (PlayerInfo) o;
+		return java.util.Objects.equals(this.uuid, that.uuid);
+	}
+
+	@Override
+	public int hashCode() {
+		return java.util.Objects.hashCode(this.uuid);
+	}
+>>>>>>> origin/main
 }

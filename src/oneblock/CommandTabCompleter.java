@@ -13,7 +13,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.loot.LootTables;
 
-public class CommandTabCompleter implements TabCompleter {
+public final class CommandTabCompleter implements TabCompleter {
 	private final List<String> BASE_COMMANDS = Arrays.asList("j","join","leave","invite","accept","kick","help","gui","top");
 	private final List<String> VISIT_COMMANDS = Arrays.asList("v","visit");
 	private final List<String> ADMIN_COMMANDS = Arrays.asList("set","setleave","progress_bar","setlevel","clear","circlemode","lvl_mult","max_players_team", "chest", "saveplayerinventory",
@@ -112,6 +112,7 @@ public class CommandTabCompleter implements TabCompleter {
         	else if ("setlevel".equals(arg0))
         		for (int i = 0; i < Level.size(); i++)
         			commands.add(String.valueOf(i));
+<<<<<<< HEAD
         	else if ("chest".equals(arg0)) {
         		commands.add("set");
         		commands.add("edit");
@@ -120,6 +121,17 @@ public class CommandTabCompleter implements TabCompleter {
         else if (isAdmin && args.length == 4 && "chest".equalsIgnoreCase(args[0]) && "set".equalsIgnoreCase(args[2])) {
         	for (LootTables lt:LootTables.values())
         		commands.add(lt.getKey().toString());
+=======
+        	else if ("chest".equals(arg0))
+        		commands.add("set");
+        }
+        else if (isAdmin && args.length == 4 && "chest".equalsIgnoreCase(args[0]) && "set".equalsIgnoreCase(args[2])) {
+        	commands.add("minecraft:chests/simple_dungeon");
+        	commands.add("minecraft:chests/abandoned_mineshaft");
+        	commands.add("minecraft:chests/end_city_treasure");
+        	commands.add("minecraft:chests/buried_treasure");
+        	commands.add("minecraft:chests/nether_bridge");
+>>>>>>> origin/main
         }
         Collections.sort(commands);
         return commands;

@@ -16,7 +16,7 @@ import com.cryptomorin.xseries.XMaterial;
 
 import oneblock.utils.Utils;
 
-public class Island {
+public final class Island {
     public static BlockData[][][] custom = null;
     private static final int SIZE = 7;
     private static final int HEIGHT = 12;
@@ -97,7 +97,7 @@ public class Island {
     public static void place(World world, int x, int y, int z) {
     	XBlock.setType(world.getBlockAt(x, y, z), XMaterial.GRASS_BLOCK);
     	
-    	if (!Oneblock.island_for_new_players) return;
+    	if (!Oneblock.settings().island_for_new_players) return;
         if (custom == null) {
             createDefaultIsland(world, x, y, z);
             return;

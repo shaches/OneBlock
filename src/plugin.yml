@@ -1,6 +1,10 @@
 name:  Oneblock
 main:  oneblock.Oneblock
+<<<<<<< HEAD
 version:  1.6.0
+=======
+version:  1.5.3
+>>>>>>> origin/main
 api-version: 1.13
 author:  MrMarL
 loadbefore: ['Multiverse-Core']
@@ -24,7 +28,11 @@ permissions:
         description: Allows you to invite other players to your island to play together
         default: true
     Oneblock.kick:
+<<<<<<< HEAD
         description: Allows the island owner to kick members and visitors from their island
+=======
+        description: Allows the island owner to kick members from their team
+>>>>>>> origin/main
         default: true
     Oneblock.visit:
         description: Allows visiting other players islands

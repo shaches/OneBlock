@@ -1,4 +1,5 @@
 /.settings
+/.vscode
 .classpath
 .gitattributes
 .project
@@ -6,3 +7,21 @@
 /target
 /lib
 /resources
+
+# Refactor workspace scratch area
+/.tmp/
+
+# IDE / OS
+*.iml
+.idea/
+.DS_Store
+Thumbs.db
+/.windsurf/
+skills-lock.json
+
+# Maven generated
+/dependency-reduced-pom.xml
+
+# Test / coverage reports
+/coverage/
+*.exec

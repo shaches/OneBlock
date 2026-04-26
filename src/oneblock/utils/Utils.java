@@ -5,10 +5,28 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+<<<<<<< HEAD
 import org.bukkit.World;
 
 public class Utils {
     public static final boolean isWorldMinHeightSupported = findMethod(World.class, "getMinHeight");
+=======
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+
+public class Utils {
+    public static OfflinePlayer getOfflinePlayerByName(String name) {
+        OfflinePlayer online = Bukkit.getPlayerExact(name);
+        if (online != null) return online;
+        for (OfflinePlayer op : Bukkit.getOfflinePlayers()) {
+            if (name.equalsIgnoreCase(op.getName())) return op;
+        }
+        return null;
+    }
+	
+    public static boolean isWorldMinHeightSupported = findMethod(World.class, "getMinHeight");
+>>>>>>> origin/main
 	
     public static boolean findMethod(final Class<?> cl, String name) {
         return Arrays.stream(cl.getMethods()).anyMatch(m -> m.getName().equals(name));
