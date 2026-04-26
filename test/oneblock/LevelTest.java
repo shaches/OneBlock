@@ -3,6 +3,7 @@ package oneblock;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -28,19 +29,18 @@ class LevelTest {
 
     @BeforeEach
     void snapshotAndReset() {
-        savedLevels = new ArrayList<>(Level.levels);
+        savedLevels = new ArrayList<>(Level.snapshot());
         savedMax = Level.max;
         savedMultiplier = Level.multiplier;
 
-        Level.levels.clear();
+        Level.replaceAll(null);
         Level.max = new Level("Level: MAX");
         Level.multiplier = 5;
     }
 
     @AfterEach
     void restore() {
-        Level.levels.clear();
-        Level.levels.addAll(savedLevels);
+        Level.replaceAll(savedLevels);
         Level.max = savedMax;
         Level.multiplier = savedMultiplier;
     }
@@ -57,8 +57,7 @@ class LevelTest {
     void getInRangeReturnsEntry() {
         Level l0 = new Level("Zero");
         Level l1 = new Level("One");
-        Level.levels.add(l0);
-        Level.levels.add(l1);
+        Level.replaceAll(Arrays.asList(l0, l1));
 
         assertThat(Level.get(0)).isSameAs(l0);
         assertThat(Level.get(1)).isSameAs(l1);
@@ -66,12 +65,12 @@ class LevelTest {
     }
 
     @Test
-    @DisplayName("size() reflects Level.levels.size()")
+    @DisplayName("size() reflects the published levels list size")
     void sizeReflectsList() {
         assertThat(Level.size()).isZero();
-        Level.levels.add(new Level("foo"));
+        Level.replaceAll(Arrays.asList(new Level("foo")));
         assertThat(Level.size()).isEqualTo(1);
-        Level.levels.add(new Level("bar"));
+        Level.replaceAll(Arrays.asList(new Level("foo"), new Level("bar")));
         assertThat(Level.size()).isEqualTo(2);
     }
 
@@ -113,9 +112,7 @@ class LevelTest {
         Level l0 = new Level("Zero");
         Level l1 = new Level("One");
         Level l2 = new Level("Two");
-        Level.levels.add(l0);
-        Level.levels.add(l1);
-        Level.levels.add(l2);
+        Level.replaceAll(Arrays.asList(l0, l1, l2));
 
         assertThat(l0.getId()).isEqualTo(0);
         assertThat(l1.getId()).isEqualTo(1);

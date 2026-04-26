@@ -112,7 +112,6 @@ public final class ConfigManager {
     }
         
 	public void loadBlocks() {
-    	Level.levels.clear();
     	Level.max.resetPools();
         File block = getFile("blocks.yml");
         
@@ -124,11 +123,23 @@ public final class ConfigManager {
         config_temp = YamlConfiguration.loadConfiguration(block);
         
         // MaxLevel: may be scalar (name-only, legacy passthrough) or a full list entry.
+        // For the max parser we pass idx=1 because Level.max is never a member of
+        // the published levels list - this preserves the legacy length-default of
+        // 16 + 1*Level.multiplier that the pre-Phase-4.1 level.getId() fallback
+        // produced for max.
         if (config_temp.isString("MaxLevel"))
         	Level.max.name = Utils.translateColorCodes(config_temp.getString("MaxLevel"));
         else if (config_temp.isList("MaxLevel"))
-        	parseLevelFromList(config_temp.getList("MaxLevel"), Level.max);
+        	parseLevelFromList(config_temp.getList("MaxLevel"), Level.max, 1);
         
+        // Phase 4.1: stage levels in a fresh local list and only publish via
+        // Level.replaceAll once the parse loop completed without throwing. If a
+        // parse step throws (rare - most YAML failures are tolerated with a
+        // warning) the previous Level.levels stays visible to async readers.
+        // parseLevelFromList receives the loop index `i` so its length-default
+        // fallback no longer depends on level.getId() against the published
+        // list (the staged level isn't a member of Level.levels yet).
+        List<Level> stagedLevels = new ArrayList<>();
         for (int i = 0; config_temp.isList(String.format("%d", i)); i++) {
         	List<?> bl_temp = config_temp.getList(String.format("%d", i));
         	if (bl_temp == null || bl_temp.isEmpty()) continue;
@@ -136,16 +147,18 @@ public final class ConfigManager {
         	Level level = new Level(first instanceof String
         			? Utils.translateColorCodes((String) first)
         			: "Level " + i);
-        	Level.levels.add(level);
-        	parseLevelFromList(bl_temp, level);
+        	stagedLevels.add(level);
+        	parseLevelFromList(bl_temp, level, i);
         }
         
         if (Level.max.mobPoolSize() == 0) {
         	int totalMobs = 0;
-        	for (Level lvl : Level.levels) totalMobs += lvl.mobPoolSize();
+        	for (Level lvl : stagedLevels) totalMobs += lvl.mobPoolSize();
         	if (totalMobs == 0)
         		Oneblock.plugin.getLogger().warning("Mobs are not set in the blocks.yml");
         }
+        
+        Level.replaceAll(stagedLevels);
         
         setupProgressBar();
     }
@@ -157,7 +170,7 @@ public final class ConfigManager {
      * (legacy, weight=1) or maps with {@code block|mob|loot_table|command} + optional
      * {@code weight}. Unresolved / malformed entries are skipped with a warning.
      */
-    private void parseLevelFromList(List<?> bl_temp, Level level) {
+    private void parseLevelFromList(List<?> bl_temp, Level level, int idx) {
     	if (bl_temp == null || bl_temp.isEmpty()) return;
     	int q = 0;
     	if (q < bl_temp.size() && bl_temp.get(q) instanceof String) {
@@ -192,9 +205,9 @@ public final class ConfigManager {
     			try {
     				level.length = Math.max(1, Integer.parseInt((String) lenItem));
     				q++;
-    			} catch (Exception e) { level.length = 16 + level.getId() * Level.multiplier; }
+    			} catch (Exception e) { level.length = 16 + idx * Level.multiplier; }
     		} else {
-    			level.length = 16 + level.getId() * Level.multiplier;
+    			level.length = 16 + idx * Level.multiplier;
     		}
     	}
     	while (q < bl_temp.size()) {
