@@ -105,19 +105,25 @@ public class Oneblock extends JavaPlugin {
     
     /**
      * Leave-world reference. Written only by the main thread (
-     * {@link #setLeave} + admin commands); {@code volatile} so the async
      * {@link Initialization} task's first read picks up a freshly-assigned
      * value. Separate from {@link #ORIGIN} because it belongs to a different
      * workflow (player teleport destination) and is updated independently.
      */
     public static volatile World leavewor;
     boolean PAPI = false;
-    boolean enabled = false;
-    
+    /**
+     * True after the four steady-state runners ({@code PlayerCacheRefresh},
+     * {@code PlayerDataSave}, {@code IslandParticle}, {@code IslandBlockGen})
+     * have been scheduled by {@link #runMainTask()}. Read by {@code JoinCommand}
+     * to decide whether the first {@code /ob j} after a fresh server start
+     * needs to kick off the runners. Public for cross-package access from
+     * {@code oneblock.command.sub.*} after the Phase 3.5 split.
+     */
+    public boolean enabled = false;
+
     public ArrayList <XMaterial> flowers = new ArrayList<>();
     public PlayerCache cache = new PlayerCache();
-    
-    /** Shorthand for {@code origin().world()}. Pre-config returns {@code null}. */
+
     public final static World getWorld() { return ORIGIN.get().world(); }
     /** Snapshot of the current island origin. Always non-null. */
     public static IslandOrigin origin()  { return ORIGIN.get(); }

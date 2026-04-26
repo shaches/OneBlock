@@ -62,6 +62,13 @@ public class CommandHandler implements CommandExecutor {
 		register(new oneblock.command.sub.HelpCommand());
 		register(new oneblock.command.sub.LeaveCommand());
 		register(new oneblock.command.sub.AllowVisitCommand());
+		// Phase 3.5b - Batch 2: complex user-facing commands. JoinCommand
+		// owns the `j` alias too; VisitCommand owns `v`; the rest are
+		// single-name.
+		register(new oneblock.command.sub.JoinCommand(), "j");
+		register(new oneblock.command.sub.VisitCommand(), "v");
+		register(new oneblock.command.sub.InviteCommand());
+		register(new oneblock.command.sub.KickCommand());
 	}
 
 	public static boolean idresetCommand(OfflinePlayer pl) {
@@ -112,140 +119,6 @@ public class CommandHandler implements CommandExecutor {
 
         switch (parametr) 
         {
-	        case ("j"):
-	        case ("join"): {
-	            if (getOffset() == 0 || getWorld() == null) {
-	            	sender.sendMessage(ChatColor.YELLOW + "First you need to set the reference coordinates '/ob set'.");
-	            	return true;
-	            }
-	            if (player == null) return false;
-	            UUID uuid = player.getUniqueId();
-	            int X_pl = 0, Z_pl = 0;
-	            int plID = PlayerInfo.GetId(uuid);
-	            if (plID == -1) {
-	            	PlayerInfo inf = new PlayerInfo(uuid);
-	            	plID = PlayerInfo.getFreeId(settings().UseEmptyIslands);
-	            	int result[] = plugin.getIslandCoordinates(plID);
-	            	X_pl = result[0]; Z_pl = result[1];
-	            	if (plID != PlayerInfo.size())
-	            		Island.clear(getWorld(), X_pl, getY(), Z_pl, getOffset()/4);
-	                Island.place(getWorld(), X_pl, getY(), Z_pl);
-	                plugin.OBWG.CreateRegion(uuid, X_pl, Z_pl, getOffset(), plID);
-					PlayerInfo.set(plID, inf);
-					if (!superlegacy)
-						inf.createBar(getBarTitle(player, 0));
-	            } 
-	            else {
-	            	int result[] = plugin.getIslandCoordinates(plID);
-	                X_pl = result[0]; Z_pl = result[1];
-	            }
-	            if (!plugin.enabled) plugin.runMainTask();
-	            if (settings().progress_bar) PlayerInfo.get(plID).bar.setVisible(true);
-	            player.teleport(new Location(getWorld(), X_pl + 0.5, getY() + 1.2013, Z_pl + 0.5));
-	            if (OBWorldGuard.isEnabled()) plugin.OBWG.addMember(uuid, plID);
-	            return true;
-	        }
-	        case ("v"):
-	        case ("visit"): {
-	        	if (!requirePermission(sender, "Oneblock.visit")) return true;
-	        	if (player == null) return false;
-	            if (args.length < 2) {
-	        		GUI.visitGUI(player, Bukkit.getOfflinePlayers());
-	        		return true;
-	        	}
-	            OfflinePlayer inv = Utils.getOfflinePlayerByName(args[1]);
-	        	if (inv == null) return true;
-	    		if (inv == player) {
-	    			player.performCommand("ob j");
-	    			return true;
-	    		}
-	    		UUID uuid = inv.getUniqueId();
-	    		final int plID = PlayerInfo.GetId(uuid);
-	    		if (plID == -1) {
-	    			sender.sendMessage(Messages.invite_no_island);
-	    			return true;
-	    		}
-	    		PlayerInfo pinf = PlayerInfo.get(uuid);
-	    		if (!pinf.allow_visit || (inv instanceof Player && !((Player) inv).hasPermission("Oneblock.allow_visit"))) {
-	    			pinf.allow_visit = false;
-	    			sender.sendMessage(Messages.not_allow_visit);
-	    			return true;
-	    		}
-	        	final int result[] = plugin.getIslandCoordinates(plID);
-	            final int X_pl = result[0], Z_pl = result[1];
-	    		
-	            if (settings().protection) Guest.list.add(new Guest(uuid, player.getUniqueId()));
-	            player.teleport(new Location(getWorld(), X_pl + 0.5, getY() + 1.2013, Z_pl + 0.5));
-	    		PlayerInfo.removeBarStatic(player);
-	            return true;
-	        }
-	        case ("invite"): {
-	        	if (!requirePermission(sender, "Oneblock.invite")) return true;
-	        	if (args.length < 2) {
-	        		sender.sendMessage(Messages.invite_usage);
-	        		return true;
-	        	}
-	        	if (player == null) return false;
-	        	Player inv = Bukkit.getPlayer(args[1]);
-	        	if (inv == null) return true;
-	    		if (inv == player) {
-	    			sender.sendMessage(Messages.invite_yourself);
-	    			return true;
-	    		}
-	    		UUID uuid = player.getUniqueId();
-	    		if (PlayerInfo.GetId(uuid) == -1) {
-	    			sender.sendMessage(Messages.invite_no_island);
-	    			return true;
-	    		}
-	    		int maxTeam = settings().max_players_team;
-	    		if (maxTeam != 0) {
-	    			PlayerInfo pinf = PlayerInfo.get(uuid);
-	    			if (pinf.uuids.size() >= maxTeam) {
-	        			sender.sendMessage(String.format(Messages.invite_team, maxTeam));
-	        			return true;
-	    			}
-	    		}
-	    		Invitation.add(uuid, inv.getUniqueId());
-	    		String name = player.getName();
-	    		GUI.acceptGUI(inv, name);
-	    		inv.sendMessage(String.format(Messages.invited, name));
-	    		sender.sendMessage(String.format(Messages.invited_success, inv.getName()));
-	        	return true;
-	        }
-	        case ("kick"): {
-	        	if (!requirePermission(sender, "Oneblock.kick")) return true;
-	        	if (args.length < 2) {
-	        		sender.sendMessage(Messages.kick_usage);
-	        		return true;
-	        	}
-	        	OfflinePlayer member = Utils.getOfflinePlayerByName(args[1]);
-	        	if (member == null) return true;
-	        	if (player == null) return false;
-	        	if (member == player) {
-	        		sender.sendMessage(Messages.kick_yourself);
-	        		return true;
-	        	}
-	        	UUID owner_uuid = player.getUniqueId(), member_uuid = member.getUniqueId();
-	        	if (!PlayerInfo.existsAsOwner(owner_uuid))
-	        		return true;
-	        	int ownerID = PlayerInfo.GetId(owner_uuid);
-	        	PlayerInfo info = PlayerInfo.get(ownerID);
-	        	if (info.uuids.contains(member_uuid)) {
-	        		info.removeInvite(member_uuid);
-	        		if (OBWorldGuard.isEnabled())
-	        			plugin.OBWG.removeMember(member_uuid, ownerID);
-	        	}
-	        	if (!(member instanceof Player)) return true;
-	        	Player member_ex = (Player) member;
-	        	int memberID = plugin.findNearestRegionId(member_ex.getLocation());
-	        	if (memberID == ownerID) {
-	        		if (!member_ex.hasPermission("Oneblock.set"))
-	        			member_ex.performCommand("ob j");
-	        		info.removeBar(member_ex);
-	        		sender.sendMessage(member.getName() + Messages.kicked);
-	        	}
-	        	return true;
-	        }
 	        case ("gui"): {
 	        	if (args.length == 1) {
 	        		GUI.openGUI(player);
