@@ -1,7 +1,5 @@
 package oneblock;
 
-import static oneblock.Oneblock.*;
-
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -45,24 +43,24 @@ public final class ConfigManager {
 	
     public void loadMainConfig() {
     	File con = getFile("config.yml");
-        config = LowerCaseYaml.loadAndFixConfig(con);
+        Oneblock.config = LowerCaseYaml.loadAndFixConfig(con);
         
-        plugin.setPosition(
+        Oneblock.plugin.setPosition(
         		Bukkit.getWorld(readOrDefault("world", "world")),
-        		(int)readOrDefault("x", (double) getX()), 
-        		(int)readOrDefault("y", (double) getY()), 
-        		(int)readOrDefault("z", (double) getZ()));
+        		(int)readOrDefault("x", (double) Oneblock.getX()), 
+        		(int)readOrDefault("y", (double) Oneblock.getY()), 
+        		(int)readOrDefault("z", (double) Oneblock.getZ()));
         
-        plugin.setLeave(
+        Oneblock.plugin.setLeave(
         		Bukkit.getWorld(readOrDefault("leaveworld", "world")), 
         		readOrDefault("xleave", .0), 
         		readOrDefault("yleave", .0), 
         		readOrDefault("zleave", .0), 
         		(float)readOrDefault("yawleave", .0));
         
-        // Single-call cache so we don't dereference settings() once per field.
-        oneblock.config.Settings s = settings();
-        if (!superlegacy) {
+        // Single-call cache so we don't dereference Oneblock.settings() once per field.
+        oneblock.config.Settings s = Oneblock.settings();
+        if (!Oneblock.superlegacy) {
         	s.progress_bar = readOrDefault("progress_bar", true);
         	Level.max.color = BarColor.valueOf(readOrDefault("progress_bar_color", "GREEN"));
         	Level.max.style = BarStyle.valueOf(readOrDefault("progress_bar_style", "SOLID"));
@@ -77,17 +75,17 @@ public final class ConfigManager {
         updateBoolParameters();
         OBWorldGuard.setEnabled(readOrDefault("worldguard", OBWorldGuard.canUse));
         OBWorldGuard.flags = readOrDefault("wgflags", OBWorldGuard.flags);
-        plugin.setOffset(readOrDefault("set", 100));
-        if (config.isSet("custom_island") && !legacy)
-        	Island.read(config);
+        Oneblock.plugin.setOffset(readOrDefault("set", 100));
+        if (Oneblock.config.isSet("custom_island") && !Oneblock.legacy)
+        	Island.read(Oneblock.config);
         
         DatabaseConfig();
         
-        LegacyConfigSaver.save(config, con);
+        LegacyConfigSaver.save(Oneblock.config, con);
     }
 	 
     public void updateBoolParameters() {
-    	oneblock.config.Settings s = settings();
+    	oneblock.config.Settings s = Oneblock.settings();
     	s.circleMode = readOrDefault("circlemode", s.circleMode);
     	s.useEmptyIslands = readOrDefault("useemptyislands", s.useEmptyIslands);
     	s.saveplayerinventory = readOrDefault("saveplayerinventory", s.saveplayerinventory);
@@ -99,7 +97,7 @@ public final class ConfigManager {
         s.allow_nether = readOrDefault("allow_nether", s.allow_nether);
         GUI.enabled = readOrDefault("gui", GUI.enabled);
         s.rebirth = readOrDefault("rebirth_on_the_island", s.rebirth);
-        if (isBorderSupported) s.border = readOrDefault("border", s.border);
+        if (Oneblock.isBorderSupported) s.border = readOrDefault("border", s.border);
     }
     
     private void DatabaseConfig() {
@@ -146,7 +144,7 @@ public final class ConfigManager {
         	int totalMobs = 0;
         	for (Level lvl : Level.levels) totalMobs += lvl.mobPoolSize();
         	if (totalMobs == 0)
-        		plugin.getLogger().warning("Mobs are not set in the blocks.yml");
+        		Oneblock.plugin.getLogger().warning("Mobs are not set in the blocks.yml");
         }
         
         setupProgressBar();
@@ -170,7 +168,7 @@ public final class ConfigManager {
     	// OR the next header field (length) OR the first pool entry. We attempt
     	// each shape in turn; on failure we DO NOT advance q, leaving the string
     	// for the next parser. This is legacy config compatibility, not a bug.
-    	if (!superlegacy && q < bl_temp.size() && bl_temp.get(q) instanceof String) {
+    	if (!Oneblock.superlegacy && q < bl_temp.size() && bl_temp.get(q) instanceof String) {
     		try {
     			level.color = BarColor.valueOf(((String) bl_temp.get(q)).toUpperCase());
     			q++;
@@ -220,7 +218,7 @@ public final class ConfigManager {
     			else if (w != null) {
     				try { weight = Math.max(1, Integer.parseInt(w.toString())); }
     				catch (NumberFormatException nfe) {
-    					plugin.getLogger().warning("[Oneblock] blocks.yml: non-numeric weight '" + w + "' in entry " + m + "; defaulting to 1.");
+    					Oneblock.plugin.getLogger().warning("[Oneblock] blocks.yml: non-numeric weight '" + w + "' in entry " + m + "; defaulting to 1.");
     				}
     			}
     		}
@@ -229,7 +227,7 @@ public final class ConfigManager {
     		else if (m.containsKey("loot_table")) { kind = "loot_table"; payload = m.get("loot_table"); }
     		else if (m.containsKey("command"))    { kind = "command";    payload = m.get("command"); }
     		else {
-    			plugin.getLogger().warning("[Oneblock] blocks.yml: entry has no recognized kind (expected one of block/mob/loot_table/command): " + m);
+    			Oneblock.plugin.getLogger().warning("[Oneblock] blocks.yml: entry has no recognized kind (expected one of block/mob/loot_table/command): " + m);
     			return;
     		}
     	} else if (raw instanceof String) {
@@ -253,7 +251,7 @@ public final class ConfigManager {
     			EntityType et;
     			try { et = EntityType.valueOf(payload.toString().toUpperCase()); }
     			catch (Exception e) {
-    				plugin.getLogger().warning("[Oneblock] blocks.yml: unknown mob '" + payload + "'");
+    				Oneblock.plugin.getLogger().warning("[Oneblock] blocks.yml: unknown mob '" + payload + "'");
     				return;
     			}
     			level.mobPool.add(et, weight);
@@ -261,7 +259,7 @@ public final class ConfigManager {
     		case "loot_table":
     			NamespacedKey key = ChestItems.parseKey(payload.toString());
     			if (key == null) {
-    				plugin.getLogger().warning("[Oneblock] blocks.yml: invalid loot table key '" + payload + "'");
+    				Oneblock.plugin.getLogger().warning("[Oneblock] blocks.yml: invalid loot table key '" + payload + "'");
     				return;
     			}
     			level.blockPool.add(PoolEntry.lootTable(key), weight);
@@ -281,11 +279,11 @@ public final class ConfigManager {
     private PoolEntry resolveBlock(String text) {
     	if (text == null || text.isEmpty()) return PoolEntry.GRASS;
     	Object mt = Material.matchMaterial(text);
-    	if (mt == null || mt == GRASS_BLOCK || !((Material) mt).isBlock())
+    	if (mt == null || mt == Oneblock.GRASS_BLOCK || !((Material) mt).isBlock())
     		mt = getCustomBlock(text);
-    	if (legacy && mt == null) {
+    	if (Oneblock.legacy && mt == null) {
     		mt = XMaterial.matchXMaterial(text)
-    				.map(xmt -> xmt == GRASS_BLOCK ? null : xmt)
+    				.map(xmt -> xmt == Oneblock.GRASS_BLOCK ? null : xmt)
     				.orElse(null);
     	}
     	if (mt == null) return PoolEntry.GRASS;
@@ -293,7 +291,7 @@ public final class ConfigManager {
     }
 	
 	private Object getCustomBlock(String text) {
-	    switch (plugin.placetype) {
+	    switch (Oneblock.plugin.placetype) {
 	        case ItemsAdder: return CustomBlock.getInstance(text);
 	        case Oraxen: return OraxenItems.exists(text) ? text : null;
 	        case Nexo: return NexoBlocks.isCustomBlock(text) ? text : null;
@@ -305,7 +303,7 @@ public final class ConfigManager {
 	}
 	
     public void setupProgressBar() {
-		if (superlegacy) return;
+		if (Oneblock.superlegacy) return;
 		if (PlayerInfo.size() == 0) return;
 		
 		if (Level.max.color == null) Level.max.color = BarColor.GREEN;
@@ -316,9 +314,9 @@ public final class ConfigManager {
 			if (p == null)
 				inf.createBar();
 			else
-				inf.createBar(getBarTitle(p, inf.lvl));
+				inf.createBar(Oneblock.getBarTitle(p, inf.lvl));
         	        	
-			inf.bar.setVisible(settings().progress_bar);
+			inf.bar.setVisible(Oneblock.settings().progress_bar);
         }});
 	}
 	
@@ -365,12 +363,12 @@ public final class ConfigManager {
     }
     
     private void loadFlowers() {
-        plugin.flowers.clear();
+        Oneblock.plugin.flowers.clear();
         File flower = getFile("flowers.yml");
         config_temp = YamlConfiguration.loadConfiguration(flower);
-        plugin.flowers.add(GRASS);
+        Oneblock.plugin.flowers.add(Oneblock.GRASS);
         for(String list:config_temp.getStringList("flowers"))
-        	plugin.flowers.add(XMaterial.matchXMaterial(list).orElse(GRASS));
+        	Oneblock.plugin.flowers.add(XMaterial.matchXMaterial(list).orElse(Oneblock.GRASS));
     }
     
     private void loadChests() {
@@ -380,9 +378,9 @@ public final class ConfigManager {
     }
     
     File getFile(String name) {
-    	File file = new File(plugin.getDataFolder(), name);
+    	File file = new File(Oneblock.plugin.getDataFolder(), name);
         if (!file.exists())
-        	plugin.saveResource(name, false);
+        	Oneblock.plugin.saveResource(name, false);
         return file;
     }
 
@@ -396,28 +394,28 @@ public final class ConfigManager {
     public File getMainConfigFile() { return getFile("config.yml"); }
     
     String readOrDefault(String type, String data) {
-    	if (!config.isString(type))
-            config.set(type, data);
-    	return config.getString(type);
+    	if (!Oneblock.config.isString(type))
+            Oneblock.config.set(type, data);
+    	return Oneblock.config.getString(type);
     }
     int readOrDefault(String type, int data) {
-    	if (!config.isInt(type))
-            config.set(type, data);
-    	return config.getInt(type);
+    	if (!Oneblock.config.isInt(type))
+            Oneblock.config.set(type, data);
+    	return Oneblock.config.getInt(type);
     }
     double readOrDefault(String type, double data) {
-    	if (!config.isDouble(type))
-            config.set(type, data);
-    	return config.getDouble(type);
+    	if (!Oneblock.config.isDouble(type))
+            Oneblock.config.set(type, data);
+    	return Oneblock.config.getDouble(type);
     }
     boolean readOrDefault(String type, boolean data) {
-    	if (!config.isBoolean(type))
-            config.set(type, data);
-    	return config.getBoolean(type);
+    	if (!Oneblock.config.isBoolean(type))
+            Oneblock.config.set(type, data);
+    	return Oneblock.config.getBoolean(type);
     }
     List<String> readOrDefault(String type, List<String> data) {
-    	if (!config.isList(type))
-            config.set(type, data);
-    	return config.getStringList(type);
+    	if (!Oneblock.config.isList(type))
+            Oneblock.config.set(type, data);
+    	return Oneblock.config.getStringList(type);
     }
 }

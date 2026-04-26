@@ -1,15 +1,13 @@
 package oneblock.storage;
 
-import static oneblock.Oneblock.*;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import oneblock.Oneblock;
 import oneblock.PlayerInfo;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class DatabaseManager {
     private static HikariDataSource dataSource;
@@ -29,8 +27,8 @@ public class DatabaseManager {
     
     public static void initialize() {
         if ("json".equals(dbType)) {
-        	plugin.getLogger().info("Database usage is turned off in the configuration");
-            plugin.getLogger().info("Using JSON storage");
+        	Oneblock.plugin.getLogger().info("Database usage is turned off in the configuration");
+            Oneblock.plugin.getLogger().info("Using JSON storage");
             return;
         }
         
@@ -59,10 +57,10 @@ public class DatabaseManager {
                 config.addDataSourceProperty("allowLoadLocalInfileInPath", "");
                 config.addDataSourceProperty("allowPublicKeyRetrieval", "false");
                 if (!useSSL) {
-                    plugin.getLogger().warning("database.useSSL is false; MySQL credentials and data will traverse the network in plaintext.");
+                    Oneblock.plugin.getLogger().warning("database.useSSL is false; MySQL credentials and data will traverse the network in plaintext.");
                 }
             } else { // h2
-                String h2Path = plugin.getDataFolder().getAbsolutePath() + "/PlData";
+                String h2Path = Oneblock.plugin.getDataFolder().getAbsolutePath() + "/PlData";
                 if (h2Path.indexOf(';') >= 0) {
                     throw new IllegalArgumentException("Plugin data folder path contains ';' which is unsafe for the H2 JDBC URL: " + h2Path);
                 }
@@ -85,10 +83,10 @@ public class DatabaseManager {
             
             dataSource = new HikariDataSource(config);
             
-            plugin.getLogger().info("Database initialized successfully (" + dbType + ")");
+            Oneblock.plugin.getLogger().info("Database initialized successfully (" + dbType + ")");
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to initialize Database", e);
-            plugin.getLogger().info("Using JSON storage");
+            Oneblock.plugin.getLogger().log(Level.SEVERE, "Failed to initialize Database", e);
+            Oneblock.plugin.getLogger().info("Using JSON storage");
             dataSource = null;
         }
         
@@ -111,7 +109,7 @@ public class DatabaseManager {
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to create table", e);
+            Oneblock.plugin.getLogger().log(Level.SEVERE, "Failed to create table", e);
         }
     }
     
@@ -148,9 +146,9 @@ public class DatabaseManager {
                 players.add(player);
             }
             
-            plugin.getLogger().info("Loaded " + players.size() + " island slots from database");
+            Oneblock.plugin.getLogger().info("Loaded " + players.size() + " island slots from database");
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to load player data from Database", e);
+            Oneblock.plugin.getLogger().log(Level.SEVERE, "Failed to load player data from Database", e);
         }
         
         return players;
@@ -208,11 +206,11 @@ public class DatabaseManager {
             }
             conn.commit();
             
-            plugin.getLogger().info("Saved " + savedCount + " islands to database");
+            Oneblock.plugin.getLogger().info("Saved " + savedCount + " islands to database");
             return true;
             
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to save player data", e);
+            Oneblock.plugin.getLogger().log(Level.SEVERE, "Failed to save player data", e);
             return false;
         }
     }

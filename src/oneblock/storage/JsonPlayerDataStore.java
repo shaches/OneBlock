@@ -1,7 +1,5 @@
 package oneblock.storage;
 
-import static oneblock.Oneblock.*;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -14,6 +12,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import oneblock.Oneblock;
 import oneblock.PlayerInfo;
 import oneblock.utils.Utils;
 
@@ -28,7 +27,7 @@ import oneblock.utils.Utils;
  */
 public class JsonPlayerDataStore {
 	public static final Pattern p = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
-	public static final File f = new File(plugin.getDataFolder(), "PlData.json");
+	public static final File f = new File(Oneblock.plugin.getDataFolder(), "PlData.json");
 
 	@SuppressWarnings("unchecked")
 	public static void write(List<PlayerInfo> pls) {
@@ -60,7 +59,7 @@ public class JsonPlayerDataStore {
 			file.write(main.toJSONString());
 			file.flush();
 		} catch (Exception e) {
-			plugin.getLogger().warning("Failed to write player data to JSON: " + e.getMessage());
+			Oneblock.plugin.getLogger().warning("Failed to write player data to JSON: " + e.getMessage());
 		}
 	}
 
@@ -70,7 +69,7 @@ public class JsonPlayerDataStore {
 		try (FileReader reader = new FileReader(f)) {
 			main = (JSONObject) parser.parse(reader);
 		} catch (Exception e) {
-			plugin.getLogger().warning("Failed to read player data from JSON: " + e.getMessage());
+			Oneblock.plugin.getLogger().warning("Failed to read player data from JSON: " + e.getMessage());
 		}
 		
 		List <PlayerInfo> infs = new ArrayList <PlayerInfo>();
@@ -78,7 +77,7 @@ public class JsonPlayerDataStore {
 			return infs;
 		PlayerInfo nullable = new PlayerInfo(null);
 		Object idObj = main.get("id");
-		if (!(idObj instanceof Number)) { plugin.getLogger().warning("[Oneblock] PlData.json missing or non-numeric 'id' header; treating as empty."); return infs; }
+		if (!(idObj instanceof Number)) { Oneblock.plugin.getLogger().warning("[Oneblock] PlData.json missing or non-numeric 'id' header; treating as empty."); return infs; }
 		int id = ((Number) idObj).intValue();
 		for(int i = 0; i<id ;i++) {
 			JSONObject user = (JSONObject) main.get(""+i);
@@ -122,7 +121,7 @@ public class JsonPlayerDataStore {
 		}
 		Object nickRaw = user.get("nick");
 		if (nickRaw instanceof String) return resolveUuid((String) nickRaw, row, "owner");
-		plugin.getLogger().warning("[Oneblock] PlData.json row " + row + " has neither 'uuid' nor 'nick'; skipping");
+		Oneblock.plugin.getLogger().warning("[Oneblock] PlData.json row " + row + " has neither 'uuid' nor 'nick'; skipping");
 		return null;
 	}
 
@@ -131,13 +130,13 @@ public class JsonPlayerDataStore {
 		if (p.matcher(token).matches()) {
 			try { return UUID.fromString(token); }
 			catch (IllegalArgumentException ex) {
-				plugin.getLogger().warning("[Oneblock] PlData.json row " + row + " " + field + " invalid UUID '" + token + "'");
+				Oneblock.plugin.getLogger().warning("[Oneblock] PlData.json row " + row + " " + field + " invalid UUID '" + token + "'");
 				return null;
 			}
 		}
 		org.bukkit.OfflinePlayer off = Utils.getOfflinePlayerByName(token);
 		if (off == null || off.getUniqueId() == null) {
-			plugin.getLogger().warning("[Oneblock] PlData.json row " + row + " unresolved " + field + " nick '" + token + "'");
+			Oneblock.plugin.getLogger().warning("[Oneblock] PlData.json row " + row + " unresolved " + field + " nick '" + token + "'");
 			return null;
 		}
 		return off.getUniqueId();

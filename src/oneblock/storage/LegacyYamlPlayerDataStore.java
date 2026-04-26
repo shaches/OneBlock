@@ -1,7 +1,5 @@
 package oneblock.storage;
 
-import static oneblock.Oneblock.*;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -9,6 +7,7 @@ import java.util.ArrayList;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import oneblock.Oneblock;
 import oneblock.PlayerInfo;
 import oneblock.utils.Utils;
 
@@ -24,7 +23,7 @@ import oneblock.utils.Utils;
  * unchanged because real server owners may still need to migrate from it.
  */
 public class LegacyYamlPlayerDataStore {
-	public static File f = new File(plugin.getDataFolder(), "PlData.yml");
+	public static File f = new File(Oneblock.plugin.getDataFolder(), "PlData.yml");
 	
 	public static ArrayList<PlayerInfo> read(){
 		ArrayList<PlayerInfo> infs = new ArrayList<PlayerInfo>();
@@ -37,7 +36,7 @@ public class LegacyYamlPlayerDataStore {
 	        	if (line.startsWith("_"))
 	        		nicks.add(line.split(":")[0]);
 		} catch (Exception e) {
-			plugin.getLogger().warning("[Oneblock] Failed to parse legacy PlData.yml: " + e.getMessage());
+			Oneblock.plugin.getLogger().warning("[Oneblock] Failed to parse legacy PlData.yml: " + e.getMessage());
 		}
 		
 		YamlConfiguration data = YamlConfiguration.loadConfiguration(f);
@@ -54,7 +53,7 @@ public class LegacyYamlPlayerDataStore {
         	String playerName = _nick.substring(1);
         	org.bukkit.OfflinePlayer off = Utils.getOfflinePlayerByName(playerName);
         	if (off == null || off.getUniqueId() == null) {
-        		plugin.getLogger().warning("[Oneblock] Legacy PlData.yml: unresolved nick '" + playerName + "' for island " + i + "; skipping row");
+        		Oneblock.plugin.getLogger().warning("[Oneblock] Legacy PlData.yml: unresolved nick '" + playerName + "' for island " + i + "; skipping row");
         		continue;
         	}
         	java.util.UUID uuid = off.getUniqueId();

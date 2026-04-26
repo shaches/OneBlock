@@ -1,7 +1,5 @@
 package oneblock;
 
-import static oneblock.Oneblock.*;
-
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 import java.util.TreeMap;
@@ -55,7 +53,7 @@ public final class OBP extends PlaceholderExpansion {
     	
     	if (identifier.endsWith("_by_position")) {
     		if (!(p instanceof Player)) return NONE_PLACEHOLDER;
-    		UUID ownerUUID = PlayerInfo.get(plugin.findNearestRegionId(((Player)p).getLocation())).uuid;
+    		UUID ownerUUID = PlayerInfo.get(Oneblock.plugin.findNearestRegionId(((Player)p).getLocation())).uuid;
 	        if (ownerUUID == null) return NONE_PLACEHOLDER;
 
     		return onRequest(Bukkit.getOfflinePlayer(ownerUUID), identifier.substring(0, identifier.length() - "_by_position".length()));

@@ -1,7 +1,5 @@
 package oneblock;
 
-import static oneblock.Oneblock.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -114,10 +112,10 @@ public final class CommandHandler implements CommandExecutor {
 		plp.removeBar(pl);
 		plp.removeUUID(uuid);
 
-		if (!settings().saveplayerinventory && pl instanceof Player) ((Player) pl).getInventory().clear();
+		if (!Oneblock.settings().saveplayerinventory && pl instanceof Player) ((Player) pl).getInventory().clear();
 
 		if (OBWorldGuard.isEnabled())
-			plugin.worldGuard.removeMember(uuid, PlId);
+			Oneblock.plugin.worldGuard.removeMember(uuid, PlId);
 
 		return true;
 	}
@@ -148,7 +146,7 @@ public final class CommandHandler implements CommandExecutor {
             if (routed.requiresPlayer() && player == null) return false;
             String perm = routed.permission();
             if (perm != null && !requirePermission(sender, perm)) return true;
-            return routed.execute(new CommandContext(sender, player, args, plugin));
+            return routed.execute(new CommandContext(sender, player, args, Oneblock.plugin));
         }
         // Phase 3.5b.5: every recognised subcommand is registered in
         // SUBCOMMANDS above and dispatched by the router-fallback block.
@@ -157,11 +155,11 @@ public final class CommandHandler implements CommandExecutor {
         // version-info splash instead of a blunt usage error so admins
         // can confirm they are talking to the right plugin build.
         sender.sendMessage(
-                ChatColor.values()[rnd.nextInt(ChatColor.values().length)] +
+                ChatColor.values()[Oneblock.rnd.nextInt(ChatColor.values().length)] +
                 "\n▄▀▄ ██▄" +
                 "\n▀▄▀ █▄█  by MrMarL" +
-                "\nPlugin version: v" + plugin.version +
-                "\nServer version: " + (superlegacy ? "super legacy " : (legacy ? "legacy " : "")) + XMaterial.getVersionMajor() + "." + XMaterial.getVersionMinor() + ".X");
+                "\nPlugin version: v" + Oneblock.plugin.version +
+                "\nServer version: " + (Oneblock.superlegacy ? "super legacy " : (Oneblock.legacy ? "legacy " : "")) + XMaterial.getVersionMajor() + "." + XMaterial.getVersionMinor() + ".X");
         return true;
     }
 }
