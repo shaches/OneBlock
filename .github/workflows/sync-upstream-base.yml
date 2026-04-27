@@ -40,19 +40,14 @@ jobs:
         run: git push origin upstream-raw --force-with-lease
 
       - name: Generate upstream diff summary
-        id: diff
         run: |
-          {
-            echo "summary<<EOF"
-            echo "## Upstream commits absent from \`origin/main\`"
-            echo ""
-            echo "Merge-base: \`$(git merge-base origin/main upstream/main)\`"
-            echo ""
-            echo '```'
-            git log --oneline --reverse origin/main..upstream/main || true
-            echo '```'
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          echo "## Upstream commits absent from \`origin/main\`" > /tmp/summary.txt
+          echo "" >> /tmp/summary.txt
+          echo "Merge-base: \`$(git merge-base origin/main upstream/main)\`" >> /tmp/summary.txt
+          echo "" >> /tmp/summary.txt
+          echo '```' >> /tmp/summary.txt
+          git log --oneline --reverse origin/main..upstream/main >> /tmp/summary.txt || true
+          echo '```' >> /tmp/summary.txt
 
       - name: Find existing tracking issue
         id: find_issue
@@ -67,7 +62,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           title="Upstream sync $(date -u +%Y-%m-%d)"
-          body="${{ steps.diff.outputs.summary }}"
+          body=$(cat /tmp/summary.txt)
 
           if [ -n "${{ steps.find_issue.outputs.number }}" ]; then
             gh issue edit "${{ steps.find_issue.outputs.number }}" \
