@@ -171,7 +171,7 @@ public final class ConfigManager {
      * (legacy, weight=1) or maps with {@code block|mob|loot_table|command} + optional
      * {@code weight}. Unresolved / malformed entries are skipped with a warning.
      */
-    private void parseLevelFromList(List<?> bl_temp, Level level, int idx) {
+    void parseLevelFromList(List<?> bl_temp, Level level, int idx) {
     	if (bl_temp == null || bl_temp.isEmpty()) return;
     	int q = 0;
     	if (q < bl_temp.size() && bl_temp.get(q) instanceof String) {
@@ -218,7 +218,7 @@ public final class ConfigManager {
     }
     
     @SuppressWarnings("unchecked")
-    private void parsePoolEntry(Object raw, Level level) {
+    void parsePoolEntry(Object raw, Level level) {
     	if (raw == null) return;
     	int weight = 1;
     	String kind;
@@ -290,7 +290,7 @@ public final class ConfigManager {
      * XMaterial (legacy servers). Unresolved names fall back to {@link PoolEntry#GRASS}
      * which renders as grass + chance of flower at runtime.
      */
-    private PoolEntry resolveBlock(String text) {
+    PoolEntry resolveBlock(String text) {
     	if (text == null || text.isEmpty()) return PoolEntry.GRASS;
     	Object mt = Material.matchMaterial(text);
     	if (mt == null || mt == Oneblock.GRASS_BLOCK || !((Material) mt).isBlock())
