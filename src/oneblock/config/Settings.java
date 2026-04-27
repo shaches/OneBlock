@@ -8,12 +8,11 @@ package oneblock.config;
  * if a future {@code /ob reload} ever needs all-or-nothing visibility
  * (today each flag still flips individually).
  *
- * <p>Field names are deliberately preserved verbatim from the legacy
- * {@code Oneblock.<flag>} statics ({@code circleMode}, {@code phText},
- * {@code max_players_team}, ...). A separate later slice (Phase 3.7)
- * renames them to camelCase across the whole tree; doing it here would
- * have conflated a field-move with a field-rename and made review
- * substantially harder.
+ * <p>Phase 6.2 (originally scheduled as Phase 3.7) finished the
+ * snake_case -> camelCase rename of these fields across the whole
+ * tree. The on-disk YAML keys remain unchanged ({@code mob_spawn_chance},
+ * {@code progress_bar}, {@code droptossup}, ...) - {@code ConfigManager.readOrDefault}
+ * is the single bridge between the YAML key strings and the Java field names.
  *
  * <p>Each field is {@code volatile} so single-value writes from the main
  * thread (admin commands, {@code ConfigManager.loadMainConfig()}) are visible
@@ -33,34 +32,34 @@ package oneblock.config;
 public final class Settings {
 
     /** Cap on team size; {@code 0} means "unlimited". */
-    public volatile int max_players_team = 0;
+    public volatile int maxPlayersTeam = 0;
     /**
      * 1-in-N chance per tick that a hostile mob spawns when a block is
      * generated. Values below {@code 2} are corrected to {@code 9} during
      * {@code loadMainConfig()} parsing to avoid divide-by-zero.
      */
-    public volatile int mob_spawn_chance = 9;
+    public volatile int mobSpawnChance = 9;
 
     /** Spawn the first-time-join welcome island layout (blocks + chest). */
-    public volatile boolean island_for_new_players = false;
+    public volatile boolean islandForNewPlayers = false;
     /** Allow {@code /ob rebirth_on_the_island}. */
     public volatile boolean rebirth = false;
     /** Auto-teleport joining players to their island. */
     public volatile boolean autojoin = false;
     /** Drop "loose" items above the generation block instead of placing them. */
-    public volatile boolean droptossup = true;
+    public volatile boolean dropTossUp = true;
     /** Pass {@code physics=true} to placer; lets falling blocks fall etc. */
     public volatile boolean physics = false;
     /** Show the level NAME on the BossBar instead of the templated {@code phText}. */
-    public volatile boolean lvl_bar_mode = false;
+    public volatile boolean lvlBarMode = false;
     /** Spawn the per-tick portal-particle decoration over the generation block. */
     public volatile boolean particle = true;
     /** Allow nether portals to function on the island world. */
-    public volatile boolean allow_nether = true;
+    public volatile boolean allowNether = true;
     /** Push players who wander outside their island region back to it. */
     public volatile boolean protection = false;
     /** Snapshot/restore inventory across {@code /ob leave} / {@code /ob j}. */
-    public volatile boolean saveplayerinventory = false;
+    public volatile boolean savePlayerInventory = false;
     /** Show a virtual {@code WorldBorder} around each island. */
     public volatile boolean border = false;
     /** Use a circular id-grid spiral instead of the linear strip layout. */
@@ -68,7 +67,7 @@ public final class Settings {
     /** Recycle ids whose owner-{@code uuid} is null instead of always appending. */
     public volatile boolean useEmptyIslands = true;
     /** Render a per-player progress BossBar tracking blocks-to-next-level. */
-    public volatile boolean progress_bar = false;
+    public volatile boolean progressBar = false;
     /** PlaceholderAPI-template text for the BossBar title. */
     public volatile String phText = "";
 }

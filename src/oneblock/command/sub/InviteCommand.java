@@ -17,7 +17,7 @@ import oneblock.invitation.Invitation;
  * {@code /ob invite <player>} - user-facing. Sends a co-owner invite
  * to the named online player. The invitee gets a chat prompt + GUI;
  * the inviter gets a confirmation. Cap-checked against
- * {@code settings().max_players_team} (zero = unlimited).
+ * {@code settings().maxPlayersTeam} (zero = unlimited).
  *
  * <p>Behaviour-equivalent to the legacy {@code "invite"} switch case
  * extracted in Phase 3.5b. Requires {@code Oneblock.invite} and a
@@ -47,7 +47,7 @@ public final class InviteCommand implements Subcommand {
             ctx.sender().sendMessage(Messages.invite_no_island);
             return true;
         }
-        int maxTeam = Oneblock.settings().max_players_team;
+        int maxTeam = Oneblock.settings().maxPlayersTeam;
         if (maxTeam != 0) {
             PlayerInfo pinf = PlayerInfo.get(uuid);
             if (pinf.uuids.size() >= maxTeam) {

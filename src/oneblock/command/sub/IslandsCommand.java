@@ -43,9 +43,9 @@ public final class IslandsCommand implements Subcommand {
             return true;
         }
         if (args[1].equals("true") || args[1].equals("false")) {
-            Oneblock.settings().island_for_new_players = Boolean.valueOf(args[1]);
-            Oneblock.config.set("island_for_new_players", Oneblock.settings().island_for_new_players);
-            ctx.sender().sendMessage(ChatColor.GREEN + "Island_for_new_players = " + Oneblock.settings().island_for_new_players);
+            Oneblock.settings().islandForNewPlayers = Boolean.valueOf(args[1]);
+            Oneblock.config.set("island_for_new_players", Oneblock.settings().islandForNewPlayers);
+            ctx.sender().sendMessage(ChatColor.GREEN + "Island_for_new_players = " + Oneblock.settings().islandForNewPlayers);
             return true;
         }
         if (args[1].equals("set_my_by_def")) {

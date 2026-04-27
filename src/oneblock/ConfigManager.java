@@ -62,17 +62,17 @@ public final class ConfigManager {
         // Single-call cache so we don't dereference Oneblock.settings() once per field.
         oneblock.config.Settings s = Oneblock.settings();
         if (!Oneblock.superlegacy) {
-        	s.progress_bar = readOrDefault("progress_bar", true);
+        	s.progressBar = readOrDefault("progress_bar", true);
         	Level.max.color = BarColor.valueOf(readOrDefault("progress_bar_color", "GREEN"));
         	Level.max.style = BarStyle.valueOf(readOrDefault("progress_bar_style", "SOLID"));
         	s.phText = Utils.translateColorCodes(readOrDefault("progress_bar_text", "level"));
-	        s.lvl_bar_mode = s.phText.equals("level");
+	        s.lvlBarMode = s.phText.equals("level");
         }
-        s.island_for_new_players = readOrDefault("island_for_new_players", true);
+        s.islandForNewPlayers = readOrDefault("island_for_new_players", true);
         Level.multiplier = readOrDefault("level_multiplier", Level.multiplier);
-        s.max_players_team = readOrDefault("max_players_team", s.max_players_team);
-        s.mob_spawn_chance = readOrDefault("mob_spawn_chance", s.mob_spawn_chance);
-        s.mob_spawn_chance = s.mob_spawn_chance < 2 ? 9 : s.mob_spawn_chance;
+        s.maxPlayersTeam = readOrDefault("max_players_team", s.maxPlayersTeam);
+        s.mobSpawnChance = readOrDefault("mob_spawn_chance", s.mobSpawnChance);
+        s.mobSpawnChance = s.mobSpawnChance < 2 ? 9 : s.mobSpawnChance;
         updateBoolParameters();
         OBWorldGuard.setEnabled(readOrDefault("worldguard", OBWorldGuard.canUse));
         OBWorldGuard.flags = readOrDefault("wgflags", OBWorldGuard.flags);
@@ -89,13 +89,13 @@ public final class ConfigManager {
     	oneblock.config.Settings s = Oneblock.settings();
     	s.circleMode = readOrDefault("circlemode", s.circleMode);
     	s.useEmptyIslands = readOrDefault("useemptyislands", s.useEmptyIslands);
-    	s.saveplayerinventory = readOrDefault("saveplayerinventory", s.saveplayerinventory);
+    	s.savePlayerInventory = readOrDefault("saveplayerinventory", s.savePlayerInventory);
         s.protection = readOrDefault("protection", s.protection);
         s.autojoin = readOrDefault("autojoin", s.autojoin);
-        s.droptossup = readOrDefault("droptossup", s.droptossup);
+        s.dropTossUp = readOrDefault("droptossup", s.dropTossUp);
         s.physics = readOrDefault("physics", s.physics);
         s.particle = readOrDefault("particle", s.particle);
-        s.allow_nether = readOrDefault("allow_nether", s.allow_nether);
+        s.allowNether = readOrDefault("allow_nether", s.allowNether);
         GUI.enabled = readOrDefault("gui", GUI.enabled);
         s.rebirth = readOrDefault("rebirth_on_the_island", s.rebirth);
         if (Oneblock.isBorderSupported) s.border = readOrDefault("border", s.border);
@@ -337,7 +337,7 @@ public final class ConfigManager {
 			else
 				inf.createBar(Oneblock.getBarTitle(p, inf.lvl));
         	        	
-			inf.bar.setVisible(Oneblock.settings().progress_bar);
+			inf.bar.setVisible(Oneblock.settings().progressBar);
         }});
 	}
 	

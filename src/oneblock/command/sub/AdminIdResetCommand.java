@@ -14,7 +14,7 @@ import oneblock.utils.Utils;
  * {@link CommandHandler#idresetCommand} on the named offline player,
  * which removes them from {@link oneblock.PlayerInfo}, drops the
  * BossBar, optionally clears their inventory (gated on
- * {@code settings().saveplayerinventory}), and removes their
+ * {@code settings().savePlayerInventory}), and removes their
  * WorldGuard membership.
  *
  * <p>The user-facing self-{@code /ob idreset} form (no arg) is handled

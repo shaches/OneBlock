@@ -99,7 +99,7 @@ public final class CommandHandler implements CommandExecutor {
 		plp.removeBar(pl);
 		plp.removeUUID(uuid);
 
-		if (!Oneblock.settings().saveplayerinventory && pl instanceof Player) ((Player) pl).getInventory().clear();
+		if (!Oneblock.settings().savePlayerInventory && pl instanceof Player) ((Player) pl).getInventory().clear();
 
 		if (OBWorldGuard.isEnabled())
 			Oneblock.plugin.worldGuard.removeMember(uuid, PlId);

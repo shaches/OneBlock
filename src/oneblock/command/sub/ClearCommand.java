@@ -50,7 +50,7 @@ public final class ClearCommand implements Subcommand {
         PlayerInfo inf = PlayerInfo.get(id);
         inf.breaks = 0;
         inf.lvl = 0;
-        if (Oneblock.settings().progress_bar)
+        if (Oneblock.settings().progressBar)
             inf.bar.setVisible(false);
         int result[] = ctx.plugin().getIslandCoordinates(id);
         Island.clear(Oneblock.getWorld(), result[0], Oneblock.getY(), result[1], Oneblock.getOffset() / 4);

@@ -29,22 +29,22 @@ class SettingsTest {
         // will see on first start (a key absent from config.yml will be
         // (re)written with the new default by ConfigManager.loadMainConfig).
         Settings s = new Settings();
-        assertThat(s.max_players_team).isZero();
-        assertThat(s.mob_spawn_chance).isEqualTo(9);
-        assertThat(s.island_for_new_players).isFalse();
+        assertThat(s.maxPlayersTeam).isZero();
+        assertThat(s.mobSpawnChance).isEqualTo(9);
+        assertThat(s.islandForNewPlayers).isFalse();
         assertThat(s.rebirth).isFalse();
         assertThat(s.autojoin).isFalse();
-        assertThat(s.droptossup).isTrue();
+        assertThat(s.dropTossUp).isTrue();
         assertThat(s.physics).isFalse();
-        assertThat(s.lvl_bar_mode).isFalse();
+        assertThat(s.lvlBarMode).isFalse();
         assertThat(s.particle).isTrue();
-        assertThat(s.allow_nether).isTrue();
+        assertThat(s.allowNether).isTrue();
         assertThat(s.protection).isFalse();
-        assertThat(s.saveplayerinventory).isFalse();
+        assertThat(s.savePlayerInventory).isFalse();
         assertThat(s.border).isFalse();
         assertThat(s.circleMode).isTrue();
         assertThat(s.useEmptyIslands).isTrue();
-        assertThat(s.progress_bar).isFalse();
+        assertThat(s.progressBar).isFalse();
         assertThat(s.phText).isEmpty();
     }
 
@@ -79,9 +79,9 @@ class SettingsTest {
         Settings a = new Settings();
         Settings b = new Settings();
         a.particle = false;
-        a.max_players_team = 7;
+        a.maxPlayersTeam = 7;
         assertThat(b.particle).isTrue();
-        assertThat(b.max_players_team).isZero();
+        assertThat(b.maxPlayersTeam).isZero();
     }
 
     @Test

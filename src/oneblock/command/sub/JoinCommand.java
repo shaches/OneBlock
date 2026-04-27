@@ -57,7 +57,7 @@ public final class JoinCommand implements Subcommand {
             X_pl = result[0]; Z_pl = result[1];
         }
         if (!plugin.enabled) plugin.runMainTask();
-        if (Oneblock.settings().progress_bar) PlayerInfo.get(plID).bar.setVisible(true);
+        if (Oneblock.settings().progressBar) PlayerInfo.get(plID).bar.setVisible(true);
         ctx.player().teleport(new Location(Oneblock.getWorld(), X_pl + 0.5, Oneblock.getY() + 1.2013, Z_pl + 0.5));
         if (OBWorldGuard.isEnabled()) plugin.worldGuard.addMember(uuid, plID);
         return true;

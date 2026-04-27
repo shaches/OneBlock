@@ -51,13 +51,13 @@ public final class ProgressBarCommand implements Subcommand {
             return true;
         }
         if (args[1].equals("true") || args[1].equals("false")) {
-            Oneblock.settings().progress_bar = Boolean.valueOf(args[1]);
+            Oneblock.settings().progressBar = Boolean.valueOf(args[1]);
             Oneblock.configManager.loadBlocks();
-            Oneblock.config.set("progress_bar", Oneblock.settings().progress_bar);
+            Oneblock.config.set("progress_bar", Oneblock.settings().progressBar);
             return true;
         }
 
-        if (!Oneblock.settings().progress_bar) return true;
+        if (!Oneblock.settings().progressBar) return true;
 
         boolean isColor = args[1].equalsIgnoreCase("color");
         if (isColor || args[1].equalsIgnoreCase("style")) {
@@ -81,7 +81,7 @@ public final class ProgressBarCommand implements Subcommand {
             return true;
         }
         if (args[1].equalsIgnoreCase("level")) {
-            Oneblock.settings().lvl_bar_mode = true;
+            Oneblock.settings().lvlBarMode = true;
             Oneblock.config.set("progress_bar_text", "level");
             Oneblock.configManager.setupProgressBar();
             return true;
@@ -90,7 +90,7 @@ public final class ProgressBarCommand implements Subcommand {
             String txt_bar = "";
             for (int i = 2; i < args.length; i++)
                 txt_bar = i == 2 ? args[i] : String.format("%s %s", txt_bar, args[i]);
-            Oneblock.settings().lvl_bar_mode = false;
+            Oneblock.settings().lvlBarMode = false;
             Oneblock.config.set("progress_bar_text", Oneblock.settings().phText = Utils.translateColorCodes(txt_bar));
             Oneblock.configManager.setupProgressBar();
             return true;

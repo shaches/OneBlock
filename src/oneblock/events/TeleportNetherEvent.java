@@ -10,7 +10,7 @@ import oneblock.Oneblock;
 public class TeleportNetherEvent implements Listener {
 	@EventHandler
     public void NetherPortal(final PlayerPortalEvent e) {
-    	if (Oneblock.settings().allow_nether) return;
+    	if (Oneblock.settings().allowNether) return;
     	World from = e.getFrom().getWorld();
     	if (!from.equals(Oneblock.getWorld())) return;
     	

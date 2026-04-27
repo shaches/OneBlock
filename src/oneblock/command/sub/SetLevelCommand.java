@@ -51,7 +51,7 @@ public final class SetLevelCommand implements Subcommand {
             PlayerInfo inf = PlayerInfo.get(plID);
             inf.breaks = 0;
             inf.lvl = setlvl;
-            if (Oneblock.settings().progress_bar && offpl instanceof Player) {
+            if (Oneblock.settings().progressBar && offpl instanceof Player) {
                 inf.createBar(Oneblock.getBarTitle((Player) offpl, inf.lvl));
                 inf.bar.setProgress(inf.getPercent());
             }

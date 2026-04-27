@@ -145,7 +145,7 @@ public class Oneblock extends JavaPlugin {
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {return GenVoid;}
     
     public static String getBarTitle(Player p, int lvl) {
-		if (SETTINGS.lvl_bar_mode) return Level.get(lvl).name;
+		if (SETTINGS.lvlBarMode) return Level.get(lvl).name;
 		if (plugin.PAPI) return PlaceholderAPI.setPlaceholders(p, SETTINGS.phText);
         
 		return SETTINGS.phText;
@@ -235,10 +235,10 @@ public class Oneblock extends JavaPlugin {
     	Level levelInfo = Level.get(inf.lvl); 
         if (++inf.breaks >= inf.getRequiredBreaks()) {
         	levelInfo = inf.lvlup();
-        	if (SETTINGS.progress_bar) inf.createBar();
+        	if (SETTINGS.progressBar) inf.createBar();
         	configManager.reward.executeRewards(ponl, inf.lvl, levelInfo.name);
         }
-        if (SETTINGS.progress_bar) {
+        if (SETTINGS.progressBar) {
             inf.bar.setTitle(getBarTitle(ponl, inf.lvl));
             inf.bar.setProgress(inf.getPercent());
             inf.bar.addPlayer(ponl);
@@ -264,7 +264,7 @@ public class Oneblock extends JavaPlugin {
                 break;
         }
 
-        if (rnd.nextInt(SETTINGS.mob_spawn_chance) == 0) spawnRandomMob(playerX, playerZ, levelInfo);
+        if (rnd.nextInt(SETTINGS.mobSpawnChance) == 0) spawnRandomMob(playerX, playerZ, levelInfo);
 	}
     
 	public void spawnRandomMob(int posX, int posZ, Level level) {

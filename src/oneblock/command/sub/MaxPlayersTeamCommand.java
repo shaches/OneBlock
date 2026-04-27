@@ -29,13 +29,13 @@ public final class MaxPlayersTeamCommand implements Subcommand {
             try {
                 int mpt = Integer.parseInt(args[1]);
                 if (mpt < 0 || mpt > 20) throw new NumberFormatException();
-                Oneblock.config.set("max_players_team", Oneblock.settings().max_players_team = mpt);
+                Oneblock.config.set("max_players_team", Oneblock.settings().maxPlayersTeam = mpt);
             } catch (NumberFormatException nfe) {
                 ctx.sender().sendMessage(String.format("%sinvalid max_players_team value. Possible values: from 0 to 20.", ChatColor.RED));
                 return true;
             }
         }
-        ctx.sender().sendMessage(String.format("%smax_players_team now: %d\n0 is unlimited", ChatColor.GREEN, Oneblock.settings().max_players_team));
+        ctx.sender().sendMessage(String.format("%smax_players_team now: %d\n0 is unlimited", ChatColor.GREEN, Oneblock.settings().maxPlayersTeam));
         return true;
     }
 }

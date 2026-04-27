@@ -26,13 +26,13 @@ class BlockEventZeroOffsetTest {
     @BeforeEach
     void snapshot() {
         savedOrigin = Oneblock.ORIGIN.get();
-        savedDropTossUp = Oneblock.settings().droptossup;
+        savedDropTossUp = Oneblock.settings().dropTossUp;
     }
 
     @AfterEach
     void restore() {
         Oneblock.ORIGIN.set(savedOrigin);
-        Oneblock.settings().droptossup = savedDropTossUp;
+        Oneblock.settings().dropTossUp = savedDropTossUp;
     }
 
     @Test
@@ -40,7 +40,7 @@ class BlockEventZeroOffsetTest {
     void itemStackSpawnSurvivesZeroOffset() {
         World mockWorld = Mockito.mock(World.class);
         Oneblock.ORIGIN.set(new IslandOrigin(mockWorld, 0, 64, 0, 0));
-        Oneblock.settings().droptossup = true;
+        Oneblock.settings().dropTossUp = true;
 
         Item mockItem = Mockito.mock(Item.class);
         Location loc = new Location(mockWorld, 0, 64, 0);

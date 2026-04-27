@@ -44,7 +44,7 @@ public class TeleportEvent implements Listener {
 
     @EventHandler
     public void PlayerChangedWorldEvent(PlayerChangedWorldEvent e) {
-		if (!Oneblock.settings().progress_bar) return;
+		if (!Oneblock.settings().progressBar) return;
 		if (PlayerInfo.list.isEmpty()) return;
     	if (e.getFrom().equals(Oneblock.getWorld()))
     		PlayerInfo.removeBarFor(e.getPlayer());

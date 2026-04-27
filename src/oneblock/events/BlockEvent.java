@@ -23,7 +23,7 @@ public class BlockEvent implements Listener {
 	
 	@EventHandler
 	public void ItemStackSpawn(final ItemSpawnEvent e) {
-		if (!Oneblock.settings().droptossup) return;
+		if (!Oneblock.settings().dropTossUp) return;
 		World world = Oneblock.getWorld();
 		if (world == null) return;
         
