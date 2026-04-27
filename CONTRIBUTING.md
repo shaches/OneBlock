@@ -11,13 +11,17 @@ src/
   plugin.yml                Bukkit descriptor (name: Oneblock, main: oneblock.Oneblock)
   config.yml blocks.yml ... Shipped resources copied into the jar verbatim
   oneblock/                 Main Java source tree (package `oneblock`)
+    command/                Subcommand interface, router context, /ob arg parsing
+    command/sub/            One class per /ob subcommand (~25 + bool toggles)
+    config/                 Settings (admin-flag holder, volatile fields)
     events/                 Bukkit Listeners
     gui/                    Inventory / boss-bar UI
     invitation/             /ob invite + /ob visit state machines
     loot/                   LootTable dispatch
     migration/              One-shot blocks.yml / chests.yml migrators
-    pldata/                 JSON / Hikari storage backends
-    universalplace/         ItemsAdder / Oraxen / Nexo / CraftEngine adapters
+    placement/              ItemsAdder / Oraxen / Nexo / CraftEngine adapters
+    storage/                JSON / Hikari player-data backends
+    tasks/                  Top-level Runnable scheduler tasks
     utils/                  Shared helpers
     worldguard/             WorldGuard region integration shims
 test/
@@ -79,8 +83,9 @@ Please don't break them:
   `PlayerInfo.set(...)`, `PlayerInfo.replaceAll(...)`, `addInvite/removeInvite`
   or `removeUUID`. Direct `.list.add / .list.set` bypasses the reverse
   `UUID → island id` index.
-- `Oneblock.TaskSaveData` runs on an async scheduler thread. DB / disk writes
-  from there must stay thread-safe (HikariCP is; `JsonSimple.Write` is too).
+- `oneblock.tasks.PlayerDataSaveTask` runs on an async scheduler thread. DB
+  / disk writes from there must stay thread-safe (HikariCP is;
+  `oneblock.storage.JsonPlayerDataStore.write` is too).
 - `IslandCoordinateCalculator` caches a spatial cell index that's invalidated
   on every `PlayerInfo.set` / `replaceAll`. New mutation paths must call
   `IslandCoordinateCalculator.invalidateCellIndex()` or go through PlayerInfo.
@@ -111,27 +116,38 @@ static field on `Oneblock`, `Level`, `Guest`, or `Invitation`.
   which snapshots `PlayerInfo.list` (`CopyOnWriteArrayList`; safe) and
   calls either `DatabaseManager.save` (HikariCP; safe) or
   `JsonPlayerDataStore.write` (file-local, no shared state; safe).
-- `oneblock.tasks.IslandParticleTask` &rarr; reads `PlayerCache` (safe); calls
-  `World.spawnParticle` which is main-thread-only on most server forks —
-  this is an existing caveat, not fixed by Phase 1.
+- `oneblock.tasks.IslandParticleTask` &rarr; reads `PlayerCache` (safe) and
+  computes the per-player particle locations on the async thread, then
+  hands the resulting list to `Bukkit.getScheduler().runTask(...)` so
+  every `World.spawnParticle` call happens on the main thread (Phase
+  4.3). `collectSpawns(...)` is exposed package-private and exercised by
+  `IslandParticleTaskTest`.
 - `oneblock.tasks.WorldInitTask` &rarr; reads `Oneblock.config`, swaps
   `Oneblock.ORIGIN` via `updateOriginWorld` (atomic) and writes
   `Oneblock.leavewor` (volatile).
 - `oneblock.tasks.IslandBlockGenTask` runs on the **main** thread
   (`runTaskTimer`, not async); reads `Oneblock.settings().protection`,
-  `Guest.list` (`ArrayList`, see Known races below), and dispatches
-  block generation through `Oneblock.generateBlock`.
+  iterates `Guest.list` (`CopyOnWriteArrayList`; safe even if a future
+  off-thread mutator is added), and dispatches block generation through
+  `Oneblock.generateBlock`.
 
 ### Already thread-safe
 
 - `PlayerInfo.list` (`CopyOnWriteArrayList`).
+- `PlayerInfo.uuids` (`CopyOnWriteArrayList`; Phase 4.4 &mdash; main-thread
+  invitee mutations vs. async `PlayerDataSaveTask` iteration).
 - `PlayerInfo.UUID_INDEX` (`ConcurrentHashMap`).
 - `PlayerInfo.TOP_VERSION` (`AtomicLong`).
+- `Guest.list` and `Invitation.list` (`CopyOnWriteArrayList`; Phase 4.2).
+- `Level.levels` (`private static volatile List<Level>`; Phase 4.1 &mdash;
+  publication-safe immutable swap. Mutate only via `Level.replaceAll`,
+  read either via `Level.get(int)` / `Level.size()` or by capturing
+  `Level.snapshot()` once at the top of an iteration).
 - `IslandCoordinateCalculator.cellIndex` (`volatile` + `ConcurrentHashMap`).
 - `Oneblock.topCache` / `topCacheVersion` (`volatile` + immutable snapshot).
 - `PlayerCache.players` (`volatile` + `ConcurrentHashMap`).
 - `Oneblock.ORIGIN` (`AtomicReference<IslandOrigin>`; single-swap writes via
-  `updateAndGet`, readers snapshot via `Oneblock.origin()` — see
+  `updateAndGet`, readers snapshot via `Oneblock.origin()` &mdash; see
   `IslandOriginTest` and `OneblockOriginConcurrencyTest`).
 - `Oneblock.leavewor`, `Oneblock.config`, and every admin-flag field on
   `oneblock.config.Settings` (`circleMode`, `useEmptyIslands`,
@@ -141,16 +157,6 @@ static field on `Oneblock`, `Level`, `Guest`, or `Invitation`.
   `max_players_team`, `mob_spawn_chance`) are `volatile` for cross-thread
   visibility of single-value writes. Reach the singleton via
   `Oneblock.settings()`.
-
-### Known races (documented, not yet fixed)
-
-- `Guest.list` and `Invitation.list` are `ArrayList`. The invite TTL
-  cleanup runs on a delayed `runTaskLater` (main thread, so currently
-  fine), but if any future event handler mutates these off-thread it
-  will `ConcurrentModificationException`. Tracked for a later phase.
-- `Level.levels` is a plain `ArrayList`. `Blockfile` reload clears + refills
-  it on the main thread, and async tasks that iterate it during a reload
-  can see a half-populated list. Tracked for a later phase.
 
 ### Fixed in Phase 2
 
@@ -207,6 +213,51 @@ static field on `Oneblock`, `Level`, `Guest`, or `Invitation`.
 - Test count grew 83 → 104 (+21 across `IslandOriginTest`,
   `OneblockOriginConcurrencyTest`, `SettingsTest`,
   `PlayerInfoEqualsTest`, `AbstractInvitationEqualsTest`).
+
+### Fixed in Phase 4
+
+Phase 4 retires the four entries that the pre-Phase-4 "Known races"
+section used to call out. Every entry below has a regression test that
+fails (CME or torn read) if reverted:
+
+- **4.1 &mdash; `Level.levels` publication-safe.** The field was a public
+  mutable `ArrayList` that `ConfigManager.loadBlocks` would
+  `clear()`-then-refill on every `/ob reload`, while the async
+  `IslandBlockGenTask` could be mid-iteration via `Level.get(int)`. It
+  is now a `private static volatile List<Level>` initialised to
+  `Collections.emptyList()`. `ConfigManager.loadBlocks` parses into a
+  local `ArrayList` and only calls `Level.replaceAll(...)` after the
+  whole file is parsed without throwing &mdash; readers either see the old
+  list or the complete new one, never a half-populated one. Covered by
+  `LevelPublicationTest` (3 tests).
+- **4.2 &mdash; `Guest.list` + `Invitation.list` &rarr; `CopyOnWriteArrayList`.**
+  Both lists are mutated from the main thread (`/ob invite`,
+  `/ob accept`, the `runTaskLater` TTL cleanup) and iterated from the
+  same thread by `IslandBlockGenTask.run` and `Guest.check` /
+  `Invitation.check`. They were previously `ArrayList` and would CME
+  the moment any future handler mutated them off-thread. Covered by
+  `GuestInvitationConcurrencyTest` (4 tests).
+- **4.3 &mdash; `IslandParticleTask.spawnParticle` on the main thread.** The
+  task ran via `runTaskTimerAsynchronously` and called
+  `World.spawnParticle` directly &mdash; main-thread-only on Paper /
+  Folia / most server forks, undefined behaviour on the rest. The
+  task now collects per-player particle locations on the async tick
+  via `collectSpawns(...)` (a pure helper, package-private for
+  testability), then hops back to the main thread via
+  `Bukkit.getScheduler().runTask(plugin, () -> ...)` to fire the
+  particles. Covered by `IslandParticleTaskTest` (4 tests).
+- **4.4 &mdash; `PlayerInfo.uuids` &rarr; `CopyOnWriteArrayList`.** The per-island
+  invitee/co-owner list was iterated by the async `PlayerDataSaveTask`
+  &mdash; via `JsonPlayerDataStore.write` and `DatabaseManager.save` &mdash;
+  every 6 000 ticks, while the main thread can concurrently call
+  `addInvite` / `removeInvite` / `removeUUID`. An unlucky overlap
+  threw `ConcurrentModificationException` out of the save loop and
+  lost the entire tick's player data. The PlaceholderAPI hook in
+  `OBP.onRequest` (`%OB_number_of_invited%`) compounded the exposure
+  since PAPI may dispatch from any thread. Covered by
+  `PlayerInfoUuidsConcurrencyTest` (2 tests).
+
+Test count grew 104 → 117 (+13 across the four suites above).
 
 ## Static analysis (Phase 7)
 
