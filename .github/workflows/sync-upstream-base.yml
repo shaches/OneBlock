@@ -40,12 +40,18 @@ jobs:
         run: git push origin upstream-raw --force-with-lease
 
       - name: Create or update tracking issue
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
           title="Upstream sync $(date -u +%Y-%m-%d)"
-          body="Upstream-raw branch has been synced with upstream/main. Check the upstream-raw branch for details."
+          status="${{ job.status }}"
+          if [ "$status" = "success" ]; then
+            body="✅ Upstream-raw branch has been synced with upstream/main. Check the upstream-raw branch for details."
+          else
+            body="⚠️ Sync failed. Check the [Actions run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."
+          fi
 
           issue_number=$(gh issue list --search "$title" --json number --jq '.[0].number' || echo "")
 
