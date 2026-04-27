@@ -293,7 +293,14 @@ public final class ConfigManager {
     PoolEntry resolveBlock(String text) {
     	if (text == null || text.isEmpty()) return PoolEntry.GRASS;
     	Object mt = Material.matchMaterial(text);
-    	if (mt == null || mt == Oneblock.GRASS_BLOCK || !((Material) mt).isBlock())
+    	// Compare against the vanilla Material constant, NOT
+    	// Oneblock.GRASS_BLOCK which is an XMaterial: Material vs XMaterial
+    	// '==' widens to Object and is always false at runtime, silently
+    	// suppressing the DEFAULT_GRASS routing for every "GRASS_BLOCK"
+    	// pool entry on modern (1.13+) servers (the placement code at
+    	// Oneblock.java:248 only adds the 1/3 flower decoration on the
+    	// DEFAULT_GRASS sentinel, not on a literal Material.GRASS_BLOCK).
+    	if (mt == null || mt == Material.GRASS_BLOCK || !((Material) mt).isBlock())
     		mt = getCustomBlock(text);
     	if (Oneblock.legacy && mt == null) {
     		mt = XMaterial.matchXMaterial(text)
