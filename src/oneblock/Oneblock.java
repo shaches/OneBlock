@@ -230,13 +230,13 @@ public class Oneblock extends JavaPlugin {
         else OBWorldGuard.setEnabled(false);
     }
     
-    public void generateBlock(final int X_pl, final int Z_pl, final int plID, final Player ponl, final Block block) {
+    public void generateBlock(final int playerX, final int playerZ, final int plID, final Player ponl, final Block block) {
     	final PlayerInfo inf = PlayerInfo.get(plID);
-    	Level lvl_inf = Level.get(inf.lvl); 
+    	Level levelInfo = Level.get(inf.lvl); 
         if (++inf.breaks >= inf.getRequiredBreaks()) {
-        	lvl_inf = inf.lvlup();
+        	levelInfo = inf.lvlup();
         	if (SETTINGS.progress_bar) inf.createBar();
-        	configManager.reward.executeRewards(ponl, inf.lvl, lvl_inf.name);
+        	configManager.reward.executeRewards(ponl, inf.lvl, levelInfo.name);
         }
         if (SETTINGS.progress_bar) {
             inf.bar.setTitle(getBarTitle(ponl, inf.lvl));
@@ -244,11 +244,11 @@ public class Oneblock extends JavaPlugin {
             inf.bar.addPlayer(ponl);
         }
         
-        PoolEntry entry = lvl_inf.blockPool.pick(rnd);
+        PoolEntry entry = levelInfo.blockPool.pick(rnd);
         if (entry == null || entry.kind == PoolEntry.Kind.DEFAULT_GRASS) {
             XBlock.setType(block, GRASS_BLOCK);
             if (rnd.nextInt(FLOWER_CHANCE) == 1)
-                XBlock.setType(getWorld().getBlockAt(X_pl, getY() + 1, Z_pl), flowers.get(rnd.nextInt(flowers.size())));
+                XBlock.setType(getWorld().getBlockAt(playerX, getY() + 1, playerZ), flowers.get(rnd.nextInt(flowers.size())));
         }
         else switch (entry.kind) {
             case BLOCK:
@@ -264,24 +264,24 @@ public class Oneblock extends JavaPlugin {
                 break;
         }
 
-        if (rnd.nextInt(SETTINGS.mob_spawn_chance) == 0) spawnRandomMob(X_pl, Z_pl, lvl_inf);
+        if (rnd.nextInt(SETTINGS.mob_spawn_chance) == 0) spawnRandomMob(playerX, playerZ, levelInfo);
 	}
     
-	public void spawnRandomMob(int pos_x, int pos_z, Level level) {
+	public void spawnRandomMob(int posX, int posZ, Level level) {
 		EntityType type = level.mobPool.pick(rnd);
 		if (type == null) return;
-		getWorld().spawnEntity(new Location(getWorld(), pos_x + .5, getY() + 1, pos_z + .5), type);
+		getWorld().spawnEntity(new Location(getWorld(), posX + .5, getY() + 1, posZ + .5), type);
 	}
     
     public void updateBorderLocation(Player pl, Location loc) {
     	int plID = findNearestRegionId(loc);
 		int result[] = getIslandCoordinates(plID);
-        int X_pl = result[0], Z_pl = result[1];
+        int playerX = result[0], playerZ = result[1];
 		
 		WorldBorder br = Bukkit.createWorldBorder();
-    	br.setCenter(X_pl+.5, Z_pl+.5);
-    	int _off = getOffset();
-    	br.setSize(_off - 1 + (_off & 1));
+    	br.setCenter(playerX+.5, playerZ+.5);
+    	int off = getOffset();
+    	br.setSize(off - 1 + (off & 1));
     	br.setWarningDistance(BORDER_WARNING_DISTANCE);
     	br.setDamageAmount(BORDER_DAMAGE_AMOUNT);
     	br.setDamageBuffer(BORDER_DAMAGE_BUFFER);
@@ -337,15 +337,15 @@ public class Oneblock extends JavaPlugin {
     }
     
     public void setPosition(Location loc) { setPosition(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()); }
-    public void setPosition(World world, int x_, int y_, int z_) {
+    public void setPosition(World world, int x, int y, int z) {
     	// Single atomic swap: readers on async threads either see the pre-call
     	// origin in full, or the post-call origin in full — never a mix.
     	IslandOrigin next = ORIGIN.updateAndGet(prev -> new IslandOrigin(
-    			world != null ? world : prev.world(), x_, y_, z_, prev.offset()));
+    			world != null ? world : prev.world(), x, y, z, prev.offset()));
     	if (next.world() != null) config.set("world", next.world().getName());
-        config.set("x", (double) x_);
-        config.set("y", (double) y_);
-        config.set("z", (double) z_);
+        config.set("x", (double) x);
+        config.set("y", (double) y);
+        config.set("z", (double) z);
     }
 
     /**
@@ -373,49 +373,49 @@ public class Oneblock extends JavaPlugin {
     
     public Location getLeave() { return new Location(leavewor, config.getDouble("xleave"), config.getDouble("yleave"), config.getDouble("zleave"), (float)config.getDouble("yawleave"), 0f); }
     public void setLeave(Location loc) { setLeave(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getYaw()); }
-    public void setLeave(World world, double x_, double y_, double z_, float yaw) {
+    public void setLeave(World world, double x, double y, double z, float yaw) {
     	if (world == null) return;
     	leavewor = world;
         config.set("leaveworld", leavewor.getName());
-        config.set("xleave", x_);
-        config.set("yleave", y_);
-        config.set("zleave", z_);
+        config.set("xleave", x);
+        config.set("yleave", y);
+        config.set("zleave", z);
         config.set("yawleave", yaw);
     }
     
-    public static int getLevel(UUID pl_uuid) {
-    	return PlayerInfo.get(pl_uuid).lvl;
+    public static int getLevel(UUID playerUuid) {
+    	return PlayerInfo.get(playerUuid).lvl;
     }
-    public static int getNextLevel(UUID pl_uuid) {
-    	return getLevel(pl_uuid) + 1;
+    public static int getNextLevel(UUID playerUuid) {
+    	return getLevel(playerUuid) + 1;
     }
-    public static String getLevelName(UUID pl_uuid) {
-    	int lvl = getLevel(pl_uuid);
+    public static String getLevelName(UUID playerUuid) {
+    	int lvl = getLevel(playerUuid);
     	return Level.get(lvl).name;
     }
-    public static String getNextLevelName(UUID pl_uuid) {
-    	int lvl = getNextLevel(pl_uuid);
+    public static String getNextLevelName(UUID playerUuid) {
+    	int lvl = getNextLevel(playerUuid);
     	return Level.get(lvl).name;
     }
-    public static int getBroken(UUID pl_uuid) {
-        return PlayerInfo.get(pl_uuid).breaks;
+    public static int getBroken(UUID playerUuid) {
+        return PlayerInfo.get(playerUuid).breaks;
     }
-    public static int getRemaining(UUID pl_uuid) {
-    	PlayerInfo inf = PlayerInfo.get(pl_uuid);
+    public static int getRemaining(UUID playerUuid) {
+    	PlayerInfo inf = PlayerInfo.get(playerUuid);
     	return inf.getRequiredBreaks() - inf.breaks;
     }
-    public static int getLevelLength(UUID pl_uuid) {
-    	return PlayerInfo.get(pl_uuid).getRequiredBreaks();
+    public static int getLevelLength(UUID playerUuid) {
+    	return PlayerInfo.get(playerUuid).getRequiredBreaks();
     }
-    public static boolean isVisitAllowed(UUID pl_uuid) {
-    	return PlayerInfo.get(pl_uuid).allowVisit;
+    public static boolean isVisitAllowed(UUID playerUuid) {
+    	return PlayerInfo.get(playerUuid).allowVisit;
     }
-    public static int countVisitors(UUID pl_uuid) {
+    public static int countVisitors(UUID playerUuid) {
     	int count = 0;
-    	int reg_id = PlayerInfo.getId(pl_uuid);
-    	if (reg_id != -1)
+    	int regionId = PlayerInfo.getId(playerUuid);
+    	if (regionId != -1)
 	    	for (Player ponl: plugin.cache.getPlayers())
-	    		if (plugin.findNearestRegionId(ponl.getLocation()) == reg_id)
+	    		if (plugin.findNearestRegionId(ponl.getLocation()) == regionId)
 	    			count++;
     	return count;
     }
