@@ -104,8 +104,13 @@ public final class CommandTabCompleter implements TabCompleter {
         				commands.add(bc.name());
         		if ("settext".equals(arg1)) {
         			commands.add("...");
-        			commands.add("%OB_lvl% &8- %OB_lvl_name% &8| &fProgress: &e%OB_break_on_this_lvl%/%OB_lvl_lenght%");
-        			commands.add("%OB_lvl_name% &8| &fProgress: &e%OB_break_on_this_lvl%/%OB_lvl_lenght% &8(&b%OB_need_to_lvl_up% left&8)");
+        			// Phase 6.1: tab-completion suggestions use the canonical
+        			// `lvl_length` placeholder. The legacy `lvl_lenght` spelling
+        			// is still accepted by OBP.onRequest as a deprecated alias
+        			// (see OBP.warnDeprecatedPlaceholderOnce) so existing
+        			// scoreboards continue to render correctly.
+        			commands.add("%OB_lvl% &8- %OB_lvl_name% &8| &fProgress: &e%OB_break_on_this_lvl%/%OB_lvl_length%");
+        			commands.add("%OB_lvl_name% &8| &fProgress: &e%OB_break_on_this_lvl%/%OB_lvl_length% &8(&b%OB_need_to_lvl_up% left&8)");
         		}
         	}
         	else if ("setlevel".equals(arg0))

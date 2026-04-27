@@ -78,11 +78,14 @@ class OBPDispatchTest {
     }
 
     @BeforeEach
-    void prepareFixture() {
+    void prepareFixture() throws Exception {
         // Each test gets a fresh plugin mock; some tests rewrite stubs.
+        // The mock plugin's getLogger() must return a non-null logger
+        // since the Phase 6.1 deprecation-warning path dereferences it.
         Oneblock mockPlugin = mock(Oneblock.class);
         mockCache = mock(PlayerCache.class);
         mockPlugin.cache = mockCache;
+        when(mockPlugin.getLogger()).thenReturn(mock(java.util.logging.Logger.class));
         Oneblock.plugin = mockPlugin;
 
         savedPlayerInfoList = new ArrayList<>(PlayerInfo.list);
@@ -98,6 +101,13 @@ class OBPDispatchTest {
         Level silver = new Level("Silver");
         silver.length = 32;
         Level.replaceAll(Arrays.asList(bronze, silver));
+
+        // Phase 6.1: clear the once-per-session deprecation-warning set
+        // so each test starts fresh and the once-flag is exercised
+        // independently of test ordering.
+        java.lang.reflect.Field warned = OBP.class.getDeclaredField("WARNED_DEPRECATED_PLACEHOLDERS");
+        warned.setAccessible(true);
+        ((java.util.Set<?>) warned.get(null)).clear();
 
         obp = new OBP();
     }
@@ -179,12 +189,50 @@ class OBPDispatchTest {
     }
 
     @Test
-    @DisplayName("%OB_lvl_lenght% (legacy typo preserved) returns the current level's length")
-    void lvlLenghtReturnsLevelLength() {
+    @DisplayName("%OB_lvl_length% (canonical, Phase 6.1) returns the current level's length")
+    void lvlLengthCanonicalReturnsLevelLength() {
         UUID owner = UUID.randomUUID();
         putPlayer(owner, 0, 0);
         // Level 0 = Bronze, length 16 (set in @BeforeEach).
+        assertThat(obp.onRequest(offline(owner), "lvl_length")).isEqualTo("16");
+        // Canonical name MUST NOT trigger the deprecation warning.
+        org.mockito.Mockito.verify(Oneblock.plugin.getLogger(), org.mockito.Mockito.never())
+            .warning(org.mockito.ArgumentMatchers.contains("deprecated"));
+    }
+
+    @Test
+    @DisplayName("%OB_lvl_lenght% (legacy typo preserved as alias) returns the current level's length")
+    void lvlLenghtLegacyAliasReturnsLevelLength() {
+        UUID owner = UUID.randomUUID();
+        putPlayer(owner, 0, 0);
+        // The original (typo'd) placeholder name remains accepted so
+        // existing servers' scoreboards keep working unchanged.
         assertThat(obp.onRequest(offline(owner), "lvl_lenght")).isEqualTo("16");
+    }
+
+    @Test
+    @DisplayName("%OB_lvl_lenght% legacy spelling logs a deprecation warning exactly once per session")
+    void lvlLenghtLegacyAliasLogsDeprecationOnce() {
+        UUID owner = UUID.randomUUID();
+        putPlayer(owner, 0, 0);
+
+        // First dispatch: the legacy alias is consumed AND the deprecation
+        // warning is emitted.
+        obp.onRequest(offline(owner), "lvl_lenght");
+        org.mockito.ArgumentCaptor<String> msg = org.mockito.ArgumentCaptor.forClass(String.class);
+        org.mockito.Mockito.verify(Oneblock.plugin.getLogger())
+            .warning(msg.capture());
+        assertThat(msg.getValue())
+            .contains("%OB_lvl_lenght%")
+            .contains("deprecated")
+            .contains("%OB_lvl_length%");
+
+        // Second dispatch (same session): the result is still served,
+        // but no second warning fires - the once-per-session contract.
+        obp.onRequest(offline(owner), "lvl_lenght");
+        obp.onRequest(offline(owner), "lvl_lenght");
+        org.mockito.Mockito.verify(Oneblock.plugin.getLogger(), org.mockito.Mockito.times(1))
+            .warning(org.mockito.ArgumentMatchers.contains("deprecated"));
     }
 
     @Test

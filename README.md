@@ -95,7 +95,7 @@ You can specify the color of the progress bar for each level separately! In the 
 - %OB_need_to_lvl_up% - The number of blocks that still need to be broken to level up.
 - %OB_player_count% - The number of players in the OneBlock world.
 - %OB_lvl_name% - The name of the player's current level.
-- %OB_lvl_lenght% - The length of the level.
+- %OB_lvl_length% - The length of the level. (`%OB_lvl_lenght%` — the original typo'd name — is still accepted as a deprecated alias and emits a once-per-session warning.)
 - %OB_next_lvl_name% - The name of the next level.​
 - %OB_owner_name% - The name of the owner of your island.
 - %OB_owner_online% - Returns "online" if the island owner is currently online, otherwise "offline".
