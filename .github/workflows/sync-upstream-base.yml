@@ -62,7 +62,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           title="Upstream sync $(date -u +%Y-%m-%d)"
-          body=$(cat /tmp/summary.txt)
+          body=$(</tmp/summary.txt)
 
           if [ -n "${{ steps.find_issue.outputs.number }}" ]; then
             gh issue edit "${{ steps.find_issue.outputs.number }}" \
