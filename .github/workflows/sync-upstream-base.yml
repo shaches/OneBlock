@@ -39,44 +39,18 @@ jobs:
       - name: Force-push upstream-raw
         run: git push origin upstream-raw --force-with-lease
 
-      - name: Generate upstream diff summary
-        id: diff
-        run: |
-          {
-            echo "summary<<EOF"
-            echo "## Upstream commits absent from \`origin/main\`"
-            echo ""
-            echo "Merge-base: \`$(git merge-base origin/main upstream/main)\`"
-            echo ""
-            echo '```'
-            git log --oneline --reverse origin/main..upstream/main || true
-            echo '```'
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Find existing tracking issue
-        id: find_issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          issue_number=$(gh issue list --label "upstream-sync" --json number --jq '.[0].number' || echo "")
-          echo "number=$issue_number" >> "$GITHUB_OUTPUT"
-
       - name: Create or update tracking issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           title="Upstream sync $(date -u +%Y-%m-%d)"
-          body="${{ steps.diff.outputs.summary }}"
+          body="Upstream-raw branch has been synced with upstream/main. Check the upstream-raw branch for details."
 
-          if [ -n "${{ steps.find_issue.outputs.number }}" ]; then
-            gh issue edit "${{ steps.find_issue.outputs.number }}" \
-              --title "$title" \
-              --body "$body"
-            echo "Updated issue #${{ steps.find_issue.outputs.number }}"
+          issue_number=$(gh issue list --label "upstream-sync" --json number --jq '.[0].number' || echo "")
+
+          if [ -n "$issue_number" ]; then
+            gh issue edit "$issue_number" --title "$title" --body "$body"
+            echo "Updated issue #$issue_number"
           else
-            gh issue create \
-              --title "$title" \
-              --body "$body" \
-              --label "upstream-sync"
+            gh issue create --title "$title" --body "$body" --label "upstream-sync"
           fi
