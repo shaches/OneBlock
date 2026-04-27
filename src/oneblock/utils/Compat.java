@@ -54,10 +54,10 @@ public final class Compat {
             Utils.findMethod(Bukkit.class, "createWorldBorder");
 
     /** {@code true} on pre-1.13 servers (no flat-ID material API, no namespaced keys). */
-    public static final boolean legacy = !XMaterial.supports(1, 13);
+    public static final boolean legacy = !XMaterial.supports(13);
 
     /** {@code true} on pre-1.9 servers (no BossBar API, no progress-bar placeholder). */
-    public static final boolean superlegacy = !XMaterial.supports(1, 9);
+    public static final boolean superlegacy = !XMaterial.supports(9);
 
     /**
      * {@code true} on 1.21+ where the item-spawn velocity API was
@@ -65,7 +65,7 @@ public final class Compat {
      * {@code copy().setVelocity()} path instead of the legacy
      * teleport when this is set.
      */
-    public static final boolean needDropFix = XMaterial.supports(1, 21);
+    public static final boolean needDropFix = XMaterial.supports(21);
 
     /**
      * Single shared {@link VoidChunkGenerator} for the plugin's

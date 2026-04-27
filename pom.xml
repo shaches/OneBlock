@@ -39,16 +39,6 @@
 		</repository>
 
 		<repository>
-			<id>sk89q-repo</id>
-			<url>https://maven.enginehub.org/repo/</url>
-		</repository>
-		
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-		
-		<repository>
 			<id>oraxen</id>
 			<name>Oraxen Repository</name>
 			<url>https://repo.oraxen.com/releases</url>
@@ -61,18 +51,13 @@
 		</repository>
 		
 	    <repository>
-	        <id>momirealms-repo</id>
-	        <url>https://repo.momirealms.net/releases/</url>
+	        <id>matteodev</id>
+	        <url>https://maven.devs.beer/</url>
 	    </repository>
 		
 		<repository>
 			<id>AlessioDP</id>
 			<url>https://repo.alessiodp.com/releases/</url>
-		</repository>
-		
-		<repository>
-			<id>WorldGuardOneBlock-main</id>
-			<url>https://raw.github.com/MrMarL/WorldGuardOneBlock/main/</url>
 		</repository>
 	</repositories>
 
@@ -100,44 +85,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>WorldGuardOneBlock</groupId>
-			<artifactId>WorldGuardOneBlock</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.sk89q.worldguard</groupId>
-			<artifactId>worldguard-legacy</artifactId>
-			<version>6.2</version>
-			<scope>provided</scope>
+		    <groupId>com.github.cryptomorin</groupId>
+		    <artifactId>XSeries</artifactId>
+		    <version>13.6.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.sk89q.worldguard</groupId>
-			<artifactId>worldguard-bukkit</artifactId>
-			<version>7.0.0</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.bstats</groupId>
-					<artifactId>bstats-bukkit</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<!--FIX for 26.1-->
-		<dependency>
-			<!--<groupId>com.github.cryptomorin</groupId>-->
-		    <groupId>io.github.almighty-satan</groupId>
-		    <artifactId>XSeries</artifactId>
-		    <version>13.6.0+26.1</version>
+		    <groupId>com.googlecode.json-simple</groupId>
+		    <artifactId>json-simple</artifactId>
+		    <version>1.1.1</version>
 		</dependency>
 		
 		<dependency>
-		    <groupId>com.github.LoneDev6</groupId>
+		    <groupId>dev.lone</groupId>
 		    <artifactId>api-itemsadder</artifactId>
-		    <version>3.6.1</version>
+		    <version>4.0.10</version>
 		    <scope>provided</scope>
 		</dependency>
 		
@@ -283,6 +245,50 @@
 <groupId>org.apache.maven.plugins</groupId>
 <artifactId>maven-surefire-plugin</artifactId>
 <version>3.5.2</version>
+</plugin>
+
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-enforcer-plugin</artifactId>
+<version>3.5.0</version>
+<executions>
+<execution>
+<id>enforce-bytecode-level</id>
+<goals>
+<goal>enforce</goal>
+</goals>
+<configuration>
+<rules>
+<requireJavaVersion>
+<version>[21,)</version>
+</requireJavaVersion>
+</rules>
+</configuration>
+</execution>
+</executions>
+</plugin>
+
+<plugin>
+<groupId>org.cyclonedx</groupId>
+<artifactId>cyclonedx-maven-plugin</artifactId>
+<version>2.9.1</version>
+<executions>
+<execution>
+<phase>package</phase>
+<goals>
+<goal>makeAggregateBom</goal>
+</goals>
+</execution>
+</executions>
+<configuration>
+<projectType>library</projectType>
+<schemaVersion>1.5</schemaVersion>
+<includeCompileScope>true</includeCompileScope>
+<includeProvidedScope>true</includeProvidedScope>
+<includeRuntimeScope>true</includeRuntimeScope>
+<includeSystemScope>true</includeSystemScope>
+<includeTestScope>false</includeTestScope>
+</configuration>
 </plugin>
 
 <plugin>

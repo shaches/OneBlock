@@ -4,14 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import com.cryptomorin.xseries.XMaterial;
 
 import oneblock.command.CommandContext;
 import oneblock.command.Subcommand;
@@ -147,7 +146,7 @@ public final class CommandHandler implements CommandExecutor {
                 "\n▄▀▄ ██▄" +
                 "\n▀▄▀ █▄█  by MrMarL" +
                 "\nPlugin version: v" + Oneblock.plugin.version +
-                "\nServer version: " + (Compat.superlegacy ? "super legacy " : (Compat.legacy ? "legacy " : "")) + XMaterial.getVersionMajor() + "." + XMaterial.getVersionMinor() + ".X");
+                "\nServer version: " + (Compat.superlegacy ? "super legacy " : (Compat.legacy ? "legacy " : "")) + Bukkit.getBukkitVersion().split("-")[0]);
         return true;
     }
 }
