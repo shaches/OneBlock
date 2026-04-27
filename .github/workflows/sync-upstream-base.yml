@@ -1,0 +1,88 @@
+name: Sync upstream-raw mirror
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/MrMarL/OneBlock.git
+
+      - name: Fetch remotes
+        run: |
+          git fetch origin
+          git fetch upstream
+
+      - name: Reset upstream-raw to upstream/main
+        run: |
+          git checkout -B upstream-raw upstream/main
+
+      - name: Force-push upstream-raw
+        run: git push origin upstream-raw --force-with-lease
+
+      - name: Generate upstream diff summary
+        id: diff
+        run: |
+          {
+            echo "summary<<EOF"
+            echo "## Upstream commits absent from \`origin/main\`"
+            echo ""
+            echo "Merge-base: \`$(git merge-base origin/main upstream/main)\`"
+            echo ""
+            echo '```'
+            git log --oneline --reverse origin/main..upstream/main || true
+            echo '```'
+            echo ""
+            echo "### Diff stat (upstream vs origin/main)"
+            echo ""
+            echo '```'
+            git diff --stat origin/main..upstream/main || true
+            echo '```'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Find existing tracking issue
+        id: find_issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          issue_number=$(gh issue list --label "upstream-sync" --json number --jq '.[0].number' || echo "")
+          echo "number=$issue_number" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="Upstream sync $(date -u +%Y-%m-%d)"
+          body="${{ steps.diff.outputs.summary }}"
+
+          if [ -n "${{ steps.find_issue.outputs.number }}" ]; then
+            gh issue edit "${{ steps.find_issue.outputs.number }}" \
+              --title "$title" \
+              --body "$body"
+            echo "Updated issue #${{ steps.find_issue.outputs.number }}"
+          else
+            gh issue create \
+              --title "$title" \
+              --body "$body" \
+              --label "upstream-sync"
+          fi
