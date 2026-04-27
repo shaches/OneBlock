@@ -34,7 +34,7 @@ public final class IslandBlockGenTask implements Runnable {
     @Override
     public void run() {
         for (Player player : plugin.cache.getPlayers()) {
-            if (player.getWorld() != Oneblock.getWor()) continue;
+            if (player.getWorld() != Oneblock.getWorld()) continue;
             final UUID uuid = player.getUniqueId();
             final int result[] = plugin.cache.getIslandCoordinates(player);
             final int X_pl = result[0], Z_pl = result[1], plID = result[2];
@@ -55,7 +55,7 @@ public final class IslandBlockGenTask implements Runnable {
                 }
             }
 
-            final Block block = Oneblock.getWor().getBlockAt(X_pl, Oneblock.getY(), Z_pl);
+            final Block block = Oneblock.getWorld().getBlockAt(X_pl, Oneblock.getY(), Z_pl);
             if (block.getType() != Material.AIR) continue;
             if (PlayerInfo.getId(uuid) == -1) continue;
 

@@ -25,7 +25,7 @@ public final class WorldInitTask implements Runnable {
 
     @Override
     public void run() {
-        if (Oneblock.getWor() != null) return;
+        if (Oneblock.getWorld() != null) return;
         final World w = Bukkit.getWorld(Oneblock.config.getString("world"));
         Oneblock.leavewor = Bukkit.getWorld(Oneblock.config.getString("leaveworld"));
         if (w != null) {

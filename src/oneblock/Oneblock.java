@@ -121,11 +121,11 @@ public class Oneblock extends JavaPlugin {
     public ArrayList <XMaterial> flowers = new ArrayList<>();
     public PlayerCache cache = new PlayerCache();
 
-    public final static World getWorld() { return ORIGIN.get().world(); }
+    /** Shorthand for {@code origin().world()}. May be {@code null} before the
+     * configured world finishes loading; callers must guard. */
+    public static World getWorld() { return ORIGIN.get().world(); }
     /** Snapshot of the current island origin. Always non-null. */
     public static IslandOrigin origin()  { return ORIGIN.get(); }
-    /** Shorthand for {@code origin().world()}. */
-    public static World getWor()  { return ORIGIN.get().world(); }
     /** Shorthand for {@code origin().x()}. */
     public static int getX()      { return ORIGIN.get().x(); }
     /** Shorthand for {@code origin().y()}. */
@@ -248,7 +248,7 @@ public class Oneblock extends JavaPlugin {
         if (entry == null || entry.kind == PoolEntry.Kind.DEFAULT_GRASS) {
             XBlock.setType(block, GRASS_BLOCK);
             if (rnd.nextInt(FLOWER_CHANCE) == 1)
-                XBlock.setType(getWor().getBlockAt(X_pl, getY() + 1, Z_pl), flowers.get(rnd.nextInt(flowers.size())));
+                XBlock.setType(getWorld().getBlockAt(X_pl, getY() + 1, Z_pl), flowers.get(rnd.nextInt(flowers.size())));
         }
         else switch (entry.kind) {
             case BLOCK:
@@ -270,7 +270,7 @@ public class Oneblock extends JavaPlugin {
 	public void spawnRandomMob(int pos_x, int pos_z, Level level) {
 		EntityType type = level.mobPool.pick(rnd);
 		if (type == null) return;
-		getWor().spawnEntity(new Location(getWor(), pos_x + .5, getY() + 1, pos_z + .5), type);
+		getWorld().spawnEntity(new Location(getWorld(), pos_x + .5, getY() + 1, pos_z + .5), type);
 	}
     
     public void updateBorderLocation(Player pl, Location loc) {
@@ -296,7 +296,7 @@ public class Oneblock extends JavaPlugin {
     
     public void reloadBorders() {
     	if (!isBorderSupported) return;
-    	World w = getWor();
+    	World w = getWorld();
     	if (w == null) return;
     	if (SETTINGS.border) w.getPlayers().forEach(pl -> plugin.updateBorderLocation(pl, pl.getLocation()));
     	else w.getPlayers().forEach(pl -> pl.setWorldBorder(null));

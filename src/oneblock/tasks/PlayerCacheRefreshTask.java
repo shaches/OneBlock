@@ -20,7 +20,7 @@ public final class PlayerCacheRefreshTask implements Runnable {
 
     @Override
     public void run() {
-        World w = Oneblock.getWor();
+        World w = Oneblock.getWorld();
         if (w != null) plugin.cache.updateCache(w.getPlayers());
     }
 }

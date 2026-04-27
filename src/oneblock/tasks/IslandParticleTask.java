@@ -55,7 +55,7 @@ public final class IslandParticleTask implements Runnable {
     public void run() {
         if (!Oneblock.settings().particle) return;
 
-        World w = Oneblock.getWor();
+        World w = Oneblock.getWorld();
         if (w == null) return;
 
         List<Location> spawns = collectSpawns(plugin.cache, w, Oneblock.getY());
