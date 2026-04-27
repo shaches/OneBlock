@@ -69,8 +69,8 @@ class LegacyBlocksMigratorDuplicationTest {
 
     // Level 0 should have only: stone (weight 2), dirt (weight 1)
     assertThat(migratedLevel0).hasSize(6); // header (4) + 2 entries
-    Map<String, Object> stone0 = (Map<String, Object>) migratedLevel0.get(4);
-    Map<String, Object> dirt = (Map<String, Object>) migratedLevel0.get(5);
+    Map<String, Object> stone0 = asMap(migratedLevel0.get(4));
+    Map<String, Object> dirt = asMap(migratedLevel0.get(5));
     assertThat(stone0.get("block")).isEqualTo("stone");
     assertThat(stone0.get("weight")).isEqualTo(2);
     assertThat(dirt.get("block")).isEqualTo("dirt");
@@ -78,8 +78,8 @@ class LegacyBlocksMigratorDuplicationTest {
 
     // Level 1 should have only: stone (weight 1), grass (weight 1)
     assertThat(migratedLevel1).hasSize(6); // header (4) + 2 entries
-    Map<String, Object> stone1 = (Map<String, Object>) migratedLevel1.get(4);
-    Map<String, Object> grass = (Map<String, Object>) migratedLevel1.get(5);
+    Map<String, Object> stone1 = asMap(migratedLevel1.get(4));
+    Map<String, Object> grass = asMap(migratedLevel1.get(5));
     assertThat(stone1.get("block")).isEqualTo("stone");
     assertThat(stone1.get("weight")).isEqualTo(1);
     assertThat(grass.get("block")).isEqualTo("grass");
@@ -123,8 +123,8 @@ class LegacyBlocksMigratorDuplicationTest {
 
     // Level 0 should have: stone (weight 2), dirt (weight 1)
     assertThat(migratedLevel0).hasSize(6); // header (4) + 2 entries
-    Map<String, Object> stone0 = (Map<String, Object>) migratedLevel0.get(4);
-    Map<String, Object> dirt = (Map<String, Object>) migratedLevel0.get(5);
+    Map<String, Object> stone0 = asMap(migratedLevel0.get(4));
+    Map<String, Object> dirt = asMap(migratedLevel0.get(5));
     assertThat(stone0.get("block")).isEqualTo("stone");
     assertThat(stone0.get("weight")).isEqualTo(2);
     assertThat(dirt.get("block")).isEqualTo("dirt");
@@ -132,9 +132,9 @@ class LegacyBlocksMigratorDuplicationTest {
 
     // Level 1 should have union: stone (weight 3), dirt (weight 1), grass (weight 1)
     assertThat(migratedLevel1).hasSize(7); // header (4) + 3 entries
-    Map<String, Object> stone1 = (Map<String, Object>) migratedLevel1.get(4);
-    Map<String, Object> dirt1 = (Map<String, Object>) migratedLevel1.get(5);
-    Map<String, Object> grass = (Map<String, Object>) migratedLevel1.get(6);
+    Map<String, Object> stone1 = asMap(migratedLevel1.get(4));
+    Map<String, Object> dirt1 = asMap(migratedLevel1.get(5));
+    Map<String, Object> grass = asMap(migratedLevel1.get(6));
     assertThat(stone1.get("block")).isEqualTo("stone");
     assertThat(stone1.get("weight")).isEqualTo(3); // 2 from level 0 + 1 from level 1
     assertThat(dirt1.get("block")).isEqualTo("dirt");
@@ -207,8 +207,8 @@ class LegacyBlocksMigratorDuplicationTest {
     List<?> maxLevel = migrated.getList("MaxLevel");
     assertThat(maxLevel).hasSize(3); // name + 2 entries
     assertThat(maxLevel.get(0)).isEqualTo("Level: MAX");
-    Map<String, Object> stone = (Map<String, Object>) maxLevel.get(1);
-    Map<String, Object> dirt = (Map<String, Object>) maxLevel.get(2);
+    Map<String, Object> stone = asMap(maxLevel.get(1));
+    Map<String, Object> dirt = asMap(maxLevel.get(2));
     assertThat(stone.get("block")).isEqualTo("stone");
     assertThat(dirt.get("block")).isEqualTo("dirt");
   }
@@ -248,16 +248,21 @@ class LegacyBlocksMigratorDuplicationTest {
     List<?> migratedLevel1 = migrated.getList("1");
 
     assertThat(migratedLevel0).hasSize(5); // header (4) + 1 entry
-    Map<String, Object> stone0 = (Map<String, Object>) migratedLevel0.get(4);
+    Map<String, Object> stone0 = asMap(migratedLevel0.get(4));
     assertThat(stone0.get("block")).isEqualTo("stone");
     assertThat(stone0.get("weight")).isEqualTo(3);
 
     assertThat(migratedLevel1).hasSize(6); // header (4) + 2 entries (stone + dirt)
-    Map<String, Object> stone1 = (Map<String, Object>) migratedLevel1.get(4);
-    Map<String, Object> dirt1 = (Map<String, Object>) migratedLevel1.get(5);
+    Map<String, Object> stone1 = asMap(migratedLevel1.get(4));
+    Map<String, Object> dirt1 = asMap(migratedLevel1.get(5));
     assertThat(stone1.get("block")).isEqualTo("stone");
     assertThat(stone1.get("weight")).isEqualTo(1);
     assertThat(dirt1.get("block")).isEqualTo("dirt");
     assertThat(dirt1.get("weight")).isEqualTo(1);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> asMap(Object o) {
+    return (Map<String, Object>) o;
   }
 }
