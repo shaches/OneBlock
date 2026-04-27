@@ -42,23 +42,21 @@ jobs:
       - name: Generate upstream diff summary
         id: diff
         run: |
-          {
-            echo "summary<<EOF"
-            echo "## Upstream commits absent from \`origin/main\`"
-            echo ""
-            echo "Merge-base: \`$(git merge-base origin/main upstream/main)\`"
-            echo ""
-            echo '```'
-            git log --oneline --reverse origin/main..upstream/main || true
-            echo '```'
-            echo ""
-            echo "### Diff stat (upstream vs origin/main)"
-            echo ""
-            echo '```'
-            git diff --stat origin/main..upstream/main || true
-            echo '```'
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          echo "summary<<EOF" >> "$GITHUB_OUTPUT"
+          echo "## Upstream commits absent from \`origin/main\`" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "Merge-base: \`$(git merge-base origin/main upstream/main)\`" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo '```' >> "$GITHUB_OUTPUT"
+          git log --oneline --reverse origin/main..upstream/main >> "$GITHUB_OUTPUT" || true
+          echo '```' >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "### Diff stat (upstream vs origin/main)" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo '```' >> "$GITHUB_OUTPUT"
+          git diff --stat origin/main..upstream/main >> "$GITHUB_OUTPUT" || true
+          echo '```' >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Find existing tracking issue
         id: find_issue
