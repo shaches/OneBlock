@@ -59,7 +59,15 @@ public final class PlayerInfo {
 	public int lvl = 0;
 	public int breaks = 0;
 	public BossBar bar = null;
-	public boolean allow_visit = false;
+	/**
+	 * Whether other players are allowed to {@code /ob visit} this island.
+	 * Pre-Phase-6.3 this field was named {@code allow_visit} (snake_case);
+	 * the Java field name was renamed to {@code allowVisit} per
+	 * convention. The on-disk JSON key remains {@code visit} and the
+	 * SQL column name remains {@code allow_visit} - both are public
+	 * persistence schemas and were intentionally NOT renamed.
+	 */
+	public boolean allowVisit = false;
 
 	public PlayerInfo(UUID uuid) {
 		this.uuid = uuid;

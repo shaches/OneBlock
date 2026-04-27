@@ -259,13 +259,13 @@ class OBPDispatchTest {
     }
 
     @Test
-    @DisplayName("%OB_visit_allowed% returns 'true' or 'false' from PlayerInfo.allow_visit")
+    @DisplayName("%OB_visit_allowed% returns 'true' or 'false' from PlayerInfo.allowVisit")
     void visitAllowedRoundTrip() {
         UUID owner = UUID.randomUUID();
         PlayerInfo info = putPlayer(owner, 0, 0);
-        info.allow_visit = false;
+        info.allowVisit = false;
         assertThat(obp.onRequest(offline(owner), "visit_allowed")).isEqualTo("false");
-        info.allow_visit = true;
+        info.allowVisit = true;
         assertThat(obp.onRequest(offline(owner), "visit_allowed")).isEqualTo("true");
     }
 

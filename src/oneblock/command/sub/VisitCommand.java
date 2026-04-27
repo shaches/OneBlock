@@ -56,8 +56,8 @@ public final class VisitCommand implements Subcommand {
             return true;
         }
         PlayerInfo pinf = PlayerInfo.get(uuid);
-        if (!pinf.allow_visit || (inv instanceof Player && !((Player) inv).hasPermission("Oneblock.allow_visit"))) {
-            pinf.allow_visit = false;
+        if (!pinf.allowVisit || (inv instanceof Player && !((Player) inv).hasPermission("Oneblock.allow_visit"))) {
+            pinf.allowVisit = false;
             ctx.sender().sendMessage(Messages.not_allow_visit);
             return true;
         }

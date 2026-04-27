@@ -222,24 +222,24 @@ class DatabaseManagerTest {
         assertThat(loaded.get(0).uuid).isEqualTo(owner);
         assertThat(loaded.get(0).lvl).isEqualTo(7);
         assertThat(loaded.get(0).breaks).isEqualTo(23);
-        assertThat(loaded.get(0).allow_visit).isFalse();
+        assertThat(loaded.get(0).allowVisit).isFalse();
         assertThat(loaded.get(0).uuids).isEmpty();
     }
 
     @Test
-    @DisplayName("h2 round-trip: allow_visit=true is persisted and restored truthy")
+    @DisplayName("h2 round-trip: allowVisit=true is persisted and restored truthy")
     void allowVisitRoundTrip() {
         DatabaseManager.initialize();
 
         UUID owner = UUID.randomUUID();
         PlayerInfo p = new PlayerInfo(owner);
-        p.allow_visit = true;
+        p.allowVisit = true;
 
         DatabaseManager.save(Collections.singletonList(p));
         List<PlayerInfo> loaded = DatabaseManager.load();
 
         assertThat(loaded).hasSize(1);
-        assertThat(loaded.get(0).allow_visit).isTrue();
+        assertThat(loaded.get(0).allowVisit).isTrue();
     }
 
     @Test

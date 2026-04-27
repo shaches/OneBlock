@@ -27,8 +27,8 @@ public final class AllowVisitCommand implements Subcommand {
         UUID uuid = ctx.player().getUniqueId();
         if (PlayerInfo.getId(uuid) == -1) return true;
         PlayerInfo inf = PlayerInfo.get(uuid);
-        inf.allow_visit = !inf.allow_visit;
-        ctx.player().sendMessage(inf.allow_visit ? Messages.allowed_visit : Messages.forbidden_visit);
+        inf.allowVisit = !inf.allowVisit;
+        ctx.player().sendMessage(inf.allowVisit ? Messages.allowed_visit : Messages.forbidden_visit);
         return true;
     }
 }

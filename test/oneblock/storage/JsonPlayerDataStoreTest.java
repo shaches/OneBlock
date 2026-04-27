@@ -125,7 +125,7 @@ class JsonPlayerDataStoreTest {
         assertThat(restored.uuid).isEqualTo(owner);
         assertThat(restored.lvl).isEqualTo(5);
         assertThat(restored.breaks).isEqualTo(12);
-        assertThat(restored.allow_visit).isFalse();
+        assertThat(restored.allowVisit).isFalse();
         assertThat(restored.uuids).isEmpty();
     }
 
@@ -147,16 +147,16 @@ class JsonPlayerDataStoreTest {
     }
 
     @Test
-    @DisplayName("round-trip: allow_visit=true is persisted as the 'visit' key and restored truthy")
+    @DisplayName("round-trip: allowVisit=true is persisted as the 'visit' key and restored truthy")
     void allowVisitFlagRoundTrip() {
         UUID owner = UUID.randomUUID();
         PlayerInfo p = new PlayerInfo(owner);
-        p.allow_visit = true;
+        p.allowVisit = true;
 
         JsonPlayerDataStore.write(Collections.singletonList(p));
         List<PlayerInfo> read = JsonPlayerDataStore.read();
 
-        assertThat(read.get(0).allow_visit).isTrue();
+        assertThat(read.get(0).allowVisit).isTrue();
     }
 
     @Test

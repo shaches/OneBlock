@@ -408,7 +408,7 @@ public class Oneblock extends JavaPlugin {
     	return PlayerInfo.get(pl_uuid).getRequiredBreaks();
     }
     public static boolean isVisitAllowed(UUID pl_uuid) {
-    	return PlayerInfo.get(pl_uuid).allow_visit;
+    	return PlayerInfo.get(pl_uuid).allowVisit;
     }
     public static int countVisitors(UUID pl_uuid) {
     	int count = 0;
