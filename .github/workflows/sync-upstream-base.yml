@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -40,7 +41,7 @@ jobs:
 
       - name: Create or update tracking issue
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           title="Upstream sync $(date -u +%Y-%m-%d)"
           body="Upstream-raw branch has been synced with upstream/main. Check the upstream-raw branch for details."
