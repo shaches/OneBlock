@@ -42,6 +42,7 @@ jobs:
       - name: Create or update tracking issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           title="Upstream sync $(date -u +%Y-%m-%d)"
           body="Upstream-raw branch has been synced with upstream/main. Check the upstream-raw branch for details."
