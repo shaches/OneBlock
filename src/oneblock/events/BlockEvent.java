@@ -16,6 +16,7 @@ import org.bukkit.util.Vector;
 
 import oneblock.Oneblock;
 import oneblock.PlayerInfo;
+import oneblock.utils.Compat;
 
 public class BlockEvent implements Listener {
 	protected static final double DROP_TELEPORT_HEIGHT_OFFSET = 0.8;
@@ -41,7 +42,7 @@ public class BlockEvent implements Listener {
 		// 1.21+ reworked item spawning so the old `teleport` path drops silently
 		// lose their Z-axis velocity. Use the new copy() + setVelocity() API
 		// on modern servers and the legacy teleport path on older ones.
-		if (Oneblock.needDropFix) {
+		if (Compat.needDropFix) {
 			e.setCancelled(true);
 			drop.copy(loc).setVelocity(UPWARD_VELOCITY);
 		} else {

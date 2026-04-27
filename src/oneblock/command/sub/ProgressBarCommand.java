@@ -6,6 +6,7 @@ import org.bukkit.boss.BarStyle;
 
 import oneblock.Level;
 import oneblock.Oneblock;
+import oneblock.utils.Compat;
 import oneblock.command.AdminPrelude;
 import oneblock.command.CommandContext;
 import oneblock.command.Subcommand;
@@ -40,7 +41,7 @@ public final class ProgressBarCommand implements Subcommand {
 
     @Override
     public boolean execute(CommandContext ctx) {
-        if (Oneblock.superlegacy) {
+        if (Compat.superlegacy) {
             ctx.sender().sendMessage(String.format("%sYou server version is super legacy! ProgressBar unsupported!", ChatColor.RED));
             return true;
         }

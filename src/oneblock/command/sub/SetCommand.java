@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import oneblock.LegacyConfigSaver;
 import oneblock.Messages;
 import oneblock.Oneblock;
+import oneblock.utils.Compat;
 import oneblock.command.AdminPrelude;
 import oneblock.command.CommandContext;
 import oneblock.command.Subcommand;
@@ -88,7 +89,7 @@ public final class SetCommand implements Subcommand {
 
         if (!ctx.plugin().enabled) ctx.plugin().runMainTask();
 
-        Oneblock.getWorld().getBlockAt(Oneblock.getX(), Oneblock.getY(), Oneblock.getZ()).setType(Oneblock.GRASS_BLOCK.get());
+        Oneblock.getWorld().getBlockAt(Oneblock.getX(), Oneblock.getY(), Oneblock.getZ()).setType(Compat.GRASS_BLOCK.get());
         ctx.plugin().worldGuard.recreateRegions();
         LegacyConfigSaver.save(Oneblock.config, Oneblock.configManager.getMainConfigFile());
 

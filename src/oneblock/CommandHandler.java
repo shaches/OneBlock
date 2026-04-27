@@ -15,6 +15,7 @@ import com.cryptomorin.xseries.XMaterial;
 
 import oneblock.command.CommandContext;
 import oneblock.command.Subcommand;
+import oneblock.utils.Compat;
 import oneblock.worldguard.OBWorldGuard;
 
 public final class CommandHandler implements CommandExecutor {
@@ -146,7 +147,7 @@ public final class CommandHandler implements CommandExecutor {
                 "\n▄▀▄ ██▄" +
                 "\n▀▄▀ █▄█  by MrMarL" +
                 "\nPlugin version: v" + Oneblock.plugin.version +
-                "\nServer version: " + (Oneblock.superlegacy ? "super legacy " : (Oneblock.legacy ? "legacy " : "")) + XMaterial.getVersionMajor() + "." + XMaterial.getVersionMinor() + ".X");
+                "\nServer version: " + (Compat.superlegacy ? "super legacy " : (Compat.legacy ? "legacy " : "")) + XMaterial.getVersionMajor() + "." + XMaterial.getVersionMinor() + ".X");
         return true;
     }
 }

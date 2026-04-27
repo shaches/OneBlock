@@ -3,7 +3,7 @@ package oneblock.command.sub;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
-import oneblock.Oneblock;
+import oneblock.utils.Compat;
 import oneblock.command.AdminPrelude;
 import oneblock.command.CommandContext;
 import oneblock.command.Subcommand;
@@ -29,7 +29,7 @@ public final class BorderCommand implements Subcommand {
 
     @Override
     public boolean execute(CommandContext ctx) {
-        if (!Oneblock.isBorderSupported) {
+        if (!Compat.isBorderSupported) {
             ctx.sender().sendMessage(String.format("%sThe border can only be used on version 1.18.2 and above!", ChatColor.YELLOW));
             return true;
         }

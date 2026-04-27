@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import oneblock.Island;
 import oneblock.Messages;
 import oneblock.Oneblock;
+import oneblock.utils.Compat;
 import oneblock.PlayerInfo;
 import oneblock.command.AdminPrelude;
 import oneblock.command.CommandContext;
@@ -49,7 +50,7 @@ public final class IslandsCommand implements Subcommand {
             return true;
         }
         if (args[1].equals("set_my_by_def")) {
-            if (Oneblock.legacy) {
+            if (Compat.legacy) {
                 ctx.sender().sendMessage(ChatColor.RED + "Not supported in legacy versions!");
                 return true;
             }
@@ -70,7 +71,7 @@ public final class IslandsCommand implements Subcommand {
             return true;
         }
         if (args[1].equalsIgnoreCase("default")) {
-            if (Oneblock.legacy) {
+            if (Compat.legacy) {
                 ctx.sender().sendMessage(ChatColor.RED + "Not supported in legacy versions!");
                 return true;
             }

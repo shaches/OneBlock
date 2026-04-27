@@ -12,7 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 
-import oneblock.Oneblock;
+import oneblock.utils.Compat;
 
 /**
  * Places a vanilla chest at the given block and populates it with the contents
@@ -27,7 +27,7 @@ public class LootTableDispatcher {
 	public static boolean populate(Block block, NamespacedKey key, Random rnd) {
 		if (block == null) return false;
 		block.setType(Material.CHEST);
-		if (Oneblock.superlegacy) {
+		if (Compat.superlegacy) {
 			if (!legacyWarned) {
 				LOG.warning("[Oneblock] LootTable API is unsupported on this server version; chests will spawn empty.");
 				legacyWarned = true;

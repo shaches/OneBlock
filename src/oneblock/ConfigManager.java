@@ -19,6 +19,7 @@ import com.nexomc.nexo.api.NexoBlocks;
 import oneblock.gui.GUI;
 import oneblock.migration.LegacyBlocksMigrator;
 import oneblock.storage.DatabaseManager;
+import oneblock.utils.Compat;
 import oneblock.utils.LowerCaseYaml;
 import oneblock.utils.Utils;
 import oneblock.worldguard.OBWorldGuard;
@@ -61,7 +62,7 @@ public final class ConfigManager {
         
         // Single-call cache so we don't dereference Oneblock.settings() once per field.
         oneblock.config.Settings s = Oneblock.settings();
-        if (!Oneblock.superlegacy) {
+        if (!Compat.superlegacy) {
         	s.progressBar = readOrDefault("progress_bar", true);
         	Level.max.color = BarColor.valueOf(readOrDefault("progress_bar_color", "GREEN"));
         	Level.max.style = BarStyle.valueOf(readOrDefault("progress_bar_style", "SOLID"));
@@ -77,7 +78,7 @@ public final class ConfigManager {
         OBWorldGuard.setEnabled(readOrDefault("worldguard", OBWorldGuard.canUse));
         OBWorldGuard.flags = readOrDefault("wgflags", OBWorldGuard.flags);
         Oneblock.plugin.setOffset(readOrDefault("set", 100));
-        if (Oneblock.config.isSet("custom_island") && !Oneblock.legacy)
+        if (Oneblock.config.isSet("custom_island") && !Compat.legacy)
         	Island.read(Oneblock.config);
         
         DatabaseConfig();
@@ -98,7 +99,7 @@ public final class ConfigManager {
         s.allowNether = readOrDefault("allow_nether", s.allowNether);
         GUI.enabled = readOrDefault("gui", GUI.enabled);
         s.rebirth = readOrDefault("rebirth_on_the_island", s.rebirth);
-        if (Oneblock.isBorderSupported) s.border = readOrDefault("border", s.border);
+        if (Compat.isBorderSupported) s.border = readOrDefault("border", s.border);
     }
     
     private void DatabaseConfig() {
@@ -182,7 +183,7 @@ public final class ConfigManager {
     	// OR the next header field (length) OR the first pool entry. We attempt
     	// each shape in turn; on failure we DO NOT advance q, leaving the string
     	// for the next parser. This is legacy config compatibility, not a bug.
-    	if (!Oneblock.superlegacy && q < bl_temp.size() && bl_temp.get(q) instanceof String) {
+    	if (!Compat.superlegacy && q < bl_temp.size() && bl_temp.get(q) instanceof String) {
     		try {
     			level.color = BarColor.valueOf(((String) bl_temp.get(q)).toUpperCase());
     			q++;
@@ -294,7 +295,7 @@ public final class ConfigManager {
     	if (text == null || text.isEmpty()) return PoolEntry.GRASS;
     	Object mt = Material.matchMaterial(text);
     	// Compare against the vanilla Material constant, NOT
-    	// Oneblock.GRASS_BLOCK which is an XMaterial: Material vs XMaterial
+    	// Compat.GRASS_BLOCK which is an XMaterial: Material vs XMaterial
     	// '==' widens to Object and is always false at runtime, silently
     	// suppressing the DEFAULT_GRASS routing for every "GRASS_BLOCK"
     	// pool entry on modern (1.13+) servers (the placement code at
@@ -302,9 +303,9 @@ public final class ConfigManager {
     	// DEFAULT_GRASS sentinel, not on a literal Material.GRASS_BLOCK).
     	if (mt == null || mt == Material.GRASS_BLOCK || !((Material) mt).isBlock())
     		mt = getCustomBlock(text);
-    	if (Oneblock.legacy && mt == null) {
+    	if (Compat.legacy && mt == null) {
     		mt = XMaterial.matchXMaterial(text)
-    				.map(xmt -> xmt == Oneblock.GRASS_BLOCK ? null : xmt)
+    				.map(xmt -> xmt == Compat.GRASS_BLOCK ? null : xmt)
     				.orElse(null);
     	}
     	if (mt == null) return PoolEntry.GRASS;
@@ -324,7 +325,7 @@ public final class ConfigManager {
 	}
 	
     public void setupProgressBar() {
-		if (Oneblock.superlegacy) return;
+		if (Compat.superlegacy) return;
 		if (PlayerInfo.size() == 0) return;
 		
 		if (Level.max.color == null) Level.max.color = BarColor.GREEN;
@@ -387,9 +388,9 @@ public final class ConfigManager {
         Oneblock.plugin.flowers.clear();
         File flower = getFile("flowers.yml");
         config_temp = YamlConfiguration.loadConfiguration(flower);
-        Oneblock.plugin.flowers.add(Oneblock.GRASS);
+        Oneblock.plugin.flowers.add(Compat.GRASS);
         for(String list:config_temp.getStringList("flowers"))
-        	Oneblock.plugin.flowers.add(XMaterial.matchXMaterial(list).orElse(Oneblock.GRASS));
+        	Oneblock.plugin.flowers.add(XMaterial.matchXMaterial(list).orElse(Compat.GRASS));
     }
     
     private void loadChests() {

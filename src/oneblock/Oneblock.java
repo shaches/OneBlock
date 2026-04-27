@@ -54,12 +54,6 @@ public class Oneblock extends JavaPlugin {
     private static final double BORDER_DAMAGE_BUFFER = 1;
     
     public static final Random rnd = new Random();
-    public static final XMaterial GRASS_BLOCK = XMaterial.GRASS_BLOCK, GRASS = XMaterial.SHORT_GRASS;
-    public static final VoidChunkGenerator GenVoid = new VoidChunkGenerator();
-    public static final boolean isBorderSupported = Utils.findMethod(Bukkit.class, "createWorldBorder");// Is virtual border supported?;
-    public static final boolean legacy = !XMaterial.supports(1,13);// Is version 1.13 supported?
-    public static final boolean superlegacy = !XMaterial.supports(1,9);// Is version 1.9 supported?
-    public static final boolean needDropFix = XMaterial.supports(1,21);// Is version 1.21 supported?
     
     public static ConfigManager configManager = new ConfigManager();
     
@@ -142,7 +136,7 @@ public class Oneblock extends JavaPlugin {
     public int findNearestRegionId(final Location loc) { return IslandCoordinateCalculator.findNearestRegionId(loc); }
     
     @Override
-	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {return GenVoid;}
+	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {return Compat.GENERATOR;}
     
     public static String getBarTitle(Player p, int lvl) {
 		if (SETTINGS.lvlBarMode) return Level.get(lvl).name;
@@ -179,7 +173,7 @@ public class Oneblock extends JavaPlugin {
         setupMetrics(metrics);
         
         pluginManager.registerEvents(new RespawnJoinEvent(), this);
-        if (!superlegacy) pluginManager.registerEvents(new TeleportEvent(), this);
+        if (!Compat.superlegacy) pluginManager.registerEvents(new TeleportEvent(), this);
         pluginManager.registerEvents(new BlockEvent(), this);
         pluginManager.registerEvents(new GUIListener(), this);
         pluginManager.registerEvents(new TeleportNetherEvent(), this);
@@ -197,7 +191,7 @@ public class Oneblock extends JavaPlugin {
         if (pluginManager.isPluginEnabled("Oraxen")) return Place.Type.Oraxen;
         if (pluginManager.isPluginEnabled("Nexo")) return Place.Type.Nexo;
         if (pluginManager.isPluginEnabled("CraftEngine")) return Place.Type.CraftEngine;
-        return legacy ? Place.Type.legacy : Place.Type.basic;
+        return Compat.legacy ? Place.Type.legacy : Place.Type.basic;
     }
     
     public void reload() {
@@ -219,7 +213,7 @@ public class Oneblock extends JavaPlugin {
 		if (getOffset() == 0) return;
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new PlayerCacheRefreshTask(this), 0, 120);
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new PlayerDataSaveTask(this), 200, 6000);
-		if (!superlegacy) Bukkit.getScheduler().runTaskTimerAsynchronously(this, new IslandParticleTask(this), 40, 40);
+		if (!Compat.superlegacy) Bukkit.getScheduler().runTaskTimerAsynchronously(this, new IslandParticleTask(this), 40, 40);
 		Bukkit.getScheduler().runTaskTimer(this, new IslandBlockGenTask(this), 40, 80);
 		enabled = true;
 		
@@ -246,7 +240,7 @@ public class Oneblock extends JavaPlugin {
         
         PoolEntry entry = levelInfo.blockPool.pick(rnd);
         if (entry == null || entry.kind == PoolEntry.Kind.DEFAULT_GRASS) {
-            XBlock.setType(block, GRASS_BLOCK);
+            XBlock.setType(block, Compat.GRASS_BLOCK);
             if (rnd.nextInt(FLOWER_CHANCE) == 1)
                 XBlock.setType(getWorld().getBlockAt(playerX, getY() + 1, playerZ), flowers.get(rnd.nextInt(flowers.size())));
         }
@@ -295,7 +289,7 @@ public class Oneblock extends JavaPlugin {
     }
     
     public void reloadBorders() {
-    	if (!isBorderSupported) return;
+    	if (!Compat.isBorderSupported) return;
     	World w = getWorld();
     	if (w == null) return;
     	if (SETTINGS.border) w.getPlayers().forEach(pl -> plugin.updateBorderLocation(pl, pl.getLocation()));

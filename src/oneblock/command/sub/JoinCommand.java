@@ -7,6 +7,7 @@ import org.bukkit.Location;
 
 import oneblock.Island;
 import oneblock.Oneblock;
+import oneblock.utils.Compat;
 import oneblock.PlayerInfo;
 import oneblock.command.CommandContext;
 import oneblock.command.Subcommand;
@@ -50,7 +51,7 @@ public final class JoinCommand implements Subcommand {
             Island.place(Oneblock.getWorld(), X_pl, Oneblock.getY(), Z_pl);
             plugin.worldGuard.createRegion(uuid, X_pl, Z_pl, Oneblock.getOffset(), plID);
             PlayerInfo.set(plID, inf);
-            if (!Oneblock.superlegacy)
+            if (!Compat.superlegacy)
                 inf.createBar(Oneblock.getBarTitle(ctx.player(), 0));
         } else {
             int result[] = plugin.getIslandCoordinates(plID);
