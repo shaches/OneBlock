@@ -29,7 +29,7 @@ public final class PoolDisplayUtils {
   public static Map<PoolEntry, Integer> getCollapsedBlocks(Level level) {
     Map<PoolEntry, Integer> map = new LinkedHashMap<>();
     for (WeightedPool.Entry<PoolEntry> e : level.blockPool.entries())
-      map.merge(e.value, e.weight, Integer::sum);
+      map.put(e.value, map.getOrDefault(e.value, 0) + e.weight);
     return map;
   }
 
@@ -43,7 +43,7 @@ public final class PoolDisplayUtils {
   public static Map<EntityType, Integer> getCollapsedMobs(Level level) {
     Map<EntityType, Integer> map = new LinkedHashMap<>();
     for (WeightedPool.Entry<EntityType> e : level.mobPool.entries())
-      map.merge(e.value, e.weight, Integer::sum);
+      map.put(e.value, map.getOrDefault(e.value, 0) + e.weight);
     return map;
   }
 }
