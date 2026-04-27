@@ -46,11 +46,11 @@ jobs:
           title="Upstream sync $(date -u +%Y-%m-%d)"
           body="Upstream-raw branch has been synced with upstream/main. Check the upstream-raw branch for details."
 
-          issue_number=$(gh issue list --label "upstream-sync" --json number --jq '.[0].number' || echo "")
+          issue_number=$(gh issue list --search "$title" --json number --jq '.[0].number' || echo "")
 
           if [ -n "$issue_number" ]; then
             gh issue edit "$issue_number" --title "$title" --body "$body"
             echo "Updated issue #$issue_number"
           else
-            gh issue create --title "$title" --body "$body" --label "upstream-sync"
+            gh issue create --title "$title" --body "$body"
           fi
