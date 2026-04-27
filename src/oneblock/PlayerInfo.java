@@ -133,12 +133,24 @@ public final class PlayerInfo {
 		}
 	}
 
-	public int getNeed() {
+	/**
+	 * The number of blocks the player has to break on the current level
+	 * before {@link #lvlup()} fires. Equivalent to {@code Level.get(lvl).length}
+	 * but resolved through the published {@link Level} list so the value
+	 * stays consistent under {@code /ob reload} (Phase 4.1 publication-safe
+	 * snapshot).
+	 *
+	 * <p>Pre-Phase-6.5 this was named {@code getNeed()} — kept a vague
+	 * abbreviation that the placeholder dispatch ({@code OBP}) and the
+	 * block-generator ({@code Oneblock.generateBlock}) had to reverse-engineer
+	 * from context. The new name is self-describing.
+	 */
+	public int getRequiredBreaks() {
         return Level.get(lvl).length;
     }
 
 	public double getPercent() {
-		return (double) breaks / getNeed();
+		return (double) breaks / getRequiredBreaks();
 	}
 
 	public static void removeBarFor(Player p) {
