@@ -1,0 +1,86 @@
+# Example blocks.yml demonstrating the new decorated block syntax.
+# Drop this into your plugin data folder as blocks.yml to test.
+#
+# A "decorated" entry places a base block and, with a configurable chance,
+# a random decoration on top (offsetY above the base).  When decorations is
+# omitted the server-wide flowers.yml list is used instead.
+
+MaxLevel: 'Level: MAX'
+
+'0':
+- 'Level: 0 - &aGrass starter'
+- GREEN
+- SEGMENTED_20
+- 16
+# Legacy shorthand still works and behaves exactly like before.
+- GRASS_BLOCK
+# Explicit decorated form using the default grass base.
+- decorated: GRASS_BLOCK
+  chance: 3
+  offset_y: 1
+# Mobs (unchanged)
+- CREEPER
+
+'1':
+- 'Level: 1 - &7Mycelium grove'
+- 20
+# Stone base that occasionally sprouts mushrooms on top.
+- decorated: STONE
+  chance: 4
+  offset_y: 1
+  decorations:
+    - RED_MUSHROOM
+    - BROWN_MUSHROOM
+# Old-style entries still work alongside decorated ones.
+- COBBLESTONE
+- ZOMBIE
+- SPIDER
+
+'2':
+- 'Level: 2 - &eGolden sands'
+- 24
+# Sand base with very rare dead bushes (1 in 10 chance).
+- decorated: SAND
+  chance: 10
+  offset_y: 1
+  decorations:
+    - DEAD_BUSH
+    - CACTUS
+# Another decorated variant with custom offset.
+- decorated: SANDSTONE
+  chance: 5
+  offset_y: 1
+  decorations:
+    - FIRE_CORAL
+    - HORN_CORAL
+- SKELETON
+
+'3':
+- 'Level: 3 - &2Overgrown ruins'
+- 28
+# Mossy stone that frequently gets flowers.
+- decorated: MOSSY_COBBLESTONE
+  chance: 2
+  offset_y: 1
+  decorations:
+    - GRASS
+    - FERN
+    - DANDELION
+    - POPPY
+# Plain block for variety.
+- STONE
+- IRON_ORE
+- SKELEON
+
+'4':
+- 'Level: 4 - &bIcy peaks'
+- 32
+# Snow base, decorations spawn 2 blocks above (e.g., for tall plants).
+- decorated: SNOW_BLOCK
+  chance: 3
+  offset_y: 2
+  decorations:
+    - LILY_OF_THE_VALLEY
+- PACKED_ICE
+- BLUE_ICE
+- POLAR_BEAR
