@@ -21,11 +21,29 @@ class LegacyBlocksMigratorDetectionTest {
     // ---------- isLegacyBlocks ----------
 
     @Test
-    @DisplayName("isLegacyBlocks: scalar MaxLevel -> legacy")
-    void scalarMaxLevelIsLegacy() {
+    @DisplayName("isLegacyBlocks: scalar MaxLevel alone -> not legacy (nothing to migrate)")
+    void scalarMaxLevelAloneIsNotLegacy() {
         YamlConfiguration cfg = new YamlConfiguration();
         cfg.set("MaxLevel", "Level: MAX");
-        assertThat(LegacyBlocksMigrator.isLegacyBlocks(cfg)).isTrue();
+        assertThat(LegacyBlocksMigrator.isLegacyBlocks(cfg)).isFalse();
+    }
+
+    @Test
+    @DisplayName("isLegacyBlocks: scalar MaxLevel with decorated map entries -> modern")
+    void scalarMaxLevelWithMapEntriesIsModern() {
+        YamlConfiguration cfg = new YamlConfiguration();
+        cfg.set("MaxLevel", "Level: MAX");
+
+        List<Object> level0 = new ArrayList<>();
+        level0.add("Level 0");
+        level0.add("GRASS_BLOCK");
+        Map<String, Object> decorated = new LinkedHashMap<>();
+        decorated.put("decorated", "GRASS_BLOCK");
+        decorated.put("chance", 3);
+        level0.add(decorated);
+        cfg.set("0", level0);
+
+        assertThat(LegacyBlocksMigrator.isLegacyBlocks(cfg)).isFalse();
     }
 
     @Test

@@ -40,14 +40,11 @@ public class LegacyBlocksMigrator {
   // ---------- Detection ----------
 
   /**
-   * blocks.yml is legacy iff {@code MaxLevel} is a scalar, and EVERY pool entry (idx >= header)
-   * across ALL levels is a raw String. If any level contains a Map entry (decorated:, block:, mob:,
-   * etc.) the file is already new-format and must not be rewritten.
+   * blocks.yml is legacy iff EVERY pool entry (idx >= header) across ALL levels is a raw String.
+   * If any level contains a Map entry (decorated:, block:, mob:, etc.) the file is already
+   * new-format and must not be rewritten.
    */
   public static boolean isLegacyBlocks(YamlConfiguration config) {
-    Object maxLevel = config.get("MaxLevel");
-    if (maxLevel instanceof String) return true;
-
     boolean hasAnyEntry = false;
     for (String key : config.getKeys(false)) {
       List<?> list = config.getList(key);
