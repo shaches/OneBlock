@@ -1,5 +1,6 @@
 package oneblock;
 
+import oneblock.utils.Compat;
 import org.bukkit.NamespacedKey;
 
 /**
@@ -13,7 +14,7 @@ public final class PoolEntry {
     LOOT_TABLE,
     CHEST,
     COMMAND,
-    DEFAULT_GRASS
+    DECORATED_BLOCK
   }
 
   public final Kind kind;
@@ -24,7 +25,12 @@ public final class PoolEntry {
     this.value = value;
   }
 
-  public static final PoolEntry GRASS = new PoolEntry(Kind.DEFAULT_GRASS, null);
+  public static final PoolEntry GRASS =
+      decorated(new DecoratedBlock(Compat.GRASS_BLOCK, 3, 1, null));
+
+  public static PoolEntry decorated(DecoratedBlock decorated) {
+    return new PoolEntry(Kind.DECORATED_BLOCK, decorated);
+  }
 
   public static PoolEntry block(Object material) {
     return new PoolEntry(Kind.BLOCK, material);
@@ -58,8 +64,9 @@ public final class PoolEntry {
   @Override
   public String toString() {
     switch (kind) {
-      case DEFAULT_GRASS:
-        return "Grass (default)";
+      case DECORATED_BLOCK:
+        if (value instanceof DecoratedBlock d) return d.base().toString();
+        return value == null ? "Grass (default)" : value.toString();
       case BLOCK:
         return value == null ? "Grass (undefined)" : value.toString();
       case LOOT_TABLE:

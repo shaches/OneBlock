@@ -2,6 +2,7 @@ package oneblock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import oneblock.utils.Compat;
 import org.bukkit.NamespacedKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,11 +15,16 @@ import org.junit.jupiter.api.Test;
 class PoolEntryTest {
 
   @Test
-  @DisplayName("GRASS singleton: DEFAULT_GRASS kind, null value, stable toString")
+  @DisplayName("GRASS singleton: DECORATED_BLOCK kind, DecoratedBlock value, stable toString")
   void grassSingleton() {
-    assertThat(PoolEntry.GRASS.kind).isEqualTo(PoolEntry.Kind.DEFAULT_GRASS);
-    assertThat(PoolEntry.GRASS.value).isNull();
-    assertThat(PoolEntry.GRASS.toString()).isEqualTo("Grass (default)");
+    assertThat(PoolEntry.GRASS.kind).isEqualTo(PoolEntry.Kind.DECORATED_BLOCK);
+    assertThat(PoolEntry.GRASS.value).isInstanceOf(DecoratedBlock.class);
+    DecoratedBlock d = (DecoratedBlock) PoolEntry.GRASS.value;
+    assertThat(d.base()).isSameAs(Compat.GRASS_BLOCK);
+    assertThat(d.chance()).isEqualTo(3);
+    assertThat(d.offsetY()).isEqualTo(1);
+    assertThat(d.decorations()).isNull();
+    assertThat(PoolEntry.GRASS.toString()).isEqualTo("Grass Block");
   }
 
   @Test
@@ -89,6 +95,6 @@ class PoolEntryTest {
             PoolEntry.Kind.LOOT_TABLE,
             PoolEntry.Kind.CHEST,
             PoolEntry.Kind.COMMAND,
-            PoolEntry.Kind.DEFAULT_GRASS);
+            PoolEntry.Kind.DECORATED_BLOCK);
   }
 }

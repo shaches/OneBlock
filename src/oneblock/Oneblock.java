@@ -257,6 +257,11 @@ public class Oneblock extends JavaPlugin {
 
   public void generateBlock(
       final int playerX, final int playerZ, final int plID, final Player ponl, final Block block) {
+    Level levelInfo = updatePlayerProgression(plID, ponl);
+    generateWorldElements(playerX, playerZ, block, levelInfo);
+  }
+
+  private Level updatePlayerProgression(final int plID, final Player ponl) {
     final PlayerInfo inf = PlayerInfo.get(plID);
     Level levelInfo = Level.get(inf.lvl);
     if (++inf.breaks >= inf.getRequiredBreaks()) {
@@ -269,46 +274,66 @@ public class Oneblock extends JavaPlugin {
       inf.bar.setProgress(inf.getPercent());
       inf.bar.addPlayer(ponl);
     }
+    return levelInfo;
+  }
 
+  private void generateWorldElements(
+      final int playerX, final int playerZ, final Block block, final Level levelInfo) {
     PoolEntry entry = levelInfo.blockPool.pick(rnd);
-    if (entry == null || entry.kind == PoolEntry.Kind.DEFAULT_GRASS) {
-      XBlock.setType(block, Compat.GRASS_BLOCK);
-      if (rnd.nextInt(FLOWER_CHANCE) == 1)
-        XBlock.setType(
-            getWorld().getBlockAt(playerX, getY() + 1, playerZ),
-            flowers.get(rnd.nextInt(flowers.size())));
-    } else
-      switch (entry.kind) {
-        case BLOCK:
-          placer.setType(block, entry.value, SETTINGS.physics);
-          break;
-        case LOOT_TABLE:
-          LootTableDispatcher.populate(block, (NamespacedKey) entry.value, rnd);
-          break;
-        case CHEST:
-          String chestName = (String) entry.value;
-          NamespacedKey chestKey = ChestItems.resolve(chestName);
-          List<ItemStack> legacyItems = ChestItems.getItems(chestName);
-          if (chestKey != null) {
-            LootTableDispatcher.populate(block, chestKey, rnd);
-          } else if (legacyItems != null) {
-            block.setType(Material.CHEST);
-            if (block.getState() instanceof Chest) {
-              Inventory inv = ((Chest) block.getState()).getInventory();
-              for (ItemStack itm : legacyItems) if (itm != null) inv.addItem(itm);
-            }
-          } else {
-            XBlock.setType(block, Compat.GRASS_BLOCK);
-          }
-          break;
-        case COMMAND:
-          Place.executeCommand(block, (String) entry.value);
-          break;
-        default:
-          break;
-      }
+    if (entry == null) entry = PoolEntry.GRASS;
+    placePoolEntry(block, entry, playerX, playerZ);
 
     if (rnd.nextInt(SETTINGS.mobSpawnChance) == 0) spawnRandomMob(playerX, playerZ, levelInfo);
+  }
+
+  private void placePoolEntry(Block block, PoolEntry entry, int playerX, int playerZ) {
+    switch (entry.kind) {
+      case DECORATED_BLOCK:
+        placeDecorated(block, (DecoratedBlock) entry.value, playerX, playerZ);
+        break;
+      case BLOCK:
+        placer.setType(block, entry.value, SETTINGS.physics);
+        break;
+      case LOOT_TABLE:
+        LootTableDispatcher.populate(block, (NamespacedKey) entry.value, rnd);
+        break;
+      case CHEST:
+        placeChest(block, (String) entry.value);
+        break;
+      case COMMAND:
+        Place.executeCommand(block, (String) entry.value);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private void placeChest(Block block, String chestName) {
+    NamespacedKey chestKey = ChestItems.resolve(chestName);
+    List<ItemStack> legacyItems = ChestItems.getItems(chestName);
+    if (chestKey != null) {
+      LootTableDispatcher.populate(block, chestKey, rnd);
+    } else if (legacyItems != null) {
+      block.setType(Material.CHEST);
+      if (block.getState() instanceof Chest) {
+        Inventory inv = ((Chest) block.getState()).getInventory();
+        for (ItemStack itm : legacyItems) if (itm != null) inv.addItem(itm);
+      }
+    } else {
+      XBlock.setType(block, Compat.GRASS_BLOCK);
+    }
+  }
+
+  private void placeDecorated(Block block, DecoratedBlock d, int playerX, int playerZ) {
+    XBlock.setType(block, d.base());
+    if (d.chance() > 0 && rnd.nextInt(d.chance()) == 0) {
+      List<XMaterial> decos = d.decorations() != null ? d.decorations() : flowers;
+      if (!decos.isEmpty()) {
+        XBlock.setType(
+            getWorld().getBlockAt(playerX, getY() + d.offsetY(), playerZ),
+            decos.get(rnd.nextInt(decos.size())));
+      }
+    }
   }
 
   public void spawnRandomMob(int posX, int posZ, Level level) {

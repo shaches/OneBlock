@@ -263,12 +263,15 @@ public final class ConfigManager {
       } else if (m.containsKey("command")) {
         kind = "command";
         payload = m.get("command");
+      } else if (m.containsKey("decorated")) {
+        kind = "decorated";
+        payload = m;
       } else {
         Oneblock.plugin
             .getLogger()
             .warning(
                 "[Oneblock] blocks.yml: entry has no recognized kind (expected one of"
-                    + " block/mob/loot_table/chest/command): "
+                    + " block/mob/loot_table/chest/command/decorated): "
                     + m);
         return;
       }
@@ -328,7 +331,59 @@ public final class ConfigManager {
       case "command":
         level.blockPool.add(PoolEntry.command(payload.toString()), weight);
         break;
+      case "decorated":
+        level.blockPool.add(resolveDecorated((Map<String, Object>) payload), weight);
+        break;
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  PoolEntry resolveDecorated(Map<String, Object> m) {
+    Object baseObj = m.get("decorated");
+    XMaterial base = Compat.GRASS_BLOCK;
+    if (baseObj != null) {
+      base = XMaterial.matchXMaterial(baseObj.toString()).orElse(Compat.GRASS_BLOCK);
+    }
+
+    int chance = 3;
+    if (m.containsKey("chance")) {
+      Object c = m.get("chance");
+      if (c instanceof Number) chance = Math.max(0, ((Number) c).intValue());
+      else {
+        try {
+          chance = Math.max(0, Integer.parseInt(c.toString()));
+        } catch (NumberFormatException nfe) {
+          // keep default
+        }
+      }
+    }
+
+    int offsetY = 1;
+    if (m.containsKey("offset_y")) {
+      Object o = m.get("offset_y");
+      if (o instanceof Number) offsetY = ((Number) o).intValue();
+      else {
+        try {
+          offsetY = Integer.parseInt(o.toString());
+        } catch (NumberFormatException nfe) {
+          // keep default
+        }
+      }
+    }
+
+    List<XMaterial> decorations = null;
+    if (m.containsKey("decorations")) {
+      decorations = new ArrayList<>();
+      Object d = m.get("decorations");
+      if (d instanceof List) {
+        for (Object item : (List<?>) d) {
+          XMaterial.matchXMaterial(item.toString()).ifPresent(decorations::add);
+        }
+      }
+      if (decorations.isEmpty()) decorations = null;
+    }
+
+    return PoolEntry.decorated(new DecoratedBlock(base, chance, offsetY, decorations));
   }
 
   /**
@@ -343,10 +398,10 @@ public final class ConfigManager {
     // Compare against the vanilla Material constant, NOT
     // Compat.GRASS_BLOCK which is an XMaterial: Material vs XMaterial
     // '==' widens to Object and is always false at runtime, silently
-    // suppressing the DEFAULT_GRASS routing for every "GRASS_BLOCK"
+    // suppressing the DECORATED_BLOCK routing for every "GRASS_BLOCK"
     // pool entry on modern (1.13+) servers (the placement code at
     // Oneblock.java:248 only adds the 1/3 flower decoration on the
-    // DEFAULT_GRASS sentinel, not on a literal Material.GRASS_BLOCK).
+    // DECORATED_BLOCK sentinel, not on a literal Material.GRASS_BLOCK).
     if (mt == null || mt == Material.GRASS_BLOCK || !((Material) mt).isBlock())
       mt = getCustomBlock(text);
     if (Compat.legacy && mt == null) {

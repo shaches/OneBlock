@@ -15,6 +15,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import oneblock.placement.Place;
+import oneblock.utils.Compat;
 
 /**
  * Regression test for the {@code GRASS_BLOCK} type-confusion bug in
@@ -39,7 +40,7 @@ import oneblock.placement.Place;
  * {@code mt} unchanged, so the parser publishes
  * {@code PoolEntry(BLOCK, Material.GRASS_BLOCK)} into the level pool.
  * Compare to the {@link PoolEntry#GRASS} sentinel
- * ({@code Kind.DEFAULT_GRASS}) which the placement code at
+ * ({@code Kind.DECORATED_BLOCK}) which the placement code at
  * {@code Oneblock.java:248} treats specially: grass + a 1/3 chance of
  * a flower decoration. The bug silently suppresses the flower
  * decoration on every modern server's {@code GRASS_BLOCK} pool entry.
@@ -109,7 +110,7 @@ class ResolveBlockGrassBlockBugTest {
     }
 
     @Test
-    @DisplayName("\"GRASS_BLOCK\" YAML entry resolves to the DEFAULT_GRASS sentinel (preserves flower decoration)")
+    @DisplayName("\"GRASS_BLOCK\" YAML entry resolves to the DECORATED_BLOCK sentinel (preserves flower decoration)")
     void grassBlockYamlEntryReturnsDefaultGrassSentinel() {
         ConfigManager cm = new ConfigManager();
 
@@ -120,7 +121,10 @@ class ResolveBlockGrassBlockBugTest {
             PoolEntry entry = cm.resolveBlock("GRASS_BLOCK");
 
             assertThat(entry).isSameAs(PoolEntry.GRASS);
-            assertThat(entry.kind).isEqualTo(PoolEntry.Kind.DEFAULT_GRASS);
+            assertThat(entry.kind).isEqualTo(PoolEntry.Kind.DECORATED_BLOCK);
+            assertThat(entry.value).isInstanceOf(DecoratedBlock.class);
+            DecoratedBlock d = (DecoratedBlock) entry.value;
+            assertThat(d.base()).isSameAs(Compat.GRASS_BLOCK);
         }
     }
 }
