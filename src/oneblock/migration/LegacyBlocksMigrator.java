@@ -40,32 +40,32 @@ public class LegacyBlocksMigrator {
   // ---------- Detection ----------
 
   /**
-   * blocks.yml is legacy iff {@code MaxLevel} is a scalar, or any pool entry (idx >= header) is a
-   * raw String.
+   * blocks.yml is legacy iff {@code MaxLevel} is a scalar, and EVERY pool entry (idx >= header)
+   * across ALL levels is a raw String. If any level contains a Map entry (decorated:, block:, mob:,
+   * etc.) the file is already new-format and must not be rewritten.
    */
   public static boolean isLegacyBlocks(YamlConfiguration config) {
     Object maxLevel = config.get("MaxLevel");
     if (maxLevel instanceof String) return true;
+
+    boolean hasAnyEntry = false;
     for (String key : config.getKeys(false)) {
-      if ("MaxLevel".equalsIgnoreCase(key)) continue;
       List<?> list = config.getList(key);
       if (list == null) continue;
       int headerEnd = detectHeaderEnd(list);
       for (int i = headerEnd; i < list.size(); i++) {
         Object it = list.get(i);
         if (it instanceof Map) return false;
-        if (it instanceof String) return true;
+        if (it instanceof String) hasAnyEntry = true;
       }
     }
-    return false;
+    return hasAnyEntry;
   }
 
   /** chests.yml is legacy iff any top-level value is a list (of ItemStacks / material names). */
   public static boolean isLegacyChests(YamlConfiguration config) {
     for (String key : config.getKeys(false)) {
-      Object v = config.get(key);
-      if (v instanceof List) return true;
-      if (v instanceof String) return false;
+      if (config.get(key) instanceof List) return true;
     }
     return false;
   }
@@ -115,6 +115,7 @@ public class LegacyBlocksMigrator {
 
     // MaxLevel: preserve its name (or scalar) and attach the appropriate pool.
     String maxName;
+    List<?> legacyMaxList = null;
     Object legacyMax = legacy.get("MaxLevel");
     if (legacyMax instanceof String) {
       maxName = (String) legacyMax;
@@ -122,19 +123,35 @@ public class LegacyBlocksMigrator {
         && !((List<?>) legacyMax).isEmpty()
         && ((List<?>) legacyMax).get(0) instanceof String) {
       maxName = (String) ((List<?>) legacyMax).get(0);
+      legacyMaxList = (List<?>) legacyMax;
     } else {
       maxName = "Level: MAX";
     }
 
     List<Object> maxList = new ArrayList<>();
-    maxList.add(maxName);
+    if (legacyMaxList != null) {
+      int maxHeaderEnd = detectHeaderEnd(legacyMaxList);
+      for (int i = 0; i < maxHeaderEnd && i < legacyMaxList.size(); i++)
+        maxList.add(legacyMaxList.get(i));
+    } else {
+      maxList.add(maxName);
+    }
 
-    // For CUMULATIVE mode, MaxLevel gets the full flattened pool.
-    // For PER_LEVEL mode, MaxLevel gets only its own entries (if it exists in legacy).
+    // For CUMULATIVE mode, MaxLevel gets the full flattened pool PLUS its own entries.
+    // For PER_LEVEL mode, MaxLevel gets only its own entries.
     if (mode == Settings.MigrationMode.CUMULATIVE) {
       LinkedHashMap<String, Integer> acc = computeCumulativePool(legacy, chestAliases, levelIds);
+      if (legacyMaxList != null)
+        accumulateEntries(legacyMaxList, detectHeaderEnd(legacyMaxList), chestAliases, acc);
       for (Map.Entry<String, Integer> e : acc.entrySet())
         maxList.add(buildEntryMap(e.getKey(), e.getValue()));
+    } else {
+      if (legacyMaxList != null) {
+        LinkedHashMap<String, Integer> maxAcc = new LinkedHashMap<>();
+        accumulateEntries(legacyMaxList, detectHeaderEnd(legacyMaxList), chestAliases, maxAcc);
+        for (Map.Entry<String, Integer> e : maxAcc.entrySet())
+          maxList.add(buildEntryMap(e.getKey(), e.getValue()));
+      }
     }
 
     out.set("MaxLevel", maxList);
@@ -159,19 +176,14 @@ public class LegacyBlocksMigrator {
     for (int id : levelIds) {
       String strKey = String.valueOf(id);
       List<?> raw = legacy.getList(strKey);
-      if (raw == null || raw.isEmpty()) continue;
+      if (raw == null) continue;
 
       int headerEnd = detectHeaderEnd(raw);
       List<Object> newList = new ArrayList<>();
       for (int i = 0; i < headerEnd && i < raw.size(); i++) newList.add(raw.get(i));
 
       // Merge this level's pool entries into the flattening accumulator.
-      for (int i = headerEnd; i < raw.size(); i++) {
-        Object o = raw.get(i);
-        if (!(o instanceof String)) continue;
-        String key = classify((String) o, chestAliases);
-        if (key != null) acc.compute(key, (k, v) -> v == null ? 1 : v + 1);
-      }
+      accumulateEntries(raw, headerEnd, chestAliases, acc);
 
       int levelEntries = 0;
       int levelWeight = 0;
@@ -200,7 +212,7 @@ public class LegacyBlocksMigrator {
     for (int id : levelIds) {
       String strKey = String.valueOf(id);
       List<?> raw = legacy.getList(strKey);
-      if (raw == null || raw.isEmpty()) continue;
+      if (raw == null) continue;
 
       int headerEnd = detectHeaderEnd(raw);
       List<Object> newList = new ArrayList<>();
@@ -208,12 +220,7 @@ public class LegacyBlocksMigrator {
 
       // Per-level accumulator: only this level's entries.
       LinkedHashMap<String, Integer> acc = new LinkedHashMap<>();
-      for (int i = headerEnd; i < raw.size(); i++) {
-        Object o = raw.get(i);
-        if (!(o instanceof String)) continue;
-        String key = classify((String) o, chestAliases);
-        if (key != null) acc.compute(key, (k, v) -> v == null ? 1 : v + 1);
-      }
+      accumulateEntries(raw, headerEnd, chestAliases, acc);
 
       int levelEntries = 0;
       int levelWeight = 0;
@@ -240,17 +247,23 @@ public class LegacyBlocksMigrator {
     for (int id : levelIds) {
       String strKey = String.valueOf(id);
       List<?> raw = legacy.getList(strKey);
-      if (raw == null || raw.isEmpty()) continue;
+      if (raw == null) continue;
 
       int headerEnd = detectHeaderEnd(raw);
-      for (int i = headerEnd; i < raw.size(); i++) {
-        Object o = raw.get(i);
-        if (!(o instanceof String)) continue;
-        String key = classify((String) o, chestAliases);
-        if (key != null) acc.compute(key, (k, v) -> v == null ? 1 : v + 1);
-      }
+      accumulateEntries(raw, headerEnd, chestAliases, acc);
     }
     return acc;
+  }
+
+  private static void accumulateEntries(
+      List<?> raw, int headerEnd, Map<String, String> chestAliases,
+      LinkedHashMap<String, Integer> acc) {
+    for (int i = headerEnd; i < raw.size(); i++) {
+      Object o = raw.get(i);
+      if (!(o instanceof String)) continue;
+      String key = classify((String) o, chestAliases);
+      if (key != null) acc.compute(key, (k, v) -> v == null ? 1 : v + 1);
+    }
   }
 
   public static void migrateChests(File chestsFile) {
@@ -363,7 +376,9 @@ public class LegacyBlocksMigrator {
 
   /** Classify a legacy pool string into a kind|value accumulator key. */
   private static String classify(String text, Map<String, String> chestMap) {
-    if (text == null || text.isEmpty()) return null;
+    if (text == null) return null;
+    text = text.trim();
+    if (text.isEmpty()) return null;
     if (text.charAt(0) == '/') return "command|" + text;
 
     String lt = chestMap.get(text);

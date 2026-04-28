@@ -342,7 +342,18 @@ public final class ConfigManager {
     Object baseObj = m.get("decorated");
     XMaterial base = Compat.GRASS_BLOCK;
     if (baseObj != null) {
-      base = XMaterial.matchXMaterial(baseObj.toString()).orElse(Compat.GRASS_BLOCK);
+      String baseName = baseObj.toString();
+      base = XMaterial.matchXMaterial(baseName).orElse(null);
+      if (base == null) {
+        if (Oneblock.plugin != null)
+          Oneblock.plugin
+              .getLogger()
+              .warning(
+                  "[Oneblock] blocks.yml: decorated base '"
+                      + baseName
+                      + "' is not a recognised material; falling back to GRASS_BLOCK.");
+        base = Compat.GRASS_BLOCK;
+      }
     }
 
     int chance = 3;
@@ -377,7 +388,18 @@ public final class ConfigManager {
       Object d = m.get("decorations");
       if (d instanceof List) {
         for (Object item : (List<?>) d) {
-          XMaterial.matchXMaterial(item.toString()).ifPresent(decorations::add);
+          String decoName = item.toString();
+          java.util.Optional<XMaterial> deco = XMaterial.matchXMaterial(decoName);
+          if (deco.isPresent()) {
+            decorations.add(deco.get());
+          } else {
+            Oneblock.plugin
+                .getLogger()
+                .warning(
+                    "[Oneblock] blocks.yml: decoration material '"
+                        + decoName
+                        + "' is not recognised; skipping.");
+          }
         }
       }
       if (decorations.isEmpty()) decorations = null;
