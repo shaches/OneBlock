@@ -334,6 +334,8 @@ public final class ConfigManager {
       case "decorated":
         level.blockPool.add(resolveDecorated((Map<String, Object>) payload), weight);
         break;
+      default:
+        break;
     }
   }
 

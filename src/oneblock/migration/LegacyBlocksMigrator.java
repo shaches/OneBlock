@@ -3,7 +3,6 @@ package oneblock.migration;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,9 +39,9 @@ public class LegacyBlocksMigrator {
   // ---------- Detection ----------
 
   /**
-   * blocks.yml is legacy iff EVERY pool entry (idx >= header) across ALL levels is a raw String.
-   * If any level contains a Map entry (decorated:, block:, mob:, etc.) the file is already
-   * new-format and must not be rewritten.
+   * blocks.yml is legacy iff EVERY pool entry (idx >= header) across ALL levels is a raw String. If
+   * any level contains a Map entry (decorated:, block:, mob:, etc.) the file is already new-format
+   * and must not be rewritten.
    */
   public static boolean isLegacyBlocks(YamlConfiguration config) {
     boolean hasAnyEntry = false;
@@ -253,7 +252,9 @@ public class LegacyBlocksMigrator {
   }
 
   private static void accumulateEntries(
-      List<?> raw, int headerEnd, Map<String, String> chestAliases,
+      List<?> raw,
+      int headerEnd,
+      Map<String, String> chestAliases,
       LinkedHashMap<String, Integer> acc) {
     for (int i = headerEnd; i < raw.size(); i++) {
       Object o = raw.get(i);
@@ -303,7 +304,7 @@ public class LegacyBlocksMigrator {
   private static boolean backup(File f) {
     try {
       Path src = f.toPath();
-      Path dst = Paths.get(f.getAbsolutePath() + ".bak");
+      Path dst = f.toPath().resolveSibling(f.getName() + ".bak");
       Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING);
       return true;
     } catch (Exception e) {

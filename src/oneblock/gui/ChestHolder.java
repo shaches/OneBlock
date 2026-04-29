@@ -22,6 +22,6 @@ public class ChestHolder implements InventoryHolder {
 
   @Override
   public Inventory getInventory() {
-    return null;
+    throw new UnsupportedOperationException("getInventory() not supported for this holder");
   }
 }

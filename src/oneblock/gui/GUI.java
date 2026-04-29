@@ -141,7 +141,9 @@ public class GUI {
 
   public static ItemStack getPlayerHead(OfflinePlayer player, String title) {
     ItemStack skull = XMaterial.PLAYER_HEAD.parseItem();
+    if (skull == null) return new ItemStack(Material.PLAYER_HEAD);
     SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+    if (skullMeta == null) return skull;
     if (!legacy) skullMeta.setOwningPlayer(player);
     skullMeta.setDisplayName(title);
     skull.setItemMeta(skullMeta);
@@ -209,6 +211,7 @@ public class GUI {
     Material m = material.get();
     ItemStack join = new ItemStack(m == null ? Material.EMERALD_BLOCK : m, amount);
     ItemMeta meta = join.getItemMeta();
+    if (meta == null) return join;
     meta.setDisplayName(title);
     meta.setLore(Arrays.asList(Lore));
     join.setItemMeta(meta);

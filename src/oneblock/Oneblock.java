@@ -191,7 +191,7 @@ public class Oneblock extends JavaPlugin {
     }
 
     placetype = determinePlaceType(pluginManager);
-    placer = Place.GetPlacerByType(placetype);
+    placer = Place.getPlacerByType(placetype);
     getLogger().info("Custom block support mode: " + placetype.name());
 
     configManager.loadMainConfig();
@@ -207,8 +207,11 @@ public class Oneblock extends JavaPlugin {
     pluginManager.registerEvents(new TeleportNetherEvent(), this);
     if (placetype == Place.Type.ItemsAdder)
       pluginManager.registerEvents(new ItemsAdderEvent(), this);
-    getCommand("oneblock").setExecutor(new CommandHandler());
-    getCommand("oneblock").setTabCompleter(new CommandTabCompleter());
+    org.bukkit.command.PluginCommand oneblockCmd = getCommand("oneblock");
+    if (oneblockCmd != null) {
+      oneblockCmd.setExecutor(new CommandHandler());
+      oneblockCmd.setTabCompleter(new CommandTabCompleter());
+    }
 
     if (getOffset() == 0) return;
 

@@ -4,8 +4,11 @@ package oneblock;
 import com.cryptomorin.xseries.XMaterial;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -25,7 +28,9 @@ public final class LegacyConfigSaver {
     if (!XMaterial.supports(18))
       try {
         ArrayList<String> inputStr1 = new ArrayList<String>();
-        try (BufferedReader fileIn = new BufferedReader(new FileReader(f))) {
+        try (BufferedReader fileIn =
+            new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
           String line;
           while ((line = fileIn.readLine()) != null) inputStr1.add(line);
         }
@@ -50,7 +55,7 @@ public final class LegacyConfigSaver {
           fileOut.write(inputBuffer.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         }
         return;
-      } catch (Exception e) {
+      } catch (IOException e) {
         org.bukkit.Bukkit.getLogger()
             .warning("[Oneblock] Legacy config save failed for " + f + ": " + e.getMessage());
       }
