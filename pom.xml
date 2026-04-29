@@ -61,6 +61,18 @@
 		</repository>
 	</repositories>
 
+	<!-- Override Oraxen’s stale triumph-gui:3.2.0-SNAPSHOT reference with a
+	     stable release available on Maven Central. -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>dev.triumphteam</groupId>
+				<artifactId>triumph-gui</artifactId>
+				<version>3.1.13</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<!--This adds the Spigot API artifact to the build -->
 		<dependency>
@@ -106,7 +118,7 @@
 		<dependency>
 		    <groupId>com.nexomc</groupId>
 		    <artifactId>nexo</artifactId>
-		    <version>1.1.0</version>
+		    <version>1.10.0</version>
 		    <scope>provided</scope>
 		</dependency>
 
