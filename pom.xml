@@ -120,6 +120,12 @@
 		    <artifactId>nexo</artifactId>
 		    <version>1.10.0</version>
 		    <scope>provided</scope>
+		    <exclusions>
+		        <exclusion>
+		            <groupId>com.nexomc</groupId>
+		            <artifactId>protectionlib</artifactId>
+		        </exclusion>
+		    </exclusions>
 		</dependency>
 
 		<dependency>
