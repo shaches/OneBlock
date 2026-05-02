@@ -14,10 +14,14 @@ import oneblock.events.TeleportNetherEvent;
 import oneblock.events.extended.BlockEventFixed;
 import oneblock.gui.GUI;
 import oneblock.gui.GUIListener;
-import oneblock.invitation.Guest;
 import oneblock.loot.LootTableDispatcher;
 import oneblock.placement.*;
 import oneblock.storage.*;
+import oneblock.tasks.IslandBlockGenTask;
+import oneblock.tasks.IslandParticleTask;
+import oneblock.tasks.PlayerCacheRefreshTask;
+import oneblock.tasks.PlayerDataSaveTask;
+import oneblock.tasks.WorldInitTask;
 import oneblock.utils.*;
 import oneblock.worldguard.*;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -32,7 +36,6 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
@@ -48,8 +51,6 @@ public class Oneblock extends JavaPlugin {
     public static Oneblock plugin;
     
     private static final int FLOWER_CHANCE = 3;
-    private static final double[][] PARTICLE_OFFSETS = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-    
     private static final int BORDER_WARNING_DISTANCE = 2;
     private static final double BORDER_DAMAGE_AMOUNT = .2;
     private static final double BORDER_DAMAGE_BUFFER = 1;
@@ -76,7 +77,7 @@ public class Oneblock extends JavaPlugin {
      * package use the getter helpers ({@link #getX()}, {@link #getOffset()},
      * ...) or {@link #origin()}.
      */
-    static final AtomicReference<IslandOrigin> ORIGIN =
+    public static final AtomicReference<IslandOrigin> ORIGIN =
             new AtomicReference<>(IslandOrigin.EMPTY);
 
     public static volatile int max_players_team = 0, mob_spawn_chance = 9;
@@ -182,7 +183,7 @@ public class Oneblock extends JavaPlugin {
         
         if (getOffset() == 0) return;
         
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Initialization(), 32, 80);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new WorldInitTask(this), 32, 80);
     }
     
     private Place.Type determinePlaceType(PluginManager pluginManager) {
@@ -207,32 +208,13 @@ public class Oneblock extends JavaPlugin {
         metrics.addCustomChart(new SimplePie("place_type", () -> String.valueOf(placetype)));
     }
     
-    public class Initialization implements Runnable {
-        public void run() {
-            if (getWor() != null) return;
-            final World w = Bukkit.getWorld(config.getString("world"));
-            leavewor = Bukkit.getWorld(config.getString("leaveworld"));
-            if (w != null) {
-                // Atomic swap: fold the freshly-resolved world into ORIGIN while
-                // preserving the existing x/y/z/offset loaded earlier by
-                // ConfigManager.Configfile(). Runs on the async scheduler thread.
-                ORIGIN.updateAndGet(prev -> new IslandOrigin(w, prev.x(), prev.y(), prev.z(), prev.offset()));
-                getLogger().info("The initialization of the world was successful!");
-                runMainTask();
-                reload();
-            } else {
-                getLogger().info("Waiting for initialization of world '" + config.getString("world") + "'...");
-            }
-        }
-    }
-    
     public void runMainTask() {
     	Bukkit.getScheduler().cancelTasks(this);
 		if (getOffset() == 0) return;
-		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskUpdatePlayers(), 0, 120);
-		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskSaveData(), 200, 6000);
-		if (!superlegacy) Bukkit.getScheduler().runTaskTimerAsynchronously(this, new TaskParticle(), 40, 40);
-		Bukkit.getScheduler().runTaskTimer(this, new Task(), 40, 80);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new PlayerCacheRefreshTask(this), 0, 120);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new PlayerDataSaveTask(this), 200, 6000);
+		if (!superlegacy) Bukkit.getScheduler().runTaskTimerAsynchronously(this, new IslandParticleTask(this), 40, 40);
+		Bukkit.getScheduler().runTaskTimer(this, new IslandBlockGenTask(this), 40, 80);
 		enabled = true;
 		
     	if (OBWorldGuard.canUse && Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
@@ -242,68 +224,6 @@ public class Oneblock extends JavaPlugin {
         else OBWorldGuard.setEnabled(false);
     }
 
-	public class TaskUpdatePlayers implements Runnable {
-		public void run() {
-			World w = getWor();
-			if (w != null) cache.updateCache(w.getPlayers());
-		}
-	}
-	
-	public class TaskSaveData implements Runnable {
-		public void run() { SaveData(); }
-	}
-	
-	public class TaskParticle implements Runnable {
-	    public void run() {
-	        if (!particle) return;
-
-	        for (Player ponl: cache.getPlayers()) {
-	            int[] result = cache.getIslandCoordinates(ponl);
-	            if (result == null) continue;
-	            int X_pl = result[0], Z_pl = result[1];
-	            double baseY = getY() + 0.5;
-
-	            for (double[] offset : PARTICLE_OFFSETS) {
-	                Location loc = new Location(getWor(), X_pl + offset[0], baseY, Z_pl + offset[1]);
-	                getWor().spawnParticle(Particle.PORTAL, loc, 5, 0, 0, 0, 0);
-	            }
-	        }
-	    }
-	}
-
-    public class Task implements Runnable {
-        public void run() { // SubBlockGen
-            for (Player player : cache.getPlayers()) {
-            	if (player.getWorld() != getWor()) continue;
-            	final UUID uuid = player.getUniqueId();
-            	final int result[] = cache.getIslandCoordinates(player);
-                final int X_pl = result[0], Z_pl = result[1], plID = result[2];
-            	
-                if (protection && !player.hasPermission("Oneblock.ignoreBarrier")) {
-                	boolean CheckGuest = false;
-                	Location loc = player.getLocation();
-            		PlayerInfo inf = Guest.getPlayerInfo(uuid);
-            		if (inf != null) {
-                    	int crd[] = getIslandCoordinates(PlayerInfo.getId(inf.uuid));
-                        CheckGuest = isWithinIslandBounds(loc, crd[0], crd[1]);
-                        if (!CheckGuest) Guest.remove(uuid);
-            		}
-            		if (!isWithinIslandBounds(loc, X_pl, Z_pl) && !CheckGuest) {
-            			player.performCommand("ob j");
-            			player.sendMessage(Messages.protection);
-                    	continue;
-                    }
-                }
-                
-                final Block block = getWor().getBlockAt(X_pl, getY(), Z_pl);
-                if (block.getType() != Material.AIR) continue;
-                if (PlayerInfo.getId(uuid) == -1) continue;
-                
-                BlockGen(X_pl, Z_pl, plID, player, block);
-            }
-        }
-    }
-    
     public void BlockGen(final int X_pl, final int Z_pl, final int plID, final Player ponl, final Block block) {
     	final PlayerInfo inf = PlayerInfo.get(plID);
     	Level lvl_inf = Level.get(inf.lvl); 
@@ -393,11 +313,11 @@ public class Oneblock extends JavaPlugin {
     
     @Override
     public void onDisable() {
-    	SaveData();
+    	saveData();
     	DatabaseManager.close();
     }
     
-    public void SaveData() {
+    public void saveData() {
     	if (DatabaseManager.save(PlayerInfo.list)) return;
     	JsonPlayerDataStore.write(PlayerInfo.list);
     }
